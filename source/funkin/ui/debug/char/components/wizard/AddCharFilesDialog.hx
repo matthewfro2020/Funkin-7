@@ -26,7 +26,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
   var stupidFuckingRenderCheck:String = "";
 
-  override public function showDialog(modal:Bool = true)
+  override public function showDialog(modal:Bool = true):Void
   {
     super.showDialog(modal);
 
@@ -40,11 +40,9 @@ class AddCharFilesDialog extends DefaultWizardDialog
     {
       case "sparrow" | "multisparrow":
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
-        addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet .xml Data here.", FileUtil.FILE_EXTENSION_INFO_XML));
 
       case "packer":
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
-        addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet .txt Data here.", FileUtil.FILE_EXTENSION_INFO_TXT));
 
       case "atlas":
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Atlas .zip Data Here", FileUtil.FILE_EXTENSION_INFO_ZIP));
@@ -53,7 +51,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
     stupidFuckingRenderCheck = params.renderType;
   }
 
-  override public function isNextStepAvailable()
+  override public function isNextStepAvailable():Bool
   {
     // we skippin if we aint even doin these
     if (addAssetsBox.disabled) return true;
@@ -74,13 +72,13 @@ class AddCharFilesDialog extends DefaultWizardDialog
     return typeCheck(uploadBoxes);
   }
 
-  public function typeCheck(uploadBoxes:Array<UploadAssetsBox>)
+  public function typeCheck(uploadBoxes:Array<UploadAssetsBox>):Bool
   {
     switch (params.renderType)
     {
       case "sparrow" | "multisparrow":
         var imgPath = uploadBoxes[0].daField.text;
-        var xmlPath = uploadBoxes[1].daField.text;
+        var xmlPath = uploadBoxes[0].daField.text.replace(".png", ".xml");
 
         // checking if we even have the correct file types in the correct places
         if (Path.extension(imgPath) != "png" || Path.extension(xmlPath) != "xml") return false;
@@ -109,7 +107,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
       case "packer": // essentially just sparrow...but different!
         var imgPath = uploadBoxes[0].daField.text;
-        var txtPath = uploadBoxes[1].daField.text;
+        var txtPath = uploadBoxes[0].daField.text.replace(".png", ".txt");
 
         // checking if we even have the correct file types in the correct places
         if (Path.extension(imgPath) != "png" || Path.extension(txtPath) != "txt") return false;
