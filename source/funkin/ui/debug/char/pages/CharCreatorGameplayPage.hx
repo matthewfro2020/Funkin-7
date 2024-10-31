@@ -27,11 +27,12 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
   // char
   public var currentCharacter:CharCreatorCharacter;
-  public var characterScale:Float = 1.0;
-  public var characterFlipX:Bool = false;
 
   // dialogs
   public var dialogMap:Map<CharDialogType, DefaultPageDialog> = [];
+
+  // onion skin/ghost
+  public var ghostCharacter:CharCreatorCharacter;
 
   override public function new(daState:CharCreatorState, wizardParams:WizardGenerateParams)
   {
@@ -42,18 +43,29 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
     currentCharacter = new CharCreatorCharacter(wizardParams);
     add(currentCharacter);
+
+    ghostCharacter = new CharCreatorCharacter(wizardParams);
+    add(ghostCharacter);
+
     updateCharPerStageData();
 
     dialogMap.set(Animation, new AddAnimDialog(this, currentCharacter));
+    dialogMap.set(Ghost, new GhostSettingsDialog(this));
   }
 
   override public function onDialogUpdate(dialog:DefaultPageDialog)
   {
     if (dialog == dialogMap[Animation])
     {
-      labelAnimName.text = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown.selectedItem.text;
+      var animDialog = cast(dialogMap[Animation], AddAnimDialog);
+      var ghostDialog = cast(dialogMap[Ghost], GhostSettingsDialog);
+
+      labelAnimName.text = animDialog.charAnimDropdown.selectedItem.text;
       labelAnimOffsetX.text = "" + currentCharacter.getAnimationData(labelAnimName.text).offsets[0];
       labelAnimOffsetY.text = "" + currentCharacter.getAnimationData(labelAnimName.text).offsets[1];
+
+      GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter);
+      ghostDialog.ghostAnimDropdown.dataSource = animDialog.charAnimDropdown.dataSource;
     }
   }
 
@@ -193,6 +205,10 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     currentCharacter.setAnimationOffsets(currentCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]); // todo: probs merge there two lol
     currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name, true, true);
 
+    // GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter); very costly for memory! we're just gonna update the offsets
+    ghostCharacter.animations[drop.selectedIndex].offsets = newOffsets;
+    ghostCharacter.setAnimationOffsets(ghostCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]); // todo: probs merge there two lol
+
     // might as well update the text
     labelAnimOffsetX.text = "" + newOffsets[0];
     labelAnimOffsetY.text = "" + newOffsets[1];
@@ -206,6 +222,13 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
       dialogMap[Animation].hidden = !checkAnim.selected;
     }
     item.addComponent(checkAnim);
+
+    var checkGhost = new MenuCheckBox();
+    checkGhost.text = "Ghost Settings";
+    checkGhost.onChange = function(_) {
+      dialogMap[Ghost].hidden = !checkGhost.selected;
+    }
+    item.addComponent(checkGhost);
   }
 
   override public function performCleanup()
@@ -213,17 +236,26 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     Conductor.instance.onBeatHit.remove(stageBeatHit);
   }
 
-  function updateCharPerStageData(type:CharacterType = BF)
+  static inline final GHOST_SKIN_ALPHA:Float = 0.3;
+
+  public function updateCharPerStageData(type:CharacterType = BF)
   {
     if (charStageDatas[type] == null) return;
 
     currentCharacter.zIndex = charStageDatas[type].zIndex;
     currentCharacter.x = charStageDatas[type].position[0] - currentCharacter.characterOrigin.x;
     currentCharacter.y = charStageDatas[type].position[1] - currentCharacter.characterOrigin.y;
-    currentCharacter.characterScale = characterScale * charStageDatas[type].scale;
-    currentCharacter.flipX = (type == BF ? !characterFlipX : characterFlipX);
+    currentCharacter.totalScale = currentCharacter.characterScale * charStageDatas[type].scale;
+    currentCharacter.flipX = (type == BF ? !currentCharacter.characterFlipX : currentCharacter.characterFlipX);
 
-    currentCharacter.characterType = type;
+    ghostCharacter.characterType = currentCharacter.characterType = type;
+
+    ghostCharacter.alpha = GHOST_SKIN_ALPHA;
+    ghostCharacter.zIndex = currentCharacter.zIndex - 1; // should onion skin be behind or in front?
+    ghostCharacter.x = charStageDatas[type].position[0] - ghostCharacter.characterOrigin.x;
+    ghostCharacter.y = charStageDatas[type].position[1] - ghostCharacter.characterOrigin.y;
+    ghostCharacter.totalScale = ghostCharacter.characterScale * charStageDatas[type].scale;
+    ghostCharacter.flipX = (type == BF ? !ghostCharacter.characterFlipX : ghostCharacter.characterFlipX);
 
     sortAssets();
   }
@@ -361,4 +393,5 @@ enum CharDialogType
 {
   Animation;
   Data;
+  Ghost;
 }

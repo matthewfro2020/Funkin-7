@@ -1,1 +1,1 @@
-import funkin.ui.debug.char.pages.CharCreatorDefaultPage;
+import funkin.ui.debug.char.pages.*;
