@@ -6,6 +6,8 @@ import funkin.modding.events.ScriptEvent;
 import funkin.util.assets.FlxAnimationUtil;
 import funkin.play.character.CharacterData.CharacterRenderType;
 
+// TODO: no more assetPath per animation, rather make `assetPath` an array
+
 /**
  * For some characters which use Sparrow atlases, the spritesheets need to be split
  * into multiple files. This character renderer concatenates these together into a single sprite.
