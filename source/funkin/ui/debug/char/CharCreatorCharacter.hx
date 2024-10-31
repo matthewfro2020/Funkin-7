@@ -17,18 +17,23 @@ import flixel.FlxSprite;
 // also ALSO these have ALL the character types integrated, LOL
 class CharCreatorCharacter extends Bopper
 {
-  public var characterId:String;
+  public var generatedParams:WizardGenerateParams;
+  public var characterId(get, never):String;
+  public var renderType(get, never):String;
+
   public var characterName:String;
   public var characterType:CharacterType = BF;
-  public var renderType(default, null):String;
 
   public var holdTimer:Float = 0;
   public var characterCameraOffsets:Array<Float> = [0.0, 0.0];
   public var animations:Array<AnimationData> = [];
 
+  public var characterFlipX:Bool = false;
+  public var characterScale:Float = 1.0; // character scale to be used in the data, ghosts need one
+
   public var characterOrigin(get, never):FlxPoint;
   public var feetPosition(get, never):FlxPoint;
-  public var characterScale(default, set):Float = 1.0;
+  public var totalScale(default, set):Float; // total character scale, included with the stage scale
 
   public var atlasCharacter:CharSelectAtlasSprite = null;
   public var currentAtlasAnimation:Null<String> = null;
@@ -39,28 +44,27 @@ class CharCreatorCharacter extends Bopper
     ignoreExclusionPref = ["sing"];
     shouldBop = false;
 
-    characterId = wizardParams.characterID;
-    renderType = wizardParams.renderType;
+    generatedParams = wizardParams;
 
-    switch (wizardParams.renderType)
+    switch (generatedParams.renderType)
     {
       case "sparrow" | "multisparrow":
-        if (wizardParams.files.length != 2) return; // img and data
+        if (generatedParams.files.length != 2) return; // img and data
 
-        var img = BitmapData.fromBytes(wizardParams.files[0].bytes);
-        var data = wizardParams.files[1].bytes.toString();
+        var img = BitmapData.fromBytes(generatedParams.files[0].bytes);
+        var data = generatedParams.files[1].bytes.toString();
         this.frames = FlxAtlasFrames.fromSparrow(img, data);
 
       case "packer":
-        if (wizardParams.files.length != 2) return; // img and data
+        if (generatedParams.files.length != 2) return; // img and data
 
-        var img = BitmapData.fromBytes(wizardParams.files[0].bytes);
-        var data = wizardParams.files[1].bytes.toString();
+        var img = BitmapData.fromBytes(generatedParams.files[0].bytes);
+        var data = generatedParams.files[1].bytes.toString();
         this.frames = FlxAtlasFrames.fromSpriteSheetPacker(img, data);
 
       case "atlas": // todo
-        if (wizardParams.files.length != 1) return; // zip file with all the data
-        atlasCharacter = new CharSelectAtlasSprite(0, 0, wizardParams.files[0].bytes);
+        if (generatedParams.files.length != 1) return; // zip file with all the data
+        atlasCharacter = new CharSelectAtlasSprite(0, 0, generatedParams.files[0].bytes);
 
         atlasCharacter.alpha = 0.0001;
         atlasCharacter.draw();
@@ -224,6 +228,17 @@ class CharCreatorCharacter extends Bopper
 
   // getters and setters
   // git gut
+
+  function get_characterId()
+  {
+    return generatedParams.characterID;
+  }
+
+  function get_renderType()
+  {
+    return generatedParams.renderType;
+  }
+
   function get_characterOrigin():FlxPoint
   {
     var xPos = (width / 2); // Horizontal center
@@ -236,20 +251,20 @@ class CharCreatorCharacter extends Bopper
     return new FlxPoint(x + characterOrigin.x, y + characterOrigin.y);
   }
 
-  function set_characterScale(value:Float)
+  function set_totalScale(value:Float)
   {
-    if (characterScale == value) return characterScale;
-    characterScale = value;
+    if (totalScale == value) return totalScale;
+    totalScale = value;
 
     var feetPos:FlxPoint = feetPosition;
-    this.scale.x = characterScale;
-    this.scale.y = characterScale;
+    this.scale.x = totalScale;
+    this.scale.y = totalScale;
     this.updateHitbox();
     // Reposition with newly scaled sprite.
     this.x = feetPos.x - characterOrigin.x + globalOffsets[0];
     this.y = feetPos.y - characterOrigin.y + globalOffsets[1];
 
-    return characterScale;
+    return totalScale;
   }
 
   override function set_isPixel(value:Bool)
