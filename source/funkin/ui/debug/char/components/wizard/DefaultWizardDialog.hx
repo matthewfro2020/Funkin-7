@@ -30,6 +30,7 @@ class DefaultWizardDialog extends Dialog
       var id:Int = step;
       if (_.button == DialogButton.CANCEL)
       {
+        CharCreatorStartupWizard.wizardProcessRunning = false;
         if (onQuit != null) onQuit();
       }
       else if (_.button == PREVIOUS_STEP_BUTTON)
@@ -43,6 +44,7 @@ class DefaultWizardDialog extends Dialog
         id++;
         if (id >= dialogArray.length)
         {
+          CharCreatorStartupWizard.wizardProcessRunning = false;
           if (onComplete != null) onComplete(params);
           return;
         }

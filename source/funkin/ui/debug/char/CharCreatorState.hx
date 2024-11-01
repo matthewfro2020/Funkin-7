@@ -15,6 +15,7 @@ import flixel.FlxG;
 
 /**
  * also made by kolo
+ * in collaboration with lemz!
  * my second slightly more disappointing son
  */
 @:build(haxe.ui.ComponentBuilder.build("assets/exclude/data/ui/char-creator/main-view.xml"))

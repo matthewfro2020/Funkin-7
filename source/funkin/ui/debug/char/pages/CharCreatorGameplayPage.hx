@@ -9,6 +9,8 @@ import haxe.ui.components.VerticalRule;
 import funkin.data.stage.StageData;
 import funkin.play.stage.Bopper;
 import funkin.data.stage.StageData.StageDataCharacter;
+import funkin.play.character.CharacterData;
+import funkin.play.character.CharacterData.CharacterDataParser;
 import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.play.stage.StageProp;
 import funkin.data.stage.StageRegistry;
@@ -33,11 +35,12 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
   // onion skin/ghost
   public var ghostCharacter:CharCreatorCharacter;
+  public var ghostId(default, set):String = ""; // empty string means current character
 
   override public function new(daState:CharCreatorState, wizardParams:WizardGenerateParams)
   {
     super(daState);
-    curStage = "mainStage";
+    curStage = Constants.DEFAULT_STAGE;
 
     Conductor.instance.onBeatHit.add(stageBeatHit);
 
@@ -45,12 +48,18 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     add(currentCharacter);
 
     ghostCharacter = new CharCreatorCharacter(wizardParams);
+    ghostCharacter.visible = false;
     add(ghostCharacter);
 
     updateCharPerStageData();
 
     dialogMap.set(Animation, new AddAnimDialog(this, currentCharacter));
     dialogMap.set(Ghost, new GhostSettingsDialog(this));
+
+    // defaults for UI
+    labelAnimName.text = "None";
+    labelAnimOffsetX.text = labelAnimOffsetY.text = "0";
+    labelCharType.text = "BF";
   }
 
   override public function onDialogUpdate(dialog:DefaultPageDialog)
@@ -58,14 +67,10 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     if (dialog == dialogMap[Animation])
     {
       var animDialog = cast(dialogMap[Animation], AddAnimDialog);
-      var ghostDialog = cast(dialogMap[Ghost], GhostSettingsDialog);
 
       labelAnimName.text = animDialog.charAnimDropdown.selectedItem.text;
       labelAnimOffsetX.text = "" + currentCharacter.getAnimationData(labelAnimName.text).offsets[0];
       labelAnimOffsetY.text = "" + currentCharacter.getAnimationData(labelAnimName.text).offsets[1];
-
-      GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter);
-      ghostDialog.ghostAnimDropdown.dataSource = animDialog.charAnimDropdown.dataSource;
     }
   }
 
@@ -82,15 +87,14 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     }
   }
 
-  var labelAnimName:Label;
-  var labelAnimOffsetX:Label;
-  var labelAnimOffsetY:Label;
-  var labelCharType:Label;
+  var labelAnimName:Label = new Label();
+  var labelAnimOffsetX:Label = new Label();
+  var labelAnimOffsetY:Label = new Label();
+  var labelCharType:Label = new Label();
 
   override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
   {
     // ==================left==================
-    labelAnimName = new Label();
     labelAnimName.text = "None";
     labelAnimName.styleNames = "infoText";
     labelAnimName.verticalAlign = "center";
@@ -101,8 +105,6 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     leftRule1.percentHeight = 80;
     left.addComponent(leftRule1);
 
-    labelAnimOffsetX = new Label();
-    labelAnimOffsetX.text = "0";
     labelAnimOffsetX.styleNames = "infoText";
     labelAnimOffsetX.verticalAlign = "center";
     labelAnimOffsetX.tooltip = "Left/Right Click to Increase/Decrease the Horizontal Offset.";
@@ -112,8 +114,6 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     leftRule2.percentHeight = 80;
     left.addComponent(leftRule2);
 
-    labelAnimOffsetY = new Label();
-    labelAnimOffsetY.text = "0";
     labelAnimOffsetY.styleNames = "infoText";
     labelAnimOffsetY.verticalAlign = "center";
     labelAnimOffsetY.tooltip = "Left/Right Click to Increase/Decrease the Vertical Offset.";
@@ -124,8 +124,6 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     // ==================right==================
     var typesArray = [BF, GF, DAD];
 
-    labelCharType = new Label();
-    labelCharType.text = "BF";
     labelCharType.styleNames = "infoText";
     labelCharType.verticalAlign = "center";
     labelCharType.tooltip = "Left Click/Right Click to switch to the Next/Previous Character Mode.";
@@ -203,13 +201,11 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     var animOffsets = currentCharacter.animations[drop.selectedIndex].offsets;
     var newOffsets = [animOffsets[0] + changeX, animOffsets[1] + changeY];
 
-    currentCharacter.animations[drop.selectedIndex].offsets = newOffsets;
-    currentCharacter.setAnimationOffsets(currentCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]); // todo: probs merge there two lol
+    currentCharacter.setAnimationOffsets(currentCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]);
     currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
 
     // GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter); very costly for memory! we're just gonna update the offsets
-    ghostCharacter.animations[drop.selectedIndex].offsets = newOffsets;
-    ghostCharacter.setAnimationOffsets(ghostCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]); // todo: probs merge there two lol
+    if (ghostId == "") ghostCharacter.setAnimationOffsets(ghostCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]);
 
     // might as well update the text
     labelAnimOffsetX.text = "" + newOffsets[0];
@@ -233,6 +229,40 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     item.addComponent(checkGhost);
   }
 
+  public function refreshGhoulAnims()
+  {
+    var ghostDialog = cast(dialogMap[Ghost], GhostSettingsDialog);
+    ghostDialog.ghostAnimDropdown.dataSource.clear();
+    for (anim in ghostCharacter.animations)
+      ghostDialog.ghostAnimDropdown.dataSource.add({text: anim.name});
+  }
+
+  function set_ghostId(value:String)
+  {
+    if (ghostId == value) return ghostId;
+    this.ghostId = value;
+
+    var animDialog = cast(dialogMap[Animation], AddAnimDialog);
+    var ghostDialog = cast(dialogMap[Ghost], GhostSettingsDialog);
+
+    if (ghostId == "")
+    {
+      GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter);
+    }
+    else
+    {
+      var data:CharacterData = CharacterDataParser.fetchCharacterData(ghostId);
+      if (data == null) return ghostId;
+
+      GhostUtil.copyFromCharacterData(ghostCharacter, data);
+    }
+
+    refreshGhoulAnims();
+    updateCharPerStageData(currentCharacter.characterType);
+
+    return ghostId;
+  }
+
   override public function performCleanup()
   {
     Conductor.instance.onBeatHit.remove(stageBeatHit);
@@ -245,17 +275,17 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     if (charStageDatas[type] == null) return;
 
     currentCharacter.zIndex = charStageDatas[type].zIndex;
-    currentCharacter.x = charStageDatas[type].position[0] - currentCharacter.characterOrigin.x;
-    currentCharacter.y = charStageDatas[type].position[1] - currentCharacter.characterOrigin.y;
+    currentCharacter.x = charStageDatas[type].position[0] - currentCharacter.characterOrigin.x + currentCharacter.globalOffsets[0];
+    currentCharacter.y = charStageDatas[type].position[1] - currentCharacter.characterOrigin.y + currentCharacter.globalOffsets[1];
     currentCharacter.totalScale = currentCharacter.characterScale * charStageDatas[type].scale;
     currentCharacter.flipX = (type == BF ? !currentCharacter.characterFlipX : currentCharacter.characterFlipX);
 
     ghostCharacter.characterType = currentCharacter.characterType = type;
 
     ghostCharacter.alpha = GHOST_SKIN_ALPHA;
-    ghostCharacter.zIndex = currentCharacter.zIndex - 1; // should onion skin be behind or in front?
-    ghostCharacter.x = charStageDatas[type].position[0] - ghostCharacter.characterOrigin.x;
-    ghostCharacter.y = charStageDatas[type].position[1] - ghostCharacter.characterOrigin.y;
+    ghostCharacter.zIndex = currentCharacter.zIndex + 1; // should onion skin be behind or in front?
+    ghostCharacter.x = charStageDatas[type].position[0] - ghostCharacter.characterOrigin.x + ghostCharacter.globalOffsets[0];
+    ghostCharacter.y = charStageDatas[type].position[1] - ghostCharacter.characterOrigin.y + ghostCharacter.globalOffsets[1];
     ghostCharacter.totalScale = ghostCharacter.characterScale * charStageDatas[type].scale;
     ghostCharacter.flipX = (type == BF ? !ghostCharacter.characterFlipX : ghostCharacter.characterFlipX);
 
