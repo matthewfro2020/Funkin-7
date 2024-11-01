@@ -15,10 +15,8 @@ class AddAnimDialog extends DefaultPageDialog
     linkedChar = char;
 
     // dialog callback bs
-    charAnimPath.disabled = (char.renderType != "multisparrow");
-    charAnimPath.tooltip = (char.renderType == "multisparrow" ? null : "Only Available for Multi-Sparrow Characters.");
-    charAnimFrames.disabled = charAnimPath.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == "atlas");
-    charAnimFrames.tooltip = charAnimPath.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == "atlas" ? "Unavailable for Atlas Characters." : null);
+    charAnimFrames.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == "atlas");
+    charAnimFrames.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == "atlas" ? "Unavailable for Atlas Characters." : null);
 
     if (char.renderType != "atlas")
     {
@@ -30,7 +28,7 @@ class AddAnimDialog extends DefaultPageDialog
     charAnimDropdown.onChange = function(_) {
       if (charAnimDropdown.selectedIndex == -1) // delele this shiz
       {
-        charAnimName.text = charAnimFrames.text = charAnimPath.text = "";
+        charAnimName.text = charAnimFrames.text = "";
         charAnimLooped.selected = charAnimFlipX.selected = charAnimFlipY.selected = false;
         charAnimFramerate.pos = 24;
         charAnimOffsetX.pos = charAnimOffsetY.pos = 0;
