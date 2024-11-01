@@ -121,6 +121,13 @@ class CharCreatorCharacter extends Bopper
     }
   }
 
+  override public function draw():Void
+  {
+    if (atlasCharacter != null) atlasCharacter.draw();
+    else
+      super.draw();
+  }
+
   public function addAnimation(name:String, prefix:String, offsets:Array<Float>, indices:Array<Int>, frameRate:Int = 24, looped:Bool = false,
       flipX:Bool = false, flipY:Bool = false)
   {
