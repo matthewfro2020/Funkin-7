@@ -1,5 +1,6 @@
 package funkin.ui.debug.char.components.dialogs;
 
+import funkin.ui.debug.char.pages.CharCreatorGameplayPage.CharDialogType;
 import haxe.ui.containers.dialogs.CollapsibleDialog;
 import haxe.ui.data.ArrayDataSource;
 
@@ -76,9 +77,11 @@ class AddAnimDialog extends DefaultPageDialog
         charAnimFlipY.selected);
 
       if (!animAdded) return;
-
-      char.setAnimationOffsets(charAnimName.text, charAnimOffsetX.pos, charAnimOffsetY.pos);
       char.playAnimation(charAnimName.text);
+
+      cast(page, CharCreatorGameplayPage).ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
+        (shouldDoIndices ? indices : []), charAnimPath.text, Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected,
+        charAnimFlipY.selected);
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
@@ -91,5 +94,8 @@ class AddAnimDialog extends DefaultPageDialog
 
     for (anim in linkedChar.animations)
       charAnimDropdown.dataSource.add({text: anim.name});
+
+    var gameplayPage = cast(page, CharCreatorGameplayPage);
+    if (gameplayPage.ghostId == "") gameplayPage.refreshGhoulAnims();
   }
 }

@@ -148,7 +148,23 @@ class CharCreatorCharacter extends Bopper
         offsets: offsets
       });
 
+    super.setAnimationOffsets(name, offsets[0], offsets[1]);
+
     return true;
+  }
+
+  override public function setAnimationOffsets(name:String, xOffset:Float, yOffset:Float)
+  {
+    super.setAnimationOffsets(name, xOffset, yOffset);
+
+    for (anim in animations)
+    {
+      if (anim.name == name)
+      {
+        anim.offsets = [xOffset, yOffset];
+        break;
+      }
+    }
   }
 
   public override function playAnimation(name:String, restart:Bool = false, ignoreOther:Bool = false, reverse:Bool = false):Void

@@ -12,23 +12,42 @@ import flixel.tweens.FlxTween;
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/ghost-dialog.xml"))
 class GhostSettingsDialog extends DefaultPageDialog
 {
-  var attachedMenu:GhostCharacterMenu;
+  public var attachedMenu:GhostCharacterMenu;
+  public var charId:String = Constants.DEFAULT_CHARACTER;
 
   override public function new(daPage:CharCreatorDefaultPage)
   {
     super(daPage);
-
+    var regularChar = cast(daPage, CharCreatorGameplayPage).currentCharacter;
+    var ghostChar = cast(daPage, CharCreatorGameplayPage).ghostCharacter;
     var charData = CharacterDataParser.fetchCharacterData(Constants.DEFAULT_CHARACTER);
+
     ghostTypeButton.icon = (charData == null ? null : CharacterDataParser.getCharPixelIconAsset(Constants.DEFAULT_CHARACTER));
     ghostTypeButton.text = (charData == null ? "None" : charData.name.length > 6 ? '${charData.name.substr(0, 6)}.' : '${charData.name}');
 
     // callbacks
     ghostEnable.onChange = function(_) {
       ghostDataBox.disabled = !ghostEnable.selected;
+      ghostChar.visible = ghostEnable.selected;
+
+      if (ghostChar.visible) // i love saving on data
+      {
+        cast(daPage, CharCreatorGameplayPage).ghostId = (ghostCustomChar.selected ? charId : "");
+      }
     }
 
     ghostCurChar.onChange = function(_) {
-      ghostTypeButton.disabled = ghostCurChar.selected; // no need to check for the other one thankfully
+      ghostTypeButton.disabled = ghostCurChar.selected;
+      if (ghostCurChar.selected) Screen.instance.removeComponent(attachedMenu);
+
+      if (ghostChar.visible && ghostCurChar.selected) cast(daPage, CharCreatorGameplayPage).ghostId = "";
+    }
+
+    ghostCustomChar.onChange = function(_) {
+      ghostTypeButton.disabled = !ghostCustomChar.selected;
+      if (!ghostCustomChar.selected) Screen.instance.removeComponent(attachedMenu);
+
+      if (ghostChar.visible && ghostCustomChar.selected) cast(daPage, CharCreatorGameplayPage).ghostId = charId;
     }
 
     ghostTypeButton.onClick = function(_) {
@@ -38,11 +57,9 @@ class GhostSettingsDialog extends DefaultPageDialog
 
     ghostAnimDropdown.onChange = function(_) {
       if (ghostAnimDropdown.selectedIndex == -1) return;
-      cast(daPage, CharCreatorGameplayPage).ghostCharacter.playAnimation(ghostAnimDropdown.selectedItem.text);
+      ghostChar.playAnimation(ghostAnimDropdown.selectedItem.text);
     }
   }
-
-  function releaseTheGhouls() {}
 }
 
 /**
@@ -85,23 +102,28 @@ class GhostCharacterMenu extends Menu
       charButton.padding = 8;
       charButton.iconPosition = "top";
 
-      /*if (charId == state.selectedChar.characterId)
-        {
-          // Scroll to the character if it is already selected.
-          ghostSelectScroll.hscrollPos = Math.floor(charIndex / 5) * 80;
-          charButton.selected = true;
+      if (charId == parent.charId)
+      {
+        // Scroll to the character if it is already selected.
+        ghostSelectScroll.hscrollPos = Math.floor(charIndex / 5) * 80;
+        charButton.selected = true;
 
-          defaultText = '${charData.name} [${charId}]';
-      }*/
+        defaultText = '${charData.name} [${charId}]';
+      }
 
       var LIMIT = 6;
       charButton.icon = CharacterDataParser.getCharPixelIconAsset(charId);
       charButton.text = charData.name.length > LIMIT ? '${charData.name.substr(0, LIMIT)}.' : '${charData.name}';
 
-      charButton.onClick = _ ->
-        {
-          // kill and replace
-        };
+      charButton.onClick = _ -> {
+        parent.charId = charId;
+
+        var gameplayPage = cast(page, CharCreatorGameplayPage);
+        if (gameplayPage.ghostCharacter.visible) gameplayPage.ghostId = charId;
+
+        parent.ghostTypeButton.text = charButton.text;
+        parent.ghostTypeButton.icon = charButton.icon;
+      };
 
       charButton.onMouseOver = _ -> {
         ghostIconName.text = '${charData.name} [${charId}]';
