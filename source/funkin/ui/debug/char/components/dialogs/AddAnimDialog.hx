@@ -15,10 +15,8 @@ class AddAnimDialog extends DefaultPageDialog
     linkedChar = char;
 
     // dialog callback bs
-    charAnimPath.disabled = (char.renderType != "multisparrow");
-    charAnimPath.tooltip = (char.renderType == "multisparrow" ? null : "Only Available for Multi-Sparrow Characters.");
-    charAnimFrames.disabled = charAnimPath.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == "atlas");
-    charAnimFrames.tooltip = charAnimPath.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == "atlas" ? "Unavailable for Atlas Characters." : null);
+    charAnimFrames.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == "atlas");
+    charAnimFrames.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == "atlas" ? "Unavailable for Atlas Characters." : null);
 
     if (char.renderType != "atlas")
     {
@@ -30,7 +28,7 @@ class AddAnimDialog extends DefaultPageDialog
     charAnimDropdown.onChange = function(_) {
       if (charAnimDropdown.selectedIndex == -1) // delele this shiz
       {
-        charAnimName.text = charAnimFrames.text = charAnimPath.text = "";
+        charAnimName.text = charAnimFrames.text = "";
         charAnimLooped.selected = charAnimFlipX.selected = charAnimFlipY.selected = false;
         charAnimFramerate.pos = 24;
         charAnimOffsetX.pos = charAnimOffsetY.pos = 0;
@@ -43,7 +41,6 @@ class AddAnimDialog extends DefaultPageDialog
 
       charAnimName.text = animData.name;
       charAnimPrefix.text = animData.prefix;
-      charAnimPath.text = animData.assetPath;
       charAnimFrames.text = (animData.frameIndices != null && animData.frameIndices.length > 0 ? animData.frameIndices.join(", ") : "");
 
       charAnimLooped.selected = animData.looped ?? false;
@@ -73,15 +70,13 @@ class AddAnimDialog extends DefaultPageDialog
 
       var shouldDoIndices:Bool = (indices.length > 0 && !indices.contains(null));
       var animAdded:Bool = char.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
-        (shouldDoIndices ? indices : []), charAnimPath.text, Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected,
-        charAnimFlipY.selected);
+        (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
 
       if (!animAdded) return;
       char.playAnimation(charAnimName.text);
 
       cast(page, CharCreatorGameplayPage).ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
-        (shouldDoIndices ? indices : []), charAnimPath.text, Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected,
-        charAnimFlipY.selected);
+        (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;

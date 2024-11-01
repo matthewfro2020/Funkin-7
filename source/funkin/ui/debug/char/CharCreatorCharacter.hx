@@ -4,7 +4,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.display.BitmapData;
 import funkin.data.animation.AnimationData;
 import funkin.play.character.BaseCharacter.CharacterType;
-import funkin.play.character.CharacterData.CharacterDataParser;
+import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.play.stage.Bopper;
 import flixel.math.FlxPoint;
@@ -40,7 +40,7 @@ class CharCreatorCharacter extends Bopper
 
   override public function new(wizardParams:WizardGenerateParams)
   {
-    super(CharacterDataParser.DEFAULT_DANCEEVERY);
+    super(CharacterRegistry.DEFAULT_DANCEEVERY);
     ignoreExclusionPref = ["sing"];
     shouldBop = false;
 
@@ -121,8 +121,8 @@ class CharCreatorCharacter extends Bopper
     }
   }
 
-  public function addAnimation(name:String, prefix:String, offsets:Array<Float>, indices:Array<Int>, animPath:String = "", frameRate:Int = 24,
-      looped:Bool = false, flipX:Bool = false, flipY:Bool = false)
+  public function addAnimation(name:String, prefix:String, offsets:Array<Float>, indices:Array<Int>, frameRate:Int = 24, looped:Bool = false,
+      flipX:Bool = false, flipY:Bool = false)
   {
     if (getAnimationData(name) != null) return true; // i mean i guess???
 
@@ -140,7 +140,6 @@ class CharCreatorCharacter extends Bopper
         name: name,
         prefix: prefix,
         frameIndices: indices,
-        assetPath: animPath,
         frameRate: frameRate,
         flipX: flipX,
         flipY: flipY,

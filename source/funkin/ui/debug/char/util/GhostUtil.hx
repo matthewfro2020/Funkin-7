@@ -1,6 +1,6 @@
 package funkin.ui.debug.char.util;
 
-import funkin.play.character.CharacterData;
+import funkin.data.character.CharacterData;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -20,7 +20,7 @@ class GhostUtil
     switch (player.renderType)
     {
       case "sparrow" | "multisparrow":
-        if (ghost.generatedParams.files.length != 2) return; // img and data
+        if (ghost.generatedParams.files.length < 2) return; // img and data
 
         var combinedFrames = null;
         for (i in 0...Math.floor(ghost.generatedParams.files.length / 2))
@@ -64,7 +64,7 @@ class GhostUtil
 
     for (anim in player.animations)
     {
-      ghost.addAnimation(anim.name, anim.prefix, anim.offsets, anim.frameIndices, anim.assetPath, anim.frameRate, anim.looped, anim.flipX, anim.flipY);
+      ghost.addAnimation(anim.name, anim.prefix, anim.offsets, anim.frameIndices, anim.frameRate, anim.looped, anim.flipX, anim.flipY);
     }
   }
 
@@ -77,25 +77,18 @@ class GhostUtil
 
     switch (data.renderType)
     {
-      case "sparrow":
-        ghost.frames = Paths.getSparrowAtlas(data.assetPath);
+      case "sparrow" | "multisparrow":
+        var combinedFrames = null;
+        for (i => assetPath in data.assetPaths)
+        {
+          if (combinedFrames == null) combinedFrames = Paths.getSparrowAtlas(assetPath);
+          else
+            combinedFrames.addAtlas(Paths.getSparrowAtlas(assetPath));
+        }
+        ghost.frames = combinedFrames;
 
       case "packer":
-        ghost.frames = Paths.getPackerAtlas(data.assetPath);
-
-      case "multisparrow": // lemz if you're reading this pls don't forget to update this once you're finished reworking multisparrow chars, thanks!
-        var allAssetPaths:Array<String> = [];
-
-        for (anim in data.animations)
-        {
-          if (anim.assetPath != null && !allAssetPaths.contains(anim.assetPath)) allAssetPaths.push(anim.assetPath);
-        }
-
-        var combinedFrames = Paths.getSparrowAtlas(data.assetPath);
-        for (path in allAssetPaths)
-          combinedFrames.addAtlas(Paths.getSparrowAtlas(path));
-
-        ghost.frames = combinedFrames;
+        ghost.frames = Paths.getPackerAtlas(data.assetPaths[0]);
 
       case "animateatlas": // TODO, gonna think of smth
 
@@ -108,8 +101,8 @@ class GhostUtil
 
     for (anim in data.animations)
     {
-      ghost.addAnimation(anim.name, anim.prefix, anim.offsets, anim.frameIndices ?? [], anim.assetPath ?? "", anim.frameRate ?? 24, anim.looped ?? false,
-        anim.flipX ?? false, anim.flipY ?? false);
+      ghost.addAnimation(anim.name, anim.prefix, anim.offsets, anim.frameIndices ?? [], anim.frameRate ?? 24, anim.looped ?? false, anim.flipX ?? false,
+        anim.flipY ?? false);
     }
   }
 }
