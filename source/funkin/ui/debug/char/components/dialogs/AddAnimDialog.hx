@@ -18,11 +18,18 @@ class AddAnimDialog extends DefaultPageDialog
     charAnimFrames.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == "atlas");
     charAnimFrames.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == "atlas" ? "Unavailable for Atlas Characters." : null);
 
+    charAnimFrameList.dataSource = new ArrayDataSource();
     if (char.renderType != "atlas")
     {
-      charAnimFrameList.dataSource = new ArrayDataSource();
       for (fname in char.frames.frames)
         if (fname != null) charAnimFrameList.dataSource.add({name: fname.name});
+    }
+    else
+    {
+      for (symbolName in char.atlasCharacter.anim.symbolDictionary.keys())
+      {
+        if (symbolName != null) charAnimFrameList.dataSource.add({name: symbolName});
+      }
     }
 
     charAnimDropdown.onChange = function(_) {
