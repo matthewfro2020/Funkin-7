@@ -26,9 +26,9 @@ class AddAnimDialog extends DefaultPageDialog
     }
     else
     {
-      for (symbolName in char.atlasCharacter.anim.symbolDictionary.keys())
+      for (fname in char.atlasCharacter.listAnimations())
       {
-        if (symbolName != null) charAnimFrameList.dataSource.add({name: symbolName});
+        if (fname != null) charAnimFrameList.dataSource.add({name: fname});
       }
     }
 

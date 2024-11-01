@@ -118,6 +118,7 @@ class CharCreatorCharacter extends Bopper
       atlasCharacter.antialiasing = this.antialiasing;
       atlasCharacter.pixelPerfectRender = this.pixelPerfectRender;
       atlasCharacter.pixelPerfectPosition = this.pixelPerfectPosition;
+      atlasCharacter.update(elapsed);
     }
   }
 
@@ -140,6 +141,10 @@ class CharCreatorCharacter extends Bopper
         animation.addByPrefix(name, prefix, frameRate, looped, flipX, flipY);
 
       if (!animation.getNameList().contains(name)) return false;
+    }
+    else
+    {
+      if (!atlasCharacter.hasAnimation(prefix)) return false;
     }
 
     animations.push(
