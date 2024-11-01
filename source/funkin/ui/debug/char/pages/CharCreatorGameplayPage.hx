@@ -9,8 +9,8 @@ import haxe.ui.components.VerticalRule;
 import funkin.data.stage.StageData;
 import funkin.play.stage.Bopper;
 import funkin.data.stage.StageData.StageDataCharacter;
-import funkin.play.character.CharacterData;
-import funkin.play.character.CharacterData.CharacterDataParser;
+import funkin.data.character.CharacterData;
+import funkin.data.character.CharacterRegistry;
 import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.play.stage.StageProp;
 import funkin.data.stage.StageRegistry;
@@ -251,7 +251,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     }
     else
     {
-      var data:CharacterData = CharacterDataParser.fetchCharacterData(ghostId);
+      var data:CharacterData = CharacterRegistry.fetchCharacterData(ghostId);
       if (data == null) return ghostId;
 
       GhostUtil.copyFromCharacterData(ghostCharacter, data);

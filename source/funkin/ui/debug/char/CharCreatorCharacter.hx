@@ -121,8 +121,8 @@ class CharCreatorCharacter extends Bopper
     }
   }
 
-  public function addAnimation(name:String, prefix:String, offsets:Array<Float>, indices:Array<Int>, animPath:String = "", frameRate:Int = 24,
-      looped:Bool = false, flipX:Bool = false, flipY:Bool = false)
+  public function addAnimation(name:String, prefix:String, offsets:Array<Float>, indices:Array<Int>, frameRate:Int = 24, looped:Bool = false,
+      flipX:Bool = false, flipY:Bool = false)
   {
     if (getAnimationData(name) != null) return true; // i mean i guess???
 

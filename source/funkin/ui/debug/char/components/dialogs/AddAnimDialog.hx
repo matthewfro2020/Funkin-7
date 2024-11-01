@@ -72,15 +72,13 @@ class AddAnimDialog extends DefaultPageDialog
 
       var shouldDoIndices:Bool = (indices.length > 0 && !indices.contains(null));
       var animAdded:Bool = char.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
-        (shouldDoIndices ? indices : []), charAnimPath.text, Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected,
-        charAnimFlipY.selected);
+        (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
 
       if (!animAdded) return;
       char.playAnimation(charAnimName.text);
 
       cast(page, CharCreatorGameplayPage).ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
-        (shouldDoIndices ? indices : []), charAnimPath.text, Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected,
-        charAnimFlipY.selected);
+        (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
