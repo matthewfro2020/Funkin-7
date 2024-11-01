@@ -52,7 +52,7 @@ class GhostUtil
 
     for (anim in player.animations)
     {
-      ghost.addAnimation(anim.name, anim.prefix, anim.offsets, anim.frameIndices, anim.assetPath, anim.frameRate, anim.looped, anim.flipX, anim.flipY);
+      ghost.addAnimation(anim.name, anim.prefix, anim.offsets, anim.frameIndices, anim.frameRate, anim.looped, anim.flipX, anim.flipY);
       ghost.setAnimationOffsets(anim.name, anim.offsets[0], anim.offsets[1]);
     }
   }

@@ -42,7 +42,6 @@ class AddAnimDialog extends DefaultPageDialog
 
       charAnimName.text = animData.name;
       charAnimPrefix.text = animData.prefix;
-      charAnimPath.text = animData.assetPath;
       charAnimFrames.text = (animData.frameIndices != null && animData.frameIndices.length > 0 ? animData.frameIndices.join(", ") : "");
 
       charAnimLooped.selected = animData.looped ?? false;
