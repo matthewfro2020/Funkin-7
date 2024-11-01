@@ -52,6 +52,8 @@ typedef CharacterData =
    * The type of rendering system to use for the character.
    * @default sparrow
    */
+  @:optional
+  @:default('sparrow')
   var renderType:CharacterRenderType;
 
   /**
@@ -66,19 +68,25 @@ typedef CharacterData =
    * Pro tip: On pixel-art levels, save the sprites small and set this value to 6 or so to save memory.
    * @default 1
    */
+  @:optional
+  @:default(1.0)
   var scale:Null<Float>;
 
   /**
    * Optional data about the health icon for the character.
    */
+  @:optional
   var healthIcon:Null<HealthIconData>;
 
+  @:optional
   var death:Null<DeathData>;
 
   /**
    * The global offset to the character's position, in pixels.
    * @default [0, 0]
    */
+  @:optional
+  @:default([0, 0])
   var offsets:Null<Array<Float>>;
 
   /**
@@ -86,12 +94,16 @@ typedef CharacterData =
    * Default value focuses on the character directly.
    * @default [0, 0]
    */
+  @:optional
+  @:default([0, 0])
   var cameraOffsets:Array<Float>;
 
   /**
    * Setting this to true disables anti-aliasing for the character.
    * @default false
    */
+  @:optional
+  @:default(false)
   var isPixel:Null<Bool>;
 
   /**
@@ -111,8 +123,10 @@ typedef CharacterData =
    *
    * Examples:
    * - Daddy Dearest uses a value of `1.525`.
-   * @default 1.0
+   * @default 8.0
    */
+  @:optional
+  @:default(8.0)
   var singTime:Null<Float>;
 
   /**
@@ -124,6 +138,8 @@ typedef CharacterData =
    * If animations are used, this is the name of the animation to play first.
    * @default idle
    */
+  @:optional
+  @:default('idle')
   var startingAnimation:Null<String>;
 
   /**
@@ -132,6 +148,8 @@ typedef CharacterData =
    *
    * @default false
    */
+  @:optional
+  @:default(false)
   var flipX:Null<Bool>;
 };
 
@@ -144,29 +162,38 @@ typedef HealthIconData =
    * The ID to use for the health icon.
    * @default The character's ID
    */
+  @:optional
   var id:Null<String>;
 
   /**
    * The scale of the health icon.
    */
+  @:optional
+  @:default(1.0)
   var scale:Null<Float>;
 
   /**
    * Whether to flip the health icon horizontally.
    * @default false
    */
+  @:optional
+  @:default(false)
   var flipX:Null<Bool>;
 
   /**
    * Multiply scale by 6 and disable antialiasing
    * @default false
    */
+  @:optional
+  @:default(false)
   var isPixel:Null<Bool>;
 
   /**
    * The offset of the health icon, in pixels.
    * @default [0, 25]
    */
+  @:optional
+  @:default([0, 25])
   var offsets:Null<Array<Float>>;
 }
 
@@ -177,6 +204,8 @@ typedef DeathData =
    * Default value focuses on the character's graphic midpoint.
    * @default [0, 0]
    */
+  @:optional
+  @:default([0, 0])
   var ?cameraOffsets:Array<Float>;
 
   /**
@@ -184,11 +213,15 @@ typedef DeathData =
    * Value is a multiplier of the default camera zoom for the stage.
    * @default 1.0
    */
+  @:optional
+  @:default(1.0)
   var ?cameraZoom:Float;
 
   /**
    * Impose a delay between when the character reaches `0` health and when the death animation plays.
    * @default 0.0
    */
+  @:optional
+  @:default(0.0)
   var ?preTransitionDelay:Float;
 }

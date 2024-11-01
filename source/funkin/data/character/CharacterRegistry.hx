@@ -2,6 +2,7 @@ package funkin.data.character;
 
 import funkin.data.animation.AnimationData;
 import funkin.data.character.CharacterData;
+import funkin.data.character.migrator.CharacterData_v1_0_0;
 import funkin.modding.events.ScriptEvent;
 import funkin.modding.events.ScriptEventDispatcher;
 import funkin.play.character.AnimateAtlasCharacter;
@@ -18,6 +19,8 @@ import funkin.util.assets.DataAssets;
 import funkin.util.VersionUtil;
 import haxe.Json;
 import flixel.graphics.frames.FlxFrame;
+
+using funkin.data.character.migrator.CharacterDataMigrator;
 
 /**
  * NOTE: This doesn't act the same as the other registries.
@@ -388,24 +391,24 @@ class CharacterRegistry
   {
     var rawJson:JsonFile = loadCharacterFile(charId);
 
-    var charData:CharacterData = buildCharacterData(rawJson, charId);
+    var version = parseVersion(rawJson);
 
-    if (charData == null)
+    if (version == null)
     {
-      // trace('[CHARACTER] Could not load character data for "$charId", check above for potential errors');
       return null;
     }
-    if (CHARACTER_DATA_VERSION_RULE == null || VersionUtil.validateVersionStr(charData.version, CHARACTER_DATA_VERSION_RULE))
+
+    if (CHARACTER_DATA_VERSION_RULE == null || VersionUtil.validateVersionStr(version, CHARACTER_DATA_VERSION_RULE))
     {
-      return charData;
+      return buildCharacterData(rawJson, charId);
     }
-      // else if (VersionUtil.validateVersion(charData.version, "1.0.x"))
-      // {
-      //   return migrateCharacterData_v1_0_0(charData, charId);
-    // }
+    else if (VersionUtil.validateVersion(version, "1.0.x"))
+    {
+      return buildCharacterData_v1_0_0(rawJson, charId);
+    }
     else
     {
-      trace('[CHARACTER] Could not load character data for "$charId": bad version (got ${charData.version}, expected ${CHARACTER_DATA_VERSION_RULE})');
+      trace('[CHARACTER] Could not load character data for "$charId": bad version (got ${version}, expected ${CHARACTER_DATA_VERSION_RULE})');
       return null;
     }
   }
@@ -424,6 +427,28 @@ class CharacterRegistry
       fileName: charFilePath,
       contents: rawJson
     };
+  }
+
+  static function parseVersion(rawJson:JsonFile):Null<String>
+  {
+    var parser = new json2object.JsonParser<JsonVersionGet>();
+    parser.ignoreUnknownVariables = true;
+
+    switch (rawJson)
+    {
+      case {fileName: fileName, contents: contents}:
+        parser.fromJson(contents, fileName);
+      default:
+        return null;
+    }
+
+    if (parser.errors.length > 0)
+    {
+      trace(parser.errors, "NO VERSION");
+      return null;
+    }
+
+    return parser.value.version;
   }
 
   static function buildCharacterData(rawJson:JsonFile, charId:String):Null<CharacterData>
@@ -446,6 +471,28 @@ class CharacterRegistry
     }
 
     return parser.value;
+  }
+
+  static function buildCharacterData_v1_0_0(rawJson:JsonFile, charId:String):Null<CharacterData>
+  {
+    var parser = new json2object.JsonParser<CharacterData_v1_0_0>();
+    parser.ignoreUnknownVariables = false;
+
+    switch (rawJson)
+    {
+      case {fileName: fileName, contents: contents}:
+        parser.fromJson(contents, fileName);
+      default:
+        return null;
+    }
+
+    if (parser.errors.length > 0)
+    {
+      trace(parser.errors, charId);
+      return null;
+    }
+
+    return parser.value.migrate();
   }
 
   /**
@@ -639,4 +686,9 @@ class CharacterRegistry
     // All good!
     return input;
   }
+}
+
+typedef JsonVersionGet =
+{
+  var version:String;
 }

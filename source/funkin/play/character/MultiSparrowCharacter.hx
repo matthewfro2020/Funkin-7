@@ -53,8 +53,6 @@ class MultiSparrowCharacter extends BaseCharacter
 
   function buildSpritesheet():Void
   {
-    var assetList = [];
-
     var texture:FlxAtlasFrames = Paths.getSparrowAtlas(_data.assetPaths[0]);
 
     if (texture == null)
@@ -69,19 +67,24 @@ class MultiSparrowCharacter extends BaseCharacter
       texture.parent.destroyOnNoUse = false;
     }
 
-    for (asset in assetList)
+    for (i => asset in _data.assetPaths)
     {
+      if (i == 0)
+      {
+        continue;
+      }
+
       var subTexture:FlxAtlasFrames = Paths.getSparrowAtlas(asset);
       // If we don't do this, the unused textures will be removed as soon as they're loaded.
 
       if (subTexture == null)
       {
         trace('Multi-Sparrow atlas could not load subtexture: ${asset}');
+        continue;
       }
       else
       {
         trace('Concatenating multi-sparrow atlas: ${asset}');
-        subTexture.parent.destroyOnNoUse = false;
       }
 
       texture.addAtlas(subTexture);

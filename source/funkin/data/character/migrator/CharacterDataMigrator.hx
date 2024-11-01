@@ -3,21 +3,31 @@ package funkin.data.character.migrator;
 import funkin.data.character.CharacterData;
 import funkin.data.character.CharacterRegistry;
 import funkin.data.animation.AnimationData;
+import funkin.data.character.migrator.CharacterData_v1_0_0;
 
 class CharacterDataMigrator
 {
-  public static inline function migrate(input:CharacterData_v1_0_0.CharacterData_v1_0_0):CharacterData
+  public static overload extern inline function migrate(input:CharacterData_v1_0_0):CharacterData
   {
     return migrate_CharacterData_v1_0_0(input);
   }
 
-  public static function migrate_CharacterData_v1_0_0(input:CharacterData_v1_0_0.CharacterData_v1_0_0):CharacterData
+  public static function migrate_CharacterData_v1_0_0(input:CharacterData_v1_0_0):CharacterData
   {
+    var assetPaths:Array<String> = [input.assetPath];
+    for (animation in input.animations)
+    {
+      if (animation.assetPath != null)
+      {
+        assetPaths.pushUnique(animation.assetPath);
+      }
+    }
+
     return {
       version: CharacterRegistry.CHARACTER_DATA_VERSION,
       name: input.name,
       renderType: input.renderType,
-      assetPaths: [input.assetPath],
+      assetPaths: assetPaths,
       scale: input.scale,
       healthIcon: input.healthIcon,
       death: input.death,
@@ -32,7 +42,7 @@ class CharacterDataMigrator
     };
   }
 
-  static function migrate_AnimationData_v1_0_0(input:Array<CharacterData_v1_0_0.AnimationData_v1_0_0>):Array<AnimationData>
+  static function migrate_AnimationData_v1_0_0(input:Array<AnimationData_v1_0_0>):Array<AnimationData>
   {
     var animations:Array<AnimationData> = [];
     for (animation in input)
