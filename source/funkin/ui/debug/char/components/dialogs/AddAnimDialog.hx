@@ -1,6 +1,7 @@
 package funkin.ui.debug.char.components.dialogs;
 
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage.CharDialogType;
+import funkin.data.character.CharacterData.CharacterRenderType;
 import haxe.ui.containers.dialogs.CollapsibleDialog;
 import haxe.ui.data.ArrayDataSource;
 
@@ -15,11 +16,11 @@ class AddAnimDialog extends DefaultPageDialog
     linkedChar = char;
 
     // dialog callback bs
-    charAnimFrames.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == "atlas");
-    charAnimFrames.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == "atlas" ? "Unavailable for Atlas Characters." : null);
+    charAnimFrames.disabled = charAnimFlipX.disabled = charAnimFlipY.disabled = charAnimFramerate.disabled = (char.renderType == CharacterRenderType.AnimateAtlas);
+    charAnimFrames.tooltip = charAnimFlipX.tooltip = charAnimFlipY.tooltip = charAnimFramerate.tooltip = (char.renderType == CharacterRenderType.AnimateAtlas ? "Unavailable for Atlas Characters." : null);
 
     charAnimFrameList.dataSource = new ArrayDataSource();
-    if (char.renderType != "atlas")
+    if (char.renderType != CharacterRenderType.AnimateAtlas)
     {
       for (fname in char.frames.frames)
         if (fname != null) charAnimFrameList.dataSource.add({name: fname.name});

@@ -9,6 +9,7 @@ import funkin.ui.debug.char.handlers.CharCreatorStartupWizard;
 import funkin.util.FileUtil;
 import flxanimate.data.AnimationData.AnimAtlas;
 import flxanimate.data.SpriteMapData.AnimateAtlas;
+import funkin.data.character.CharacterData.CharacterRenderType;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.FlxSprite;
 import openfl.display.BitmapData;
@@ -38,15 +39,20 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
     switch (params.renderType)
     {
-      case "sparrow":
-        addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
-      case "multisparrow":
-        recursiveUploadBox();
-      case "packer":
+      case CharacterRenderType.Sparrow:
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
 
-      case "atlas":
+      case CharacterRenderType.MultiSparrow:
+        recursiveUploadBox();
+
+      case CharacterRenderType.Packer:
+        addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
+
+      case CharacterRenderType.AnimateAtlas:
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Atlas .zip Data Here", FileUtil.FILE_EXTENSION_INFO_ZIP));
+
+      default:
+        // this should never happen, right?
     }
 
     stupidFuckingRenderCheck = params.renderType;
@@ -86,7 +92,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
   {
     switch (params.renderType)
     {
-      case "sparrow" | "multisparrow":
+      case CharacterRenderType.Sparrow | CharacterRenderType.MultiSparrow:
         var files = [];
         for (uploadBox in uploadBoxes)
         {
@@ -128,7 +134,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
         return true;
 
-      case "packer": // essentially just sparrow...but different!
+      case CharacterRenderType.Packer: // essentially just sparrow...but different!
         var imgPath = uploadBoxes[0].daField.text;
         var txtPath = uploadBoxes[0].daField.text.replace(".png", ".txt");
 
@@ -157,7 +163,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
         return true;
 
-      case "atlas":
+      case CharacterRenderType.AnimateAtlas:
         var zipPath = uploadBoxes[0].daField.text;
 
         // checking if we even have the correct file types in the correct places
@@ -205,6 +211,9 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
         if (hasAnimData && hasSpritemapData && hasImageData) params.files.push({name: zipPath, bytes: zipBytes});
         return hasAnimData && hasSpritemapData && hasImageData;
+
+      default:
+        return false;
     }
 
     return false;

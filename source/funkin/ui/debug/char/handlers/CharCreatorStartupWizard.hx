@@ -1,5 +1,6 @@
 package funkin.ui.debug.char.handlers;
 
+import funkin.data.character.CharacterData.CharacterRenderType;
 import funkin.ui.debug.char.components.wizard.*;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.io.Bytes;
@@ -18,7 +19,7 @@ class CharCreatorStartupWizard
       characterID: "",
       generateCharacter: false,
       generatePlayerData: false,
-      renderType: "sparrow",
+      renderType: CharacterRenderType.Sparrow,
       files: []
     }
 
@@ -58,7 +59,7 @@ typedef WizardGenerateParams =
   var characterID:String;
   var generateCharacter:Bool;
   var generatePlayerData:Bool;
-  var renderType:String;
+  var renderType:CharacterRenderType;
   var files:Array<WizardFile>;
 }
 

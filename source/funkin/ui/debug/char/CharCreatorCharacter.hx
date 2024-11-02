@@ -5,6 +5,7 @@ import openfl.display.BitmapData;
 import funkin.data.animation.AnimationData;
 import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.data.character.CharacterData;
+import funkin.data.character.CharacterData.CharacterRenderType;
 import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.play.stage.Bopper;
@@ -22,7 +23,7 @@ class CharCreatorCharacter extends Bopper
 {
   public var generatedParams:WizardGenerateParams;
   public var characterId(get, never):String;
-  public var renderType(get, never):String;
+  public var renderType(get, never):CharacterRenderType;
   public var files(get, never):Array<WizardFile>;
 
   public var characterName:String = "Unknown";
@@ -52,7 +53,7 @@ class CharCreatorCharacter extends Bopper
 
     switch (generatedParams.renderType)
     {
-      case "sparrow" | "multisparrow":
+      case CharacterRenderType.Sparrow | CharacterRenderType.MultiSparrow:
         if (generatedParams.files.length < 2) return; // img and data
 
         var combinedFrames = null;
@@ -67,14 +68,14 @@ class CharCreatorCharacter extends Bopper
         }
         this.frames = combinedFrames;
 
-      case "packer":
+      case CharacterRenderType.Packer:
         if (generatedParams.files.length != 2) return; // img and data
 
         var img = BitmapData.fromBytes(generatedParams.files[0].bytes);
         var data = generatedParams.files[1].bytes.toString();
         this.frames = FlxAtlasFrames.fromSpriteSheetPacker(img, data);
 
-      case "atlas": // todo
+      case CharacterRenderType.AnimateAtlas: // todo
         if (generatedParams.files.length != 1) return; // zip file with all the data
         atlasCharacter = new CharSelectAtlasSprite(0, 0, generatedParams.files[0].bytes);
 
@@ -102,6 +103,7 @@ class CharCreatorCharacter extends Bopper
     {
       atlasCharacter.x = this.x;
       atlasCharacter.y = this.y;
+      atlasCharacter.alpha = this.alpha;
       atlasCharacter.flipX = this.flipX;
       atlasCharacter.flipY = this.flipY;
       atlasCharacter.moves = this.moves;
@@ -115,7 +117,7 @@ class CharCreatorCharacter extends Bopper
       atlasCharacter.exists = this.exists;
       atlasCharacter.camera = this.camera;
       atlasCharacter.cameras = this.cameras;
-      atlasCharacter.offset.copyFrom(this.offset);
+      atlasCharacter.offset.set(animOffsets[0], animOffsets[1]);
       atlasCharacter.origin.copyFrom(this.origin);
       atlasCharacter.scale.copyFrom(this.scale);
       atlasCharacter.scrollFactor.copyFrom(this.scrollFactor);
@@ -138,7 +140,7 @@ class CharCreatorCharacter extends Bopper
   {
     if (getAnimationData(name) != null) return true; // i mean i guess???
 
-    if (renderType != "atlas")
+    if (renderType != CharacterRenderType.AnimateAtlas)
     {
       if (indices.length > 0) animation.addByIndices(name, prefix, indices, "", frameRate, looped, flipX, flipY);
       else
@@ -206,6 +208,7 @@ class CharCreatorCharacter extends Bopper
     var loop:Bool = animData.looped;
 
     atlasCharacter.playAnimation(prefix, restart, ignoreOther, loop);
+    applyAnimationOffsets(correctName);
   }
 
   public override function hasAnimation(name:String):Bool
