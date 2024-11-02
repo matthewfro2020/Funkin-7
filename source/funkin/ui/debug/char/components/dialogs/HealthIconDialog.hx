@@ -1,7 +1,5 @@
 package funkin.ui.debug.char.components.dialogs;
 
-package funkin.ui.debug.char.components.dialogs;
-
 import funkin.play.components.HealthIcon;
 import funkin.util.FileUtil;
 import flixel.FlxSprite;
@@ -117,6 +115,8 @@ class HealthIconDialog extends DefaultPageDialog
       healthIconPreviewImg.flipX = healthIconFlipX.selected;
       healthIconPreviewImg.antialiasing = healthIconPixelated.selected;
       healthIconPreviewImg.imageScale = healthIconScale.pos;
+      healthIconPreviewImg.left = healthIconOffsetX.pos;
+      healthIconPreviewImg.top = healthIconOffsetY.pos;
 
       healthIcon.animation.onFrameChange.add(function(animName:String, frameNumber:Int, frameIndex:Int) {
         healthIconPreviewImg.resource = healthIcon.frames.frames[frameIndex];
