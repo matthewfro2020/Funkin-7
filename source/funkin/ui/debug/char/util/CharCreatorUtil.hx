@@ -1,5 +1,6 @@
 package funkin.ui.debug.char.util;
 
+import haxe.io.Path;
 import haxe.ui.core.Screen;
 import haxe.ui.focus.FocusManager;
 
@@ -31,5 +32,13 @@ class CharCreatorUtil
     while (!text.startsWith("{"))
       text = text.substring(1, text.length);
     return text;
+  }
+
+  public static function isCharacterPath(path:String):Bool
+  {
+    var cwd = Path.addTrailingSlash(Path.normalize(sys.FileSystem.fullPath(".")));
+    path = Path.normalize(path);
+    path = path.replace(cwd, "");
+    return !Path.isAbsolute(path) && path.indexOf("images/characters") != -1;
   }
 }

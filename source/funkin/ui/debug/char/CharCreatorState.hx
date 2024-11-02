@@ -1,5 +1,6 @@
 package funkin.ui.debug.char;
 
+import haxe.io.Path;
 import haxe.ui.core.Screen;
 import haxe.ui.backend.flixel.UIState;
 import haxe.ui.containers.windows.WindowManager;
@@ -8,7 +9,7 @@ import funkin.input.Cursor;
 import funkin.ui.debug.char.pages.*;
 import funkin.util.MouseUtil;
 import funkin.util.WindowUtil;
-import funkin.util.SerializerUtil;
+import funkin.util.FileUtil;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.FlxCamera;
 import flixel.FlxSprite;
@@ -164,7 +165,21 @@ class CharCreatorState extends UIState
   {
     var gameplayPage:CharCreatorGameplayPage = cast pages[Gameplay];
 
-    funkin.util.FileUtil.saveFile(gameplayPage.currentCharacter.toBytes(), [funkin.util.FileUtil.FILE_FILTER_JSON]);
+    var zipEntries = [];
+    zipEntries.push(FileUtil.makeZIPEntry('${gameplayPage.currentCharacter.characterId}.json', gameplayPage.currentCharacter.toJSON()));
+
+    for (file in gameplayPage.currentCharacter.files)
+    {
+      // skip if the file is in a character path
+      if (CharCreatorUtil.isCharacterPath(file.name))
+      {
+        continue;
+      }
+
+      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(file.name)}', file.bytes));
+    }
+
+    FileUtil.saveFilesAsZIP(zipEntries);
   }
 }
 

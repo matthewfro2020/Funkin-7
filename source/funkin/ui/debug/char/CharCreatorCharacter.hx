@@ -13,7 +13,6 @@ import flixel.math.FlxPoint.FlxCallbackPoint; // honestly these are kind of awes
 import flixel.FlxSprite;
 import haxe.io.Bytes;
 import haxe.io.Path;
-import funkin.util.SerializerUtil;
 
 // literally just basecharacter but less functionality
 // like the removal of note event functions
@@ -24,6 +23,7 @@ class CharCreatorCharacter extends Bopper
   public var generatedParams:WizardGenerateParams;
   public var characterId(get, never):String;
   public var renderType(get, never):String;
+  public var files(get, never):Array<WizardFile>;
 
   public var characterName:String = "Unknown";
   public var characterType:CharacterType = BF;
@@ -254,9 +254,10 @@ class CharCreatorCharacter extends Bopper
    * Returns the `CharacterData` in bytes
    * @return Bytes
    */
-  public function toBytes():Bytes
+  public function toJSON():String
   {
-    return Bytes.ofString(SerializerUtil.toJSON(toCharacterData()));
+    var writer = new json2object.JsonWriter<CharacterData>(true);
+    return writer.write(toCharacterData(), '  ');
   }
 
   /**
@@ -268,8 +269,14 @@ class CharCreatorCharacter extends Bopper
     return {
       version: CharacterRegistry.CHARACTER_DATA_VERSION,
       name: characterName,
-      assetPaths: generatedParams.files.filter((file) -> return file.name.endsWith(".png"))
-        .map((file) -> Path.normalize(file.name.substr(file.name.indexOf("images") + 7)).replace(".png", "")),
+      assetPaths: generatedParams.files.filter((file) -> return file.name.endsWith(".png") || file.name.endsWith(".zip")).map((file) -> {
+        var path = Path.withoutExtension(Path.normalize(file.name));
+        if (!CharCreatorUtil.isCharacterPath(path))
+        {
+          return 'characters/${Path.withoutDirectory(path)}';
+        }
+        return path.substr(path.lastIndexOf("images") + 7);
+      }),
       flipX: characterFlipX,
       renderType: generatedParams.renderType,
       healthIcon:
@@ -291,6 +298,11 @@ class CharCreatorCharacter extends Bopper
   function get_renderType()
   {
     return generatedParams.renderType;
+  }
+
+  function get_files()
+  {
+    return generatedParams.files;
   }
 
   function get_characterOrigin():FlxPoint
