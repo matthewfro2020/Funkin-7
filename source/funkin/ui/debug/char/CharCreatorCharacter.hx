@@ -4,12 +4,16 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.display.BitmapData;
 import funkin.data.animation.AnimationData;
 import funkin.play.character.BaseCharacter.CharacterType;
+import funkin.data.character.CharacterData;
 import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.play.stage.Bopper;
 import flixel.math.FlxPoint;
 import flixel.math.FlxPoint.FlxCallbackPoint; // honestly these are kind of awesome
 import flixel.FlxSprite;
+import haxe.io.Bytes;
+import haxe.io.Path;
+import funkin.util.SerializerUtil;
 
 // literally just basecharacter but less functionality
 // like the removal of note event functions
@@ -21,7 +25,7 @@ class CharCreatorCharacter extends Bopper
   public var characterId(get, never):String;
   public var renderType(get, never):String;
 
-  public var characterName:String;
+  public var characterName:String = "Unknown";
   public var characterType:CharacterType = BF;
 
   public var holdTimer:Float = 0;
@@ -244,6 +248,36 @@ class CharCreatorCharacter extends Bopper
     }
 
     return null;
+  }
+
+  /**
+   * Returns the `CharacterData` in bytes
+   * @return Bytes
+   */
+  public function toBytes():Bytes
+  {
+    return Bytes.ofString(SerializerUtil.toJSON(toCharacterData()));
+  }
+
+  /**
+   * Returns the information as `CharacterData`
+   * @return CharacterData
+   */
+  public function toCharacterData():CharacterData
+  {
+    return {
+      version: CharacterRegistry.CHARACTER_DATA_VERSION,
+      name: characterName,
+      assetPaths: generatedParams.files.filter((file) -> return file.name.endsWith(".png"))
+        .map((file) -> Path.normalize(file.name.substr(file.name.indexOf("images") + 7)).replace(".png", "")),
+      flipX: characterFlipX,
+      renderType: generatedParams.renderType,
+      healthIcon:
+        {
+          id: characterId
+        },
+      animations: animations,
+    };
   }
 
   // getters and setters

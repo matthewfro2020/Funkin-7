@@ -8,6 +8,7 @@ import funkin.input.Cursor;
 import funkin.ui.debug.char.pages.*;
 import funkin.util.MouseUtil;
 import funkin.util.WindowUtil;
+import funkin.util.SerializerUtil;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.FlxCamera;
 import flixel.FlxSprite;
@@ -161,9 +162,9 @@ class CharCreatorState extends UIState
 
   function exportCharacter():Void
   {
-    funkin.util.FileUtil.saveFile(haxe.io.Bytes.ofString("lol"), [funkin.util.FileUtil.FILE_FILTER_JSON], (path:String) -> {
-      trace('PATH: $path');
-    });
+    var gameplayPage:CharCreatorGameplayPage = cast pages[Gameplay];
+
+    funkin.util.FileUtil.saveFile(gameplayPage.currentCharacter.toBytes(), [funkin.util.FileUtil.FILE_FILTER_JSON]);
   }
 }
 
