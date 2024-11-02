@@ -84,6 +84,8 @@ class CharCreatorState extends UIState
     if (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight) FunkinSound.playOnce(Paths.sound("chartingSounds/ClickDown"));
     if (FlxG.mouse.justReleased || FlxG.mouse.justReleasedRight) FunkinSound.playOnce(Paths.sound("chartingSounds/ClickUp"));
 
+    handleShortcuts();
+
     if (!CharCreatorUtil.isCursorOverHaxeUI)
     {
       if (camGame.zoom > 0.11) MouseUtil.mouseWheelZoom();
@@ -96,6 +98,12 @@ class CharCreatorState extends UIState
   function setupUICallbacks()
   {
     menubarOptionGameplay.onChange = function(_) switchToPage(Gameplay);
+    menubarItemExport.onClick = _ -> exportCharacter();
+  }
+
+  function handleShortcuts():Void
+  {
+    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) exportCharacter();
   }
 
   function wizardComplete(params:WizardGenerateParams)
@@ -149,6 +157,13 @@ class CharCreatorState extends UIState
 
     selectedPage.fillUpBottomBar(bottomBarLeftBox, bottomBarMiddleBox, bottomBarRightBox);
     selectedPage.fillUpPageSettings(menubarMenuSettings);
+  }
+
+  function exportCharacter():Void
+  {
+    funkin.util.FileUtil.saveFile(haxe.io.Bytes.ofString("lol"), [funkin.util.FileUtil.FILE_FILTER_JSON], (path:String) -> {
+      trace('PATH: $path');
+    });
   }
 }
 
