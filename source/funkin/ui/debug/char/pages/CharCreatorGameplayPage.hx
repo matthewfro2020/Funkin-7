@@ -55,6 +55,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
     dialogMap.set(Animation, new AddAnimDialog(this, currentCharacter));
     dialogMap.set(Ghost, new GhostSettingsDialog(this));
+    dialogMap.set(Health, new HealthIconDialog(this));
 
     // defaults for UI
     labelAnimName.text = "None";
@@ -215,11 +216,18 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   override public function fillUpPageSettings(item:haxe.ui.containers.menus.Menu)
   {
     var checkAnim = new MenuCheckBox();
-    checkAnim.text = "View Animations";
+    checkAnim.text = "Animation Data";
     checkAnim.onChange = function(_) {
       dialogMap[Animation].hidden = !checkAnim.selected;
     }
     item.addComponent(checkAnim);
+
+    var checkHealth = new MenuCheckBox();
+    checkHealth.text = "Health Icon Data";
+    checkHealth.onChange = function(_) {
+      dialogMap[Health].hidden = !checkHealth.selected;
+    }
+    item.addComponent(checkHealth);
 
     var checkGhost = new MenuCheckBox();
     checkGhost.text = "Ghost Settings";
@@ -426,4 +434,5 @@ enum CharDialogType
   Animation;
   Data;
   Ghost;
+  Health;
 }
