@@ -100,12 +100,12 @@ class CharCreatorState extends UIState
   function setupUICallbacks()
   {
     menubarOptionGameplay.onChange = function(_) switchToPage(Gameplay);
-    menubarItemExport.onClick = _ -> exportCharacter();
+    menubarItemExport.onClick = _ -> this.exportCharacter();
   }
 
   function handleShortcuts():Void
   {
-    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) exportCharacter();
+    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) this.exportCharacter();
   }
 
   function wizardComplete(params:WizardGenerateParams)
@@ -159,27 +159,6 @@ class CharCreatorState extends UIState
 
     selectedPage.fillUpBottomBar(bottomBarLeftBox, bottomBarMiddleBox, bottomBarRightBox);
     selectedPage.fillUpPageSettings(menubarMenuSettings);
-  }
-
-  function exportCharacter():Void
-  {
-    var gameplayPage:CharCreatorGameplayPage = cast pages[Gameplay];
-
-    var zipEntries = [];
-    zipEntries.push(FileUtil.makeZIPEntry('${gameplayPage.currentCharacter.characterId}.json', gameplayPage.currentCharacter.toJSON()));
-
-    for (file in gameplayPage.currentCharacter.files)
-    {
-      // skip if the file is in a character path
-      if (CharCreatorUtil.isCharacterPath(file.name))
-      {
-        continue;
-      }
-
-      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(file.name)}', file.bytes));
-    }
-
-    FileUtil.saveFilesAsZIP(zipEntries);
   }
 }
 
