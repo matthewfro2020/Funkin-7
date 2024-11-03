@@ -36,6 +36,9 @@ class CharCreatorCharacter extends Bopper
   public var characterFlipX:Bool = false;
   public var characterScale:Float = 1.0; // character scale to be used in the data, ghosts need one
 
+  public var healthIcon:HealthIconData = null;
+  public var healthIconFiles:Array<WizardFile> = [];
+
   public var characterOrigin(get, never):FlxPoint;
   public var feetPosition(get, never):FlxPoint;
   public var totalScale(default, set):Float; // total character scale, included with the stage scale
@@ -290,7 +293,7 @@ class CharCreatorCharacter extends Bopper
       name: characterName,
       assetPaths: generatedParams.files.filter((file) -> return file.name.endsWith(".png") || file.name.endsWith(".zip")).map((file) -> {
         var path = Path.withoutExtension(Path.normalize(file.name));
-        if (!CharCreatorUtil.isCharacterPath(path))
+        if (!CharCreatorUtil.isPathProvided(path, "images/characters"))
         {
           return 'characters/${Path.withoutDirectory(path)}';
         }
@@ -298,10 +301,7 @@ class CharCreatorCharacter extends Bopper
       }),
       flipX: characterFlipX,
       renderType: generatedParams.renderType,
-      healthIcon:
-        {
-          id: characterId
-        },
+      healthIcon: healthIcon,
       animations: animations,
     };
   }

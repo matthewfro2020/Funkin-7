@@ -34,11 +34,11 @@ class CharCreatorUtil
     return text;
   }
 
-  public static function isCharacterPath(path:String):Bool
+  public static function isPathProvided(path:String, checkFor:String = "images/characters"):Bool
   {
-    var cwd = Path.addTrailingSlash(Path.normalize(sys.FileSystem.fullPath(".")));
+    var cwd = Path.addTrailingSlash(Path.normalize(#if sys sys.FileSystem.fullPath(".") #else "." #end));
     path = Path.normalize(path);
     path = path.replace(cwd, "");
-    return !Path.isAbsolute(path) && path.indexOf("images/characters") != -1;
+    return !Path.isAbsolute(path) && path.indexOf(checkFor) != -1;
   }
 }

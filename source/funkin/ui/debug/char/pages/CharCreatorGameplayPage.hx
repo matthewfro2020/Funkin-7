@@ -55,7 +55,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
     dialogMap.set(Animation, new AddAnimDialog(this, currentCharacter));
     dialogMap.set(Ghost, new GhostSettingsDialog(this));
-    dialogMap.set(Health, new HealthIconDialog(this));
+    dialogMap.set(Health, new HealthIconDialog(this, currentCharacter));
 
     // defaults for UI
     labelAnimName.text = "None";
