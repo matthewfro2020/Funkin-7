@@ -1,6 +1,7 @@
 package funkin.ui.debug.char.util;
 
 import funkin.data.character.CharacterData;
+import funkin.data.character.CharacterData.CharacterRenderType;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -19,7 +20,7 @@ class GhostUtil
 
     switch (player.renderType)
     {
-      case "sparrow" | "multisparrow":
+      case CharacterRenderType.Sparrow | CharacterRenderType.MultiSparrow:
         if (ghost.generatedParams.files.length < 2) return; // img and data
 
         var combinedFrames = null;
@@ -34,14 +35,14 @@ class GhostUtil
         }
         ghost.frames = combinedFrames;
 
-      case "packer":
+      case CharacterRenderType.Packer:
         if (ghost.generatedParams.files.length != 2) return; // img and data
 
         var img = BitmapData.fromBytes(ghost.generatedParams.files[0].bytes);
         var data = ghost.generatedParams.files[1].bytes.toString();
         ghost.frames = FlxAtlasFrames.fromSpriteSheetPacker(img, data);
 
-      case "atlas": // todo
+      case CharacterRenderType.AnimateAtlas: // todo
         if (ghost.generatedParams.files.length != 1) return; // zip file with all the data
         ghost.atlasCharacter = new CharSelectAtlasSprite(0, 0, ghost.generatedParams.files[0].bytes);
 
@@ -77,7 +78,7 @@ class GhostUtil
 
     switch (data.renderType)
     {
-      case "sparrow" | "multisparrow":
+      case CharacterRenderType.Sparrow | CharacterRenderType.MultiSparrow:
         var combinedFrames = null;
         for (i => assetPath in data.assetPaths)
         {
@@ -87,10 +88,10 @@ class GhostUtil
         }
         ghost.frames = combinedFrames;
 
-      case "packer":
+      case CharacterRenderType.Packer:
         ghost.frames = Paths.getPackerAtlas(data.assetPaths[0]);
 
-      case "animateatlas": // TODO, gonna think of smth
+      case CharacterRenderType.AnimateAtlas: // TODO, gonna think of smth
 
       default: // nuthin
     }

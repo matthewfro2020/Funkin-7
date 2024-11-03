@@ -406,7 +406,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
       switch (prop.animType)
       {
-        case 'packer':
+        case CharacterRenderType.Packer:
           for (anim in prop.animations)
           {
             spr.animation.add(anim.name, anim.frameIndices, anim.frameRate, anim.looped, anim.flipX, anim.flipY);
