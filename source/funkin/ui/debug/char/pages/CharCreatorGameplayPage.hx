@@ -255,14 +255,14 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
     if (ghostId == "")
     {
-      GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter);
+      ghostCharacter.fromCharacter(currentCharacter);
     }
     else
     {
       var data:CharacterData = CharacterRegistry.fetchCharacterData(ghostId);
       if (data == null) return ghostId;
 
-      GhostUtil.copyFromCharacterData(ghostCharacter, data);
+      ghostCharacter.fromCharacterData(data);
     }
 
     refreshGhoulAnims();

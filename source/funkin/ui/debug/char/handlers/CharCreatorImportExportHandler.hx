@@ -1,6 +1,7 @@
 package funkin.ui.debug.char.handlers;
 
 import haxe.io.Path;
+import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import funkin.ui.debug.char.CharCreatorState;
 import funkin.util.FileUtil;
@@ -10,7 +11,20 @@ using StringTools;
 @:access(funkin.ui.debug.char.CharCreatorState)
 class CharCreatorImportExportHandler
 {
-  public static function importCharacter(state:CharCreatorState):Void {}
+  public static function importCharacter(state:CharCreatorState, charId:String):Void
+  {
+    var gameplayPage:CharCreatorGameplayPage = cast state.pages[Gameplay];
+
+    var data = CharacterRegistry.fetchCharacterData(charId);
+
+    if (data == null)
+    {
+      trace('No character data for $charId (CharCreatorImportExportHandler.importCharacter)');
+      return;
+    }
+
+    gameplayPage.currentCharacter.fromCharacterData(CharacterRegistry.fetchCharacterData(charId));
+  }
 
   public static function exportCharacter(state:CharCreatorState):Void
   {

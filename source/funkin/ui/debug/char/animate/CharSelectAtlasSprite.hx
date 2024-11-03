@@ -42,34 +42,37 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   var canPlayOtherAnims:Bool = true;
 
-  public function new(x:Float, y:Float, ?zipBytes:haxe.io.Bytes = null, ?settings:Settings)
+  public function new(x:Float, y:Float, ?zipBytes:haxe.io.Bytes = null, ?assetPath:String = null, ?settings:Settings)
   {
     if (settings == null) settings = SETTINGS;
 
-    super(x, y, null, settings);
+    super(x, y, assetPath, settings);
 
-    var animData:String = "";
-    var spritemapArray:Array<String> = [];
-    var imageMap:Map<String, BitmapData> = [];
-
-    var zipFiles = funkin.util.FileUtil.readZIPFromBytes(zipBytes);
-    if (zipFiles.length == 0) return;
-
-    for (file in zipFiles)
+    if (assetPath == null)
     {
-      if (file.fileName.indexOf("/") != -1) file.fileName = haxe.io.Path.withoutDirectory(file.fileName);
+      var animData:String = "";
+      var spritemapArray:Array<String> = [];
+      var imageMap:Map<String, BitmapData> = [];
 
-      if (file.fileName.indexOf("Animation.json") != -1) animData = CharCreatorUtil.normalizeJSONText(file.data.toString());
+      var zipFiles = funkin.util.FileUtil.readZIPFromBytes(zipBytes);
+      if (zipFiles.length == 0) return;
 
-      if (file.fileName.startsWith("spritemap")
-        && file.fileName.endsWith(".json")) spritemapArray.push(CharCreatorUtil.normalizeJSONText(file.data.toString()));
-      if (file.fileName.startsWith("spritemap")
-        && file.fileName.endsWith(".png")) imageMap.set(file.fileName, BitmapData.fromBytes(file.data));
+      for (file in zipFiles)
+      {
+        if (file.fileName.indexOf("/") != -1) file.fileName = haxe.io.Path.withoutDirectory(file.fileName);
+
+        if (file.fileName.indexOf("Animation.json") != -1) animData = CharCreatorUtil.normalizeJSONText(file.data.toString());
+
+        if (file.fileName.startsWith("spritemap")
+          && file.fileName.endsWith(".json")) spritemapArray.push(CharCreatorUtil.normalizeJSONText(file.data.toString()));
+        if (file.fileName.startsWith("spritemap")
+          && file.fileName.endsWith(".png")) imageMap.set(file.fileName, BitmapData.fromBytes(file.data));
+      }
+
+      if (animData == "" || spritemapArray.length == 0 || imageMap.keys().array().length == 0) return;
+
+      this.loadSeparateAtlas(animData, CharSelectAnimateFrames.fromTextureAtlas(spritemapArray, imageMap));
     }
-
-    if (animData == "" || spritemapArray.length == 0 || imageMap.keys().array().length == 0) return;
-
-    this.loadSeparateAtlas(animData, CharSelectAnimateFrames.fromTextureAtlas(spritemapArray, imageMap));
 
     onAnimationComplete.add(cleanupAnimation);
 
