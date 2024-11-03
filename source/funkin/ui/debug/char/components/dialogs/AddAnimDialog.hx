@@ -89,6 +89,27 @@ class AddAnimDialog extends DefaultPageDialog
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
     }
+
+    charAnimDelete.onClick = function(_) {
+      if ((charAnimName.text ?? "") == "") return;
+
+      if (!char.removeAnimation(charAnimName.text)) return;
+      cast(page, CharCreatorGameplayPage).ghostCharacter.removeAnimation(charAnimName.text);
+
+      updateDropdown();
+      charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
+
+      if (charAnimDropdown.selectedIndex == -1)
+      {
+        @:privateAccess
+        cast(page, CharCreatorGameplayPage).labelAnimName.text = "None";
+        return;
+      }
+
+      var anim:String = charAnimDropdown.value.text;
+      char.playAnimation(anim);
+      cast(page, CharCreatorGameplayPage).ghostCharacter.playAnimation(anim);
+    }
   }
 
   function updateDropdown()

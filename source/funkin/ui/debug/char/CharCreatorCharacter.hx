@@ -170,6 +170,22 @@ class CharCreatorCharacter extends Bopper
     return true;
   }
 
+  public function removeAnimation(name:String):Bool
+  {
+    if (getAnimationData(name) == null) return false;
+
+    for (animation in animations)
+    {
+      if (animation.name == name)
+      {
+        animations.remove(animation);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   override public function setAnimationOffsets(name:String, xOffset:Float, yOffset:Float)
   {
     super.setAnimationOffsets(name, xOffset, yOffset);
