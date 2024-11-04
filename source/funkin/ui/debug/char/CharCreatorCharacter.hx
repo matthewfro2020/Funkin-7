@@ -54,7 +54,7 @@ class CharCreatorCharacter extends Bopper
 
     generatedParams = wizardParams;
 
-    switch (generatedParams.renderType)
+    switch (generatedParams?.renderType)
     {
       case CharacterRenderType.Sparrow | CharacterRenderType.MultiSparrow:
         if (generatedParams.files.length < 2) return; // img and data

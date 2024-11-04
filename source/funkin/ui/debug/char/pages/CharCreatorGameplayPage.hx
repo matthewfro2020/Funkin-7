@@ -45,6 +45,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     Conductor.instance.onBeatHit.add(stageBeatHit);
 
     currentCharacter = new CharCreatorCharacter(wizardParams);
+    if (wizardParams.importedCharacter != null) daState.importCharacter(wizardParams.importedCharacter);
     add(currentCharacter);
 
     ghostCharacter = new CharCreatorCharacter(wizardParams);

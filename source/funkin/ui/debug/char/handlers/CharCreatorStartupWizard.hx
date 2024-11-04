@@ -20,7 +20,8 @@ class CharCreatorStartupWizard
       generateCharacter: false,
       generatePlayerData: false,
       renderType: CharacterRenderType.Sparrow,
-      files: []
+      files: [],
+      importedCharacter: null
     }
 
   public static function startWizard(state:CharCreatorState, onComplete:WizardGenerateParams->Void = null, onQuit:Void->Void = null)
@@ -48,6 +49,7 @@ class CharCreatorStartupWizard
     dialogArray = [];
 
     dialogArray.push(new StartWizardDialog());
+    dialogArray.push(new ImportDataDialog());
     dialogArray.push(new RenderWizardDialog());
     dialogArray.push(new AddCharFilesDialog());
     dialogArray.push(new ConfirmDialog());
@@ -61,6 +63,8 @@ typedef WizardGenerateParams =
   var generatePlayerData:Bool;
   var renderType:CharacterRenderType;
   var files:Array<WizardFile>;
+  @:optional
+  var importedCharacter:String;
 }
 
 typedef WizardFile =
@@ -72,8 +76,9 @@ typedef WizardFile =
 enum abstract WizardStep(Int) from Int to Int
 {
   public var STARTUP = 0;
-  public var SELECT_CHAR_TYPE = 1;
-  public var UPLOAD_ASSETS = 2;
+  public var IMPORT_DATA = 1;
+  public var SELECT_CHAR_TYPE = 2;
+  public var UPLOAD_ASSETS = 3;
   public var UPLOAD_PLAYER_ASSETS = -1; // not implemented yet!
-  public var CONFIRM = 3;
+  public var CONFIRM = 4;
 }

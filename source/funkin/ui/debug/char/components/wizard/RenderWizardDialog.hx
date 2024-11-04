@@ -18,7 +18,8 @@ class RenderWizardDialog extends DefaultWizardDialog
   override public function showDialog(modal:Bool = true)
   {
     super.showDialog(modal);
-    renderOptionSparrow.disabled = renderOptionPacker.disabled = renderOptionAtlas.disabled = renderOptionMulti.disabled = !params.generateCharacter;
+    renderOptionSparrow.disabled = renderOptionPacker.disabled = renderOptionAtlas.disabled = renderOptionMulti.disabled = (!params.generateCharacter
+      || params.importedCharacter != null);
 
     renderOptionSparrow.selected = params.renderType == CharacterRenderType.Sparrow;
     renderOptionPacker.selected = params.renderType == CharacterRenderType.Packer;

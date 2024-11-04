@@ -31,7 +31,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
   {
     super.showDialog(modal);
 
-    addAssetsBox.disabled = !params.generateCharacter;
+    addAssetsBox.disabled = (!params.generateCharacter || params.importedCharacter != null);
     if (stupidFuckingRenderCheck == params.renderType) return;
 
     while (addAssetsBox.childComponents.length > 0)
