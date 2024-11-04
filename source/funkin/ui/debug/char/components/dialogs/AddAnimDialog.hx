@@ -112,7 +112,7 @@ class AddAnimDialog extends DefaultPageDialog
     }
   }
 
-  function updateDropdown()
+  public function updateDropdown()
   {
     charAnimDropdown.dataSource.clear();
 

@@ -45,10 +45,11 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     Conductor.instance.onBeatHit.add(stageBeatHit);
 
     currentCharacter = new CharCreatorCharacter(wizardParams);
-    if (wizardParams.importedCharacter != null) daState.importCharacter(wizardParams.importedCharacter);
+    if (wizardParams.importedCharacter != null) currentCharacter.fromCharacterData(CharacterRegistry.fetchCharacterData(wizardParams.importedCharacter));
     add(currentCharacter);
 
     ghostCharacter = new CharCreatorCharacter(wizardParams);
+    if (wizardParams.importedCharacter != null) ghostCharacter.fromCharacterData(CharacterRegistry.fetchCharacterData(wizardParams.importedCharacter));
     ghostCharacter.visible = false;
     add(ghostCharacter);
 
@@ -62,6 +63,9 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     labelAnimName.text = "None";
     labelAnimOffsetX.text = labelAnimOffsetY.text = "0";
     labelCharType.text = "BF";
+
+    var animDialog = cast(dialogMap[Animation], AddAnimDialog);
+    animDialog.updateDropdown();
   }
 
   override public function onDialogUpdate(dialog:DefaultPageDialog)
@@ -97,7 +101,6 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
   {
     // ==================left==================
-    labelAnimName.text = "None";
     labelAnimName.styleNames = "infoText";
     labelAnimName.verticalAlign = "center";
     labelAnimName.tooltip = "Left Click to play the Next Animation";
