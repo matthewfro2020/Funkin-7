@@ -391,14 +391,14 @@ class CharacterRegistry
   {
     var rawJson:JsonFile = loadCharacterFile(charId);
 
-    var version = parseVersion(rawJson);
+    var version = fetchEntryVersion(rawJson);
 
     if (version == null)
     {
       return null;
     }
 
-    if (CHARACTER_DATA_VERSION_RULE == null || VersionUtil.validateVersionStr(version, CHARACTER_DATA_VERSION_RULE))
+    if (CHARACTER_DATA_VERSION_RULE == null || VersionUtil.validateVersion(version, CHARACTER_DATA_VERSION_RULE))
     {
       return buildCharacterData(rawJson, charId);
     }
@@ -429,26 +429,9 @@ class CharacterRegistry
     };
   }
 
-  static function parseVersion(rawJson:JsonFile):Null<String>
+  static function fetchEntryVersion(rawJson:JsonFile):Null<thx.semver.Version>
   {
-    var parser = new json2object.JsonParser<JsonVersionGet>();
-    parser.ignoreUnknownVariables = true;
-
-    switch (rawJson)
-    {
-      case {fileName: fileName, contents: contents}:
-        parser.fromJson(contents, fileName);
-      default:
-        return null;
-    }
-
-    if (parser.errors.length > 0)
-    {
-      trace(parser.errors, "NO VERSION");
-      return null;
-    }
-
-    return parser.value.version;
+    return VersionUtil.getVersionFromJSON(rawJson.contents);
   }
 
   static function buildCharacterData(rawJson:JsonFile, charId:String):Null<CharacterData>
@@ -686,9 +669,4 @@ class CharacterRegistry
     // All good!
     return input;
   }
-}
-
-typedef JsonVersionGet =
-{
-  var version:String;
 }
