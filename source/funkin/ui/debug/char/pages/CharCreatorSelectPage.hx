@@ -1,16 +1,80 @@
 package funkin.ui.debug.char.pages;
 
+import funkin.audio.FunkinSound;
+import funkin.data.freeplay.player.PlayerData;
+import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import funkin.graphics.FunkinSprite;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+import flixel.group.FlxSpriteGroup;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.FlxSprite;
 import openfl.display.BlendMode;
+import openfl.filters.ShaderFilter;
 
 class CharCreatorSelectPage extends CharCreatorDefaultPage
 {
-  override public function new(state:CharCreatorState)
+  var data:WizardGenerateParams;
+
+  var nametag:FlxSprite;
+  var transitionGradient:FlxSprite;
+  var autoFollow:Bool = false;
+  var availableChars:Map<Int, String> = new Map<Int, String>();
+  var fadeShader:funkin.graphics.shaders.BlueFade = new funkin.graphics.shaders.BlueFade();
+
+  override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
     super(state);
+    loadAvailableCharacters();
+    this.data = data;
 
     // copied sum code LOL
+    initBackground();
+
+    // gf and player code doodoo
+
+    nametag = new FlxSprite();
+    add(nametag);
+
+    nametag.scrollFactor.set();
+
+    initCursors();
+    initSounds();
+
+    initLocks();
+
+    FlxTween.color(cursor, 0.2, 0xFFFFFF00, 0xFFFFCC00, {type: PINGPONG});
+
+    // FlxG.debugger.track(cursor);
+
+    var fadeShaderFilter:ShaderFilter = new ShaderFilter(fadeShader);
+    FlxG.camera.filters = [fadeShaderFilter];
+
+    var temp:FlxSprite = new FlxSprite();
+    temp.loadGraphic(Paths.image('charSelect/placement'));
+    add(temp);
+    temp.alpha = 0.0;
+
+    // FlxG.debugger.track(temp, "tempBG");
+
+    transitionGradient = new FlxSprite(0, 0).loadGraphic(Paths.image('freeplay/transitionGradient'));
+    transitionGradient.scale.set(1280, 1);
+    transitionGradient.flipY = true;
+    transitionGradient.updateHitbox();
+    FlxTween.tween(transitionGradient, {y: -720}, 1, {ease: FlxEase.expoOut});
+    add(transitionGradient);
+
+    fadeShader.fade(0.0, 1.0, 0.8, {ease: FlxEase.quadOut});
+
+    var blackScreen = new FunkinSprite().makeSolidColor(FlxG.width * 2, FlxG.height * 2, 0xFF000000);
+    blackScreen.x = -(FlxG.width * 0.5);
+    blackScreen.y = -(FlxG.height * 0.5);
+    add(blackScreen);
+  }
+
+  function initBackground()
+  {
     var bg:FlxSprite = new FlxSprite(-153, -140);
     bg.loadGraphic(Paths.image('charSelect/charSelectBG'));
     bg.scrollFactor.set(0.1, 0.1);
@@ -51,9 +115,10 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     var charLightGF:FlxSprite = new FlxSprite(180, 240);
     charLightGF.loadGraphic(Paths.image('charSelect/charLight'));
     add(charLightGF);
+  }
 
-    // gf and player code doodoo
-
+  function initForeground()
+  {
     var speakers:FlxAtlasSprite = new FlxAtlasSprite(0, 0, Paths.animateAtlas("charSelect/charSelectSpeakers"));
     speakers.anim.play("");
     speakers.anim.onComplete.add(function() {
@@ -88,10 +153,161 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     chooseDipshit.scrollFactor.set();
     dipshitBacking.scrollFactor.set();
     dipshitBlur.scrollFactor.set();
+  }
 
-    // nametag = new Nametag();
-    // add(nametag);
+  var cursor:FlxSprite;
+  var cursorBlue:FlxSprite;
+  var cursorDarkBlue:FlxSprite;
+  var grpCursors:FlxTypedSpriteGroup<FlxSprite>; // using flxtypedgroup raises an error
+  var cursorConfirmed:FlxSprite;
+  var cursorDenied:FlxSprite;
 
-    // nametag.scrollFactor.set();
+  function initCursors()
+  {
+    grpCursors = new FlxTypedSpriteGroup<FlxSprite>();
+    add(grpCursors);
+
+    cursor = new FlxSprite(0, 0);
+    cursor.loadGraphic(Paths.image('charSelect/charSelector'));
+    cursor.color = 0xFFFFFF00;
+
+    // FFCC00
+
+    cursorBlue = new FlxSprite(0, 0);
+    cursorBlue.loadGraphic(Paths.image('charSelect/charSelector'));
+    cursorBlue.color = 0xFF3EBBFF;
+
+    cursorDarkBlue = new FlxSprite(0, 0);
+    cursorDarkBlue.loadGraphic(Paths.image('charSelect/charSelector'));
+    cursorDarkBlue.color = 0xFF3C74F7;
+
+    cursorBlue.blend = BlendMode.SCREEN;
+    cursorDarkBlue.blend = BlendMode.SCREEN;
+
+    cursorConfirmed = new FlxSprite(0, 0);
+    cursorConfirmed.scrollFactor.set();
+    cursorConfirmed.frames = Paths.getSparrowAtlas("charSelect/charSelectorConfirm");
+    cursorConfirmed.animation.addByPrefix("idle", "cursor ACCEPTED instance 1", 24, true);
+    cursorConfirmed.visible = false;
+    add(cursorConfirmed);
+
+    cursorDenied = new FlxSprite(0, 0);
+    cursorDenied.scrollFactor.set();
+    cursorDenied.frames = Paths.getSparrowAtlas("charSelect/charSelectorDenied");
+    cursorDenied.animation.addByPrefix("idle", "cursor DENIED instance 1", 24, false);
+    cursorDenied.visible = false;
+    add(cursorDenied);
+
+    grpCursors.add(cursorDarkBlue);
+    grpCursors.add(cursorBlue);
+    grpCursors.add(cursor);
+
+    cursor.scrollFactor.set();
+    cursorBlue.scrollFactor.set();
+    cursorDarkBlue.scrollFactor.set();
+  }
+
+  var selectSound:FunkinSound;
+  var lockedSound:FunkinSound;
+  var staticSound:FunkinSound;
+
+  function initSounds()
+  {
+    selectSound = new FunkinSound();
+    selectSound.loadEmbedded(Paths.sound('CS_select'));
+    selectSound.pitch = 1;
+    selectSound.volume = 0.7;
+
+    FlxG.sound.defaultSoundGroup.add(selectSound);
+    FlxG.sound.list.add(selectSound);
+
+    lockedSound = new FunkinSound();
+    lockedSound.loadEmbedded(Paths.sound('CS_locked'));
+    lockedSound.pitch = 1;
+    lockedSound.volume = 1.;
+
+    FlxG.sound.defaultSoundGroup.add(lockedSound);
+    FlxG.sound.list.add(lockedSound);
+
+    staticSound = new FunkinSound();
+    staticSound.loadEmbedded(Paths.sound('static loop'));
+    staticSound.pitch = 1;
+    staticSound.looped = true;
+    staticSound.volume = 0.6;
+
+    FlxG.sound.defaultSoundGroup.add(staticSound);
+    FlxG.sound.list.add(staticSound);
+  }
+
+  var grpIcons:FlxSpriteGroup;
+  final grpXSpread:Float = 107;
+  final grpYSpread:Float = 127;
+
+  function initLocks():Void
+  {
+    grpIcons = new FlxSpriteGroup();
+    add(grpIcons);
+
+    for (i in 0...9)
+    {
+      if (availableChars.exists(i))
+      {
+        var path:String = availableChars.get(i);
+        var temp:PixelatedIcon = new PixelatedIcon(0, 0);
+        temp.setCharacter(path);
+        temp.setGraphicSize(128, 128);
+        temp.updateHitbox();
+        temp.ID = 0;
+        grpIcons.add(temp);
+      }
+    }
+
+    updateIconPositions();
+    grpIcons.scrollFactor.set();
+
+    for (index => member in grpIcons.members)
+    {
+      member.y += 300;
+      FlxTween.tween(member, {y: member.y - 300}, 1, {ease: FlxEase.expoOut});
+    }
+  }
+
+  function updateIconPositions()
+  {
+    grpIcons.x = 450;
+    grpIcons.y = 120;
+    for (index => member in grpIcons.members)
+    {
+      var posX:Float = (index % 3);
+      var posY:Float = Math.floor(index / 3);
+
+      member.x = posX * grpXSpread;
+      member.y = posY * grpYSpread;
+
+      member.x += grpIcons.x;
+      member.y += grpIcons.y;
+    }
+  }
+
+  function loadAvailableCharacters():Void
+  {
+    var playerIds:Array<String> = PlayerRegistry.instance.listEntryIds();
+
+    for (playerId in playerIds)
+    {
+      var player:Null<funkin.ui.freeplay.charselect.PlayableCharacter> = PlayerRegistry.instance.fetchEntry(playerId);
+      if (player == null) continue;
+      var playerData = player.getCharSelectData();
+      if (playerData == null) continue;
+
+      var targetPosition:Int = playerData.position ?? 0;
+      while (availableChars.exists(targetPosition))
+      {
+        targetPosition += 1;
+      }
+
+      trace('Placing player ${playerId} at position ${targetPosition}');
+      availableChars.set(targetPosition, playerId);
+    }
   }
 }

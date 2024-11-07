@@ -59,13 +59,9 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     dialogMap.set(Ghost, new GhostSettingsDialog(this));
     dialogMap.set(Health, new HealthIconDialog(this, currentCharacter));
 
-    // defaults for UI
-    labelAnimName.text = "None";
-    labelAnimOffsetX.text = labelAnimOffsetY.text = "0";
-    labelCharType.text = "BF";
-
     var animDialog = cast(dialogMap[Animation], AddAnimDialog);
     animDialog.updateDropdown();
+    generateUI();
   }
 
   override public function onDialogUpdate(dialog:DefaultPageDialog)
@@ -97,104 +93,33 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   var labelAnimOffsetX:Label = new Label();
   var labelAnimOffsetY:Label = new Label();
   var labelCharType:Label = new Label();
+  var stageDropdown:DropDown = new DropDown();
+
+  final RULE_HEIGHT:Int = 80;
 
   override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
   {
     // ==================left==================
-    labelAnimName.styleNames = "infoText";
-    labelAnimName.verticalAlign = "center";
-    labelAnimName.tooltip = "Left Click to play the Next Animation";
-    left.addComponent(labelAnimName);
-
     var leftRule1 = new VerticalRule();
-    leftRule1.percentHeight = 80;
-    left.addComponent(leftRule1);
-
-    labelAnimOffsetX.styleNames = "infoText";
-    labelAnimOffsetX.verticalAlign = "center";
-    labelAnimOffsetX.tooltip = "Left/Right Click to Increase/Decrease the Horizontal Offset.";
-    left.addComponent(labelAnimOffsetX);
-
     var leftRule2 = new VerticalRule();
-    leftRule2.percentHeight = 80;
-    left.addComponent(leftRule2);
 
-    labelAnimOffsetY.styleNames = "infoText";
-    labelAnimOffsetY.verticalAlign = "center";
-    labelAnimOffsetY.tooltip = "Left/Right Click to Increase/Decrease the Vertical Offset.";
+    leftRule1.percentHeight = leftRule2.percentHeight = RULE_HEIGHT;
+
+    left.addComponent(labelAnimName);
+    left.addComponent(leftRule1);
+    left.addComponent(labelAnimOffsetX);
+    left.addComponent(leftRule2);
     left.addComponent(labelAnimOffsetY);
 
     // ==================middle==================
 
     // ==================right==================
-    var typesArray = [BF, GF, DAD];
-
-    labelCharType.styleNames = "infoText";
-    labelCharType.verticalAlign = "center";
-    labelCharType.tooltip = "Left Click/Right Click to switch to the Next/Previous Character Mode.";
-    right.addComponent(labelCharType);
-
     var rightRule = new VerticalRule();
-    rightRule.percentHeight = 80;
+    rightRule.percentHeight = RULE_HEIGHT;
+
+    right.addComponent(labelCharType);
     right.addComponent(rightRule);
-
-    var dropdown = new DropDown();
-    dropdown.text = "Select Stage";
-    dropdown.dropdownVerticalPosition = "top";
-    dropdown.width = 125;
-    dropdown.selectedItem = curStage;
-    right.addComponent(dropdown);
-
-    var stages = StageRegistry.instance.listEntryIds();
-    stages.sort(funkin.util.SortUtil.alphabetically);
-    for (aught in stages)
-      dropdown.dataSource.add({text: aught});
-
-    // ==================callback bs==================
-
-    labelAnimName.onClick = function(_) {
-      var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
-      if (drop.selectedIndex == -1) return;
-
-      var id = drop.selectedIndex + 1;
-      if (id >= drop.dataSource.size) id = 0;
-      drop.selectedIndex = id;
-      currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
-    }
-
-    labelAnimName.onRightClick = function(_) {
-      var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
-      if (drop.selectedIndex == -1) return;
-
-      var id = drop.selectedIndex - 1;
-      if (id < 0) id = drop.dataSource.size - 1;
-      drop.selectedIndex = id;
-      currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
-    }
-
-    labelAnimOffsetX.onClick = _ -> changeCharAnimOffset(5);
-    labelAnimOffsetX.onRightClick = _ -> changeCharAnimOffset(-5);
-    labelAnimOffsetY.onClick = _ -> changeCharAnimOffset(0, 5);
-    labelAnimOffsetY.onRightClick = _ -> changeCharAnimOffset(0, -5);
-
-    labelCharType.onClick = function(_) {
-      var idx = typesArray.indexOf(currentCharacter.characterType);
-      idx++;
-      if (idx >= typesArray.length) idx = 0;
-      updateCharPerStageData(typesArray[idx]);
-      labelCharType.text = Std.string(currentCharacter.characterType);
-    }
-    labelCharType.onRightClick = function(_) {
-      var idx = typesArray.indexOf(currentCharacter.characterType);
-      idx--;
-      if (idx < 0) idx = typesArray.length - 1;
-      updateCharPerStageData(typesArray[idx]);
-      labelCharType.text = Std.string(currentCharacter.characterType);
-    }
-    dropdown.onChange = function(_) {
-      curStage = dropdown.selectedItem?.text ?? curStage;
-      updateCharPerStageData(currentCharacter.characterType);
-    }
+    right.addComponent(stageDropdown);
   }
 
   function changeCharAnimOffset(changeX:Int = 0, changeY:Int = 0)
@@ -217,27 +142,14 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     labelAnimOffsetY.text = "" + newOffsets[1];
   }
 
+  var checkAnim:MenuCheckBox = new MenuCheckBox();
+  var checkHealth:MenuCheckBox = new MenuCheckBox();
+  var checkGhost:MenuCheckBox = new MenuCheckBox();
+
   override public function fillUpPageSettings(item:haxe.ui.containers.menus.Menu)
   {
-    var checkAnim = new MenuCheckBox();
-    checkAnim.text = "Animation Data";
-    checkAnim.onChange = function(_) {
-      dialogMap[Animation].hidden = !checkAnim.selected;
-    }
     item.addComponent(checkAnim);
-
-    var checkHealth = new MenuCheckBox();
-    checkHealth.text = "Health Icon Data";
-    checkHealth.onChange = function(_) {
-      dialogMap[Health].hidden = !checkHealth.selected;
-    }
     item.addComponent(checkHealth);
-
-    var checkGhost = new MenuCheckBox();
-    checkGhost.text = "Ghost Settings";
-    checkGhost.onChange = function(_) {
-      dialogMap[Ghost].hidden = !checkGhost.selected;
-    }
     item.addComponent(checkGhost);
   }
 
@@ -302,6 +214,93 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     ghostCharacter.flipX = (type == BF ? !ghostCharacter.characterFlipX : ghostCharacter.characterFlipX);
 
     sortAssets();
+  }
+
+  function generateUI()
+  {
+    // defaults for UI
+    labelAnimName.text = "None";
+    labelAnimOffsetX.text = labelAnimOffsetY.text = "0";
+    labelCharType.text = "BF";
+
+    labelAnimName.styleNames = labelAnimOffsetX.styleNames = labelAnimOffsetY.styleNames = labelCharType.styleNames = "infoText";
+    labelAnimName.verticalAlign = labelAnimOffsetX.verticalAlign = labelAnimOffsetY.verticalAlign = labelCharType.verticalAlign = "center";
+
+    labelAnimName.tooltip = "Left Click to play the Next Animation";
+    labelAnimOffsetX.tooltip = "Left/Right Click to Increase/Decrease the Horizontal Offset.";
+    labelAnimOffsetY.tooltip = "Left/Right Click to Increase/Decrease the Vertical Offset.";
+    labelCharType.tooltip = "Left Click/Right Click to switch to the Next/Previous Character Mode.";
+
+    stageDropdown.text = "Select Stage";
+    stageDropdown.dropdownVerticalPosition = "top";
+    stageDropdown.width = 125;
+    stageDropdown.selectedItem = curStage;
+
+    var stages = StageRegistry.instance.listEntryIds();
+    stages.sort(funkin.util.SortUtil.alphabetically);
+    for (aught in stages)
+      stageDropdown.dataSource.add({text: aught});
+
+    checkAnim.text = "Animation Data";
+    checkHealth.text = "Health Icon Data";
+    checkGhost.text = "Ghost Settings";
+
+    // ==================callback bs==================
+
+    labelAnimName.onClick = function(_) {
+      var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
+      if (drop.selectedIndex == -1) return;
+
+      var id = drop.selectedIndex + 1;
+      if (id >= drop.dataSource.size) id = 0;
+      drop.selectedIndex = id;
+      currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
+    }
+
+    labelAnimName.onRightClick = function(_) {
+      var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
+      if (drop.selectedIndex == -1) return;
+
+      var id = drop.selectedIndex - 1;
+      if (id < 0) id = drop.dataSource.size - 1;
+      drop.selectedIndex = id;
+      currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
+    }
+
+    labelAnimOffsetX.onClick = _ -> changeCharAnimOffset(5);
+    labelAnimOffsetX.onRightClick = _ -> changeCharAnimOffset(-5);
+    labelAnimOffsetY.onClick = _ -> changeCharAnimOffset(0, 5);
+    labelAnimOffsetY.onRightClick = _ -> changeCharAnimOffset(0, -5);
+
+    var typesArray = [BF, GF, DAD];
+    labelCharType.onClick = function(_) {
+      var idx = typesArray.indexOf(currentCharacter.characterType);
+      idx++;
+      if (idx >= typesArray.length) idx = 0;
+      updateCharPerStageData(typesArray[idx]);
+      labelCharType.text = Std.string(currentCharacter.characterType);
+    }
+    labelCharType.onRightClick = function(_) {
+      var idx = typesArray.indexOf(currentCharacter.characterType);
+      idx--;
+      if (idx < 0) idx = typesArray.length - 1;
+      updateCharPerStageData(typesArray[idx]);
+      labelCharType.text = Std.string(currentCharacter.characterType);
+    }
+    stageDropdown.onChange = function(_) {
+      curStage = stageDropdown.selectedItem?.text ?? curStage;
+      updateCharPerStageData(currentCharacter.characterType);
+    }
+
+    checkAnim.onChange = function(_) {
+      dialogMap[Animation].hidden = !checkAnim.selected;
+    }
+    checkHealth.onChange = function(_) {
+      dialogMap[Health].hidden = !checkHealth.selected;
+    }
+    checkGhost.onChange = function(_) {
+      dialogMap[Ghost].hidden = !checkGhost.selected;
+    }
   }
 
   function sortAssets()

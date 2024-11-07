@@ -100,6 +100,7 @@ class CharCreatorState extends UIState
   function setupUICallbacks()
   {
     menubarOptionGameplay.onChange = function(_) switchToPage(Gameplay);
+    menubarOptionCharSelect.onChange = function(_) switchToPage(CharacterSelect);
     menubarItemExport.onClick = _ -> this.exportCharacter();
   }
 
@@ -126,6 +127,7 @@ class CharCreatorState extends UIState
     pages.clear();
 
     if (params.generateCharacter) pages.set(Gameplay, new CharCreatorGameplayPage(this, params));
+    if (params.generatePlayerData) pages.set(CharacterSelect, new CharCreatorSelectPage(this, params));
 
     menubarOptionGameplay.disabled = !params.generateCharacter;
     menubarOptionCharSelect.disabled = menubarOptionFreeplay.disabled = menubarOptionResults.disabled = !params.generatePlayerData;
@@ -150,7 +152,7 @@ class CharCreatorState extends UIState
     for (box in [bottomBarLeftBox, bottomBarMiddleBox, bottomBarRightBox, menubarMenuSettings])
     {
       while (box.childComponents.length > 0)
-        box.removeComponent(box.childComponents[0]);
+        box.removeComponent(box.childComponents[0], false);
     }
 
     remove(selectedPage);

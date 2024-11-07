@@ -21,6 +21,8 @@ class CharCreatorStartupWizard
       generatePlayerData: false,
       renderType: CharacterRenderType.Sparrow,
       files: [],
+      charSelectFile: null,
+      freeplayFile: null,
       importedCharacter: null
     }
 
@@ -63,6 +65,8 @@ typedef WizardGenerateParams =
   var generatePlayerData:Bool;
   var renderType:CharacterRenderType;
   var files:Array<WizardFile>;
+  var charSelectFile:WizardFile;
+  var freeplayFile:WizardFile;
   @:optional
   var importedCharacter:String;
 }
