@@ -20,8 +20,6 @@ import flixel.FlxG;
 
 class CharSelectIndexSubPage extends FlxSpriteGroup
 {
-  static final ICON_SIZE:Float = 128;
-
   var parentPage:CharCreatorSelectPage;
 
   var cursor:FlxSprite;
@@ -37,6 +35,9 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
   {
     super();
 
+    this.visible = false;
+    this.active = false;
+
     this.parentPage = parentPage;
 
     var bg = new FunkinSprite().makeSolidColor(FlxG.width, FlxG.height, 0xFF000000);
@@ -49,8 +50,6 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     initLocks();
 
     FlxTween.color(cursor, 0.2, 0xFFFFFF00, 0xFFFFCC00, {type: PINGPONG});
-
-    close();
   }
 
   override function update(elapsed:Float):Void
@@ -177,7 +176,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
         var path:String = parentPage.availableChars.get(i);
         var temp:PixelatedIcon = new PixelatedIcon(0, 0);
         temp.setCharacter(path);
-        temp.setGraphicSize(ICON_SIZE, ICON_SIZE);
+        temp.setGraphicSize(128, 128);
         temp.updateHitbox();
         temp.ID = 0;
         grpIcons.add(temp);
@@ -186,20 +185,12 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       {
         var temp:PixelatedIcon = new PixelatedIcon(0, 0);
         temp.setCharacter("bf");
-        temp.setGraphicSize(ICON_SIZE, ICON_SIZE);
+        temp.setGraphicSize(128, 128);
         temp.updateHitbox();
         temp.shader = new funkin.graphics.shaders.Grayscale();
         temp.ID = 1;
         grpIcons.add(temp);
       }
-    }
-
-    updateIconPositions();
-
-    for (index => member in grpIcons.members)
-    {
-      member.y += 300;
-      FlxTween.tween(member, {y: member.y - 300}, 1, {ease: FlxEase.expoOut});
     }
   }
 
@@ -225,8 +216,8 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     var mouseX:Float = FlxG.mouse.viewX - grpIcons.x;
     var mouseY:Float = FlxG.mouse.viewY - grpIcons.y;
 
-    var cursorX:Int = Math.floor(mouseX / ICON_SIZE);
-    var cursorY:Int = Math.floor(mouseY / ICON_SIZE);
+    var cursorX:Int = Math.floor(mouseX / grpXSpread);
+    var cursorY:Int = Math.floor(mouseY / grpYSpread);
 
     if (cursorX < 0 || cursorX >= 3 || cursorY < 0 || cursorY >= 3)
     {
@@ -269,7 +260,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
   {
     var selectedIcon = grpIcons.members[cursorIndex];
 
-    var cursorLocIntended:FlxPoint = FlxPoint.get(selectedIcon.x + ICON_SIZE / 2 - cursor.width / 2, selectedIcon.y + ICON_SIZE / 2 - cursor.height / 2);
+    var cursorLocIntended:FlxPoint = FlxPoint.get(selectedIcon.x + grpXSpread / 2 - cursor.width / 2, selectedIcon.y + grpYSpread / 2 - cursor.height / 2);
 
     cursor.x = MathUtil.smoothLerp(cursor.x, cursorLocIntended.x, elapsed, 0.1);
     cursor.y = MathUtil.smoothLerp(cursor.y, cursorLocIntended.y, elapsed, 0.1);
