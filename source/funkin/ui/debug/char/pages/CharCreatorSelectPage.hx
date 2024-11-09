@@ -12,9 +12,16 @@ import flixel.tweens.FlxTween;
 import flixel.FlxSprite;
 import openfl.display.BlendMode;
 import openfl.filters.ShaderFilter;
+import funkin.ui.charSelect.Lock;
+import funkin.util.MathUtil;
+import flixel.math.FlxPoint;
+import flixel.math.FlxMath;
+import flixel.FlxG;
 
 class CharCreatorSelectPage extends CharCreatorDefaultPage
 {
+  static final ICON_SIZE:Float = 128;
+
   var data:WizardGenerateParams;
 
   var nametag:FlxSprite;
@@ -22,6 +29,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var autoFollow:Bool = false;
   var availableChars:Map<Int, String> = new Map<Int, String>();
   var fadeShader:funkin.graphics.shaders.BlueFade = new funkin.graphics.shaders.BlueFade();
+
+  var selectedIndex:Int = 0;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -31,6 +40,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     // copied sum code LOL
     initBackground();
+
+    initForeground();
 
     // gf and player code doodoo
 
@@ -212,9 +223,15 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
         var path:String = availableChars.get(i);
         var temp:PixelatedIcon = new PixelatedIcon(0, 0);
         temp.setCharacter(path);
-        temp.setGraphicSize(128, 128);
+        temp.setGraphicSize(ICON_SIZE, ICON_SIZE);
         temp.updateHitbox();
         temp.ID = 0;
+        grpIcons.add(temp);
+      }
+      else
+      {
+        var temp:Lock = new Lock(0, 0, i);
+        temp.ID = 1;
         grpIcons.add(temp);
       }
     }
@@ -265,5 +282,43 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       trace('Placing player ${playerId} at position ${targetPosition}');
       availableChars.set(targetPosition, playerId);
     }
+  }
+
+  override function update(elapsed:Float):Void
+  {
+    super.update(elapsed);
+
+    handleCursor(elapsed);
+  }
+
+  function handleCursor(elapsed:Float):Void
+  {
+    var mouseX:Float = FlxG.mouse.viewX - grpIcons.x;
+    var mouseY:Float = FlxG.mouse.viewY - grpIcons.y;
+
+    var cursorX:Int = Math.floor(mouseX / ICON_SIZE);
+    var cursorY:Int = Math.floor(mouseY / ICON_SIZE);
+
+    if (cursorX < 0 || cursorX >= 3 || cursorY < 0 || cursorY >= 3)
+    {
+      return;
+    }
+
+    selectedIndex = cursorY * 3 + cursorX;
+
+    var selectedIcon = grpIcons.members[selectedIndex];
+
+    var cursorLocIntended:FlxPoint = FlxPoint.get(selectedIcon.x + ICON_SIZE / 2 - cursor.width / 2, selectedIcon.y + ICON_SIZE / 2 - cursor.height / 2);
+
+    cursor.x = MathUtil.smoothLerp(cursor.x, cursorLocIntended.x, elapsed, 0.1);
+    cursor.y = MathUtil.smoothLerp(cursor.y, cursorLocIntended.y, elapsed, 0.1);
+
+    cursorBlue.x = MathUtil.coolLerp(cursorBlue.x, cursor.x, 0.95 * 0.4);
+    cursorBlue.y = MathUtil.coolLerp(cursorBlue.y, cursor.y, 0.95 * 0.4);
+
+    cursorDarkBlue.x = MathUtil.coolLerp(cursorDarkBlue.x, cursorLocIntended.x, 0.95 * 0.2);
+    cursorDarkBlue.y = MathUtil.coolLerp(cursorDarkBlue.y, cursorLocIntended.y, 0.95 * 0.2);
+
+    cursorLocIntended.put();
   }
 }
