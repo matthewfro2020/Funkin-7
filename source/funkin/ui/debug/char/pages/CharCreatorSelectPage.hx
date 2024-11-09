@@ -37,47 +37,18 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     nametag = new FlxSprite();
     add(nametag);
 
-    nametag.scrollFactor.set();
-
     initCursors();
     initSounds();
 
     initLocks();
 
     FlxTween.color(cursor, 0.2, 0xFFFFFF00, 0xFFFFCC00, {type: PINGPONG});
-
-    // FlxG.debugger.track(cursor);
-
-    var fadeShaderFilter:ShaderFilter = new ShaderFilter(fadeShader);
-    FlxG.camera.filters = [fadeShaderFilter];
-
-    var temp:FlxSprite = new FlxSprite();
-    temp.loadGraphic(Paths.image('charSelect/placement'));
-    add(temp);
-    temp.alpha = 0.0;
-
-    // FlxG.debugger.track(temp, "tempBG");
-
-    transitionGradient = new FlxSprite(0, 0).loadGraphic(Paths.image('freeplay/transitionGradient'));
-    transitionGradient.scale.set(1280, 1);
-    transitionGradient.flipY = true;
-    transitionGradient.updateHitbox();
-    FlxTween.tween(transitionGradient, {y: -720}, 1, {ease: FlxEase.expoOut});
-    add(transitionGradient);
-
-    fadeShader.fade(0.0, 1.0, 0.8, {ease: FlxEase.quadOut});
-
-    var blackScreen = new FunkinSprite().makeSolidColor(FlxG.width * 2, FlxG.height * 2, 0xFF000000);
-    blackScreen.x = -(FlxG.width * 0.5);
-    blackScreen.y = -(FlxG.height * 0.5);
-    add(blackScreen);
   }
 
   function initBackground()
   {
     var bg:FlxSprite = new FlxSprite(-153, -140);
     bg.loadGraphic(Paths.image('charSelect/charSelectBG'));
-    bg.scrollFactor.set(0.1, 0.1);
     add(bg);
 
     var crowd:FlxAtlasSprite = new FlxAtlasSprite(0, 0, Paths.animateAtlas("charSelect/crowd"));
@@ -85,7 +56,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     crowd.anim.onComplete.add(function() {
       crowd.anim.play();
     });
-    crowd.scrollFactor.set(0.3, 0.3);
     add(crowd);
 
     var stageSpr:FlxSprite = new FlxSprite(-40, 391);
@@ -96,7 +66,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     var curtains:FlxSprite = new FlxSprite(-47, -49);
     curtains.loadGraphic(Paths.image('charSelect/curtains'));
-    curtains.scrollFactor.set(1.4, 1.4);
     add(curtains);
 
     var barthing = new FlxAtlasSprite(0, 0, Paths.animateAtlas("charSelect/barThing"));
@@ -105,7 +74,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       barthing.anim.play("");
     });
     barthing.blend = BlendMode.MULTIPLY;
-    barthing.scrollFactor.set(0, 0);
     add(barthing);
 
     var charLight:FlxSprite = new FlxSprite(800, 250);
@@ -124,7 +92,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     speakers.anim.onComplete.add(function() {
       speakers.anim.play("");
     });
-    speakers.scrollFactor.set(1.8, 1.8);
     add(speakers);
 
     var fgBlur:FlxSprite = new FlxSprite(-125, 170);
@@ -149,10 +116,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     var chooseDipshit = new FlxSprite(426, -13);
     chooseDipshit.loadGraphic(Paths.image('charSelect/chooseDipshit'));
     add(chooseDipshit);
-
-    chooseDipshit.scrollFactor.set();
-    dipshitBacking.scrollFactor.set();
-    dipshitBlur.scrollFactor.set();
   }
 
   var cursor:FlxSprite;
@@ -185,14 +148,12 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     cursorDarkBlue.blend = BlendMode.SCREEN;
 
     cursorConfirmed = new FlxSprite(0, 0);
-    cursorConfirmed.scrollFactor.set();
     cursorConfirmed.frames = Paths.getSparrowAtlas("charSelect/charSelectorConfirm");
     cursorConfirmed.animation.addByPrefix("idle", "cursor ACCEPTED instance 1", 24, true);
     cursorConfirmed.visible = false;
     add(cursorConfirmed);
 
     cursorDenied = new FlxSprite(0, 0);
-    cursorDenied.scrollFactor.set();
     cursorDenied.frames = Paths.getSparrowAtlas("charSelect/charSelectorDenied");
     cursorDenied.animation.addByPrefix("idle", "cursor DENIED instance 1", 24, false);
     cursorDenied.visible = false;
@@ -201,10 +162,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     grpCursors.add(cursorDarkBlue);
     grpCursors.add(cursorBlue);
     grpCursors.add(cursor);
-
-    cursor.scrollFactor.set();
-    cursorBlue.scrollFactor.set();
-    cursorDarkBlue.scrollFactor.set();
   }
 
   var selectSound:FunkinSound;
@@ -263,7 +220,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     }
 
     updateIconPositions();
-    grpIcons.scrollFactor.set();
 
     for (index => member in grpIcons.members)
     {

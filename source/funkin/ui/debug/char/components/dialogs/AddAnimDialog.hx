@@ -41,6 +41,7 @@ class AddAnimDialog extends DefaultPageDialog
         charAnimFramerate.pos = 24;
         charAnimOffsetX.pos = charAnimOffsetY.pos = 0;
 
+        page.onDialogUpdate(this);
         return;
       }
 
@@ -59,6 +60,7 @@ class AddAnimDialog extends DefaultPageDialog
       charAnimOffsetX.pos = (animData.offsets != null && animData.offsets.length == 2 ? animData.offsets[0] : 0);
       charAnimOffsetY.pos = (animData.offsets != null && animData.offsets.length == 2 ? animData.offsets[1] : 0);
 
+      char.playAnimation(charAnimName.text);
       page.onDialogUpdate(this);
     }
 
@@ -81,10 +83,12 @@ class AddAnimDialog extends DefaultPageDialog
         (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
 
       if (!animAdded) return;
-      char.playAnimation(charAnimName.text);
 
-      cast(page, CharCreatorGameplayPage).ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
-        (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
+      if (linkedChar.generatedParams.importedCharacter == null)
+      {
+        cast(page, CharCreatorGameplayPage).ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
+          (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
+      }
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
@@ -94,17 +98,12 @@ class AddAnimDialog extends DefaultPageDialog
       if ((charAnimName.text ?? "") == "") return;
 
       if (!char.removeAnimation(charAnimName.text)) return;
-      cast(page, CharCreatorGameplayPage).ghostCharacter.removeAnimation(charAnimName.text);
+      if (linkedChar.generatedParams.importedCharacter == null) cast(page, CharCreatorGameplayPage).ghostCharacter.removeAnimation(charAnimName.text);
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
 
-      if (charAnimDropdown.selectedIndex == -1)
-      {
-        @:privateAccess
-        cast(page, CharCreatorGameplayPage).labelAnimName.text = "None";
-        return;
-      }
+      if (charAnimDropdown.selectedIndex == -1) return;
 
       var anim:String = charAnimDropdown.value.text;
       char.playAnimation(anim);

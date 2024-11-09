@@ -59,21 +59,25 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     dialogMap.set(Ghost, new GhostSettingsDialog(this));
     dialogMap.set(Health, new HealthIconDialog(this, currentCharacter));
 
-    var animDialog = cast(dialogMap[Animation], AddAnimDialog);
-    animDialog.updateDropdown();
     generateUI();
-  }
 
-  override public function onDialogUpdate(dialog:DefaultPageDialog)
-  {
-    if (dialog == dialogMap[Animation])
+    if (wizardParams.importedCharacter != null)
     {
       var animDialog = cast(dialogMap[Animation], AddAnimDialog);
+      animDialog.updateDropdown();
 
-      labelAnimName.text = animDialog.charAnimDropdown.selectedItem.text;
-      labelAnimOffsetX.text = "" + currentCharacter.getAnimationData(labelAnimName.text).offsets[0];
-      labelAnimOffsetY.text = "" + currentCharacter.getAnimationData(labelAnimName.text).offsets[1];
+      animDialog.charAnimDropdown.selectedIndex = 0;
+      currentCharacter.playAnimation(currentCharacter.animations[0].name);
     }
+  }
+
+  override public function update(elapsed:Float)
+  {
+    labelAnimName.text = currentCharacter.getCurrentAnimation() ?? "None";
+    labelAnimOffsetX.text = "" + (currentCharacter.getAnimationData(currentCharacter.getCurrentAnimation())?.offsets[0] ?? 0);
+    labelAnimOffsetY.text = "" + (currentCharacter.getAnimationData(currentCharacter.getCurrentAnimation())?.offsets[1] ?? 0);
+
+    super.update(elapsed);
   }
 
   public function stageBeatHit()

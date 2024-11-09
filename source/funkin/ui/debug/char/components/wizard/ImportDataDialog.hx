@@ -44,6 +44,7 @@ class ImportDataDialog extends DefaultWizardDialog
     {
       var check = new OptionBox();
       check.text = id;
+      check.componentGroup = "characterData";
       check.selected = (id == selectedData);
       check.onChange = _ -> {
         selectedData = id;
@@ -55,6 +56,7 @@ class ImportDataDialog extends DefaultWizardDialog
     {
       var check = new OptionBox();
       check.text = id;
+      check.componentGroup = "playerData";
       check.selected = (id == selectedPlayer);
       check.onChange = _ -> {
         selectedPlayer = id;
@@ -80,6 +82,8 @@ class ImportDataDialog extends DefaultWizardDialog
     if (params.generateCharacter && importCharCheck.selected) params.importedCharacter = selectedData;
     else
       params.importedCharacter = null;
+
+    if (params.importedCharacter != null) params.renderType = CharacterRegistry.parseCharacterData(params.importedCharacter)?.renderType ?? Sparrow;
 
     // same shit for the player, though it's currently not my priority
 
