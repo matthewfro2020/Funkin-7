@@ -9,6 +9,7 @@ import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 import flixel.FlxSprite;
 import openfl.display.BlendMode;
 import openfl.filters.ShaderFilter;
@@ -30,6 +31,8 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
   var cursorDenied:FlxSprite;
 
   var cursorIndex:Int = 0;
+
+  var isSelecting:Bool = false;
 
   public function new(parentPage:CharCreatorSelectPage)
   {
@@ -56,16 +59,19 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
   {
     super.update(elapsed);
 
-    changeSelectedIcon();
+    if (!isSelecting)
+    {
+      changeSelectedIcon();
 
-    handleMousePress();
+      handleMousePress();
+
+      if (FlxG.keys.justPressed.X)
+      {
+        close();
+      }
+    }
 
     handleCursorPosition(elapsed);
-
-    if (FlxG.keys.justPressed.X)
-    {
-      close();
-    }
   }
 
   public function open():Void
@@ -112,12 +118,14 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     cursorConfirmed = new FlxSprite(0, 0);
     cursorConfirmed.frames = Paths.getSparrowAtlas("charSelect/charSelectorConfirm");
     cursorConfirmed.animation.addByPrefix("idle", "cursor ACCEPTED instance 1", 24, true);
+    cursorConfirmed.offset.set(3, 3);
     cursorConfirmed.visible = false;
     add(cursorConfirmed);
 
     cursorDenied = new FlxSprite(0, 0);
     cursorDenied.frames = Paths.getSparrowAtlas("charSelect/charSelectorDenied");
     cursorDenied.animation.addByPrefix("idle", "cursor DENIED instance 1", 24, false);
+    cursorDenied.offset.set(3, 3);
     cursorDenied.visible = false;
     add(cursorDenied);
 
@@ -248,17 +256,42 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       return;
     }
 
+    cursor.visible = false;
+    cursorBlue.visible = false;
+    cursorDarkBlue.visible = false;
+
+    isSelecting = true;
+
     var selectedIcon = grpIcons.members[cursorIndex];
 
     // skip if the selected icon is already used
     if (selectedIcon.ID == 0)
     {
       lockedSound.play(true);
+      cursorDenied.visible = true;
+      cursorDenied.animation.play("idle", true);
+      new FlxTimer().start(0.5, _ -> {
+        cursorDenied.visible = false;
+        cursor.visible = true;
+        cursorBlue.visible = true;
+        cursorDarkBlue.visible = true;
+        isSelecting = false;
+      });
       return;
     }
 
     parentPage.selectedIndexData = cursorIndex;
     FlxG.sound.play(Paths.sound('CS_confirm'));
+
+    cursorConfirmed.visible = true;
+    cursorConfirmed.animation.play("idle", true);
+    new FlxTimer().start(0.5, _ -> {
+      cursorConfirmed.visible = false;
+      cursor.visible = true;
+      cursorBlue.visible = true;
+      cursorDarkBlue.visible = true;
+      isSelecting = false;
+    });
   }
 
   function handleCursorPosition(elapsed:Float):Void
@@ -275,6 +308,12 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
 
     cursorDarkBlue.x = MathUtil.coolLerp(cursorDarkBlue.x, cursorLocIntended.x, 0.95 * 0.2);
     cursorDarkBlue.y = MathUtil.coolLerp(cursorDarkBlue.y, cursorLocIntended.y, 0.95 * 0.2);
+
+    cursorConfirmed.x = cursor.x;
+    cursorConfirmed.y = cursor.y;
+
+    cursorDenied.x = cursor.x;
+    cursorDenied.y = cursor.y;
 
     cursorLocIntended.put();
   }
