@@ -184,7 +184,11 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       }
       else
       {
-        var temp:Lock = new Lock(0, 0, i);
+        var temp:PixelatedIcon = new PixelatedIcon(0, 0);
+        temp.setCharacter("bf");
+        temp.setGraphicSize(ICON_SIZE, ICON_SIZE);
+        temp.updateHitbox();
+        temp.shader = new funkin.graphics.shaders.Grayscale();
         temp.ID = 1;
         grpIcons.add(temp);
       }
