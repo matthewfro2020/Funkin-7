@@ -30,7 +30,10 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var availableChars:Map<Int, String> = new Map<Int, String>();
   var fadeShader:funkin.graphics.shaders.BlueFade = new funkin.graphics.shaders.BlueFade();
 
-  var selectedIndex:Int = 0;
+  var cursorIndex:Int = 0;
+
+  // used for `PlayableCharacter` generation
+  var selectedIndexData:Int = 0;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -56,7 +59,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     FlxTween.color(cursor, 0.2, 0xFFFFFF00, 0xFFFFCC00, {type: PINGPONG});
   }
 
-  function initBackground()
+  function initBackground():Void
   {
     var bg:FlxSprite = new FlxSprite(-153, -140);
     bg.loadGraphic(Paths.image('charSelect/charSelectBG'));
@@ -96,7 +99,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     add(charLightGF);
   }
 
-  function initForeground()
+  function initForeground():Void
   {
     var speakers:FlxAtlasSprite = new FlxAtlasSprite(0, 0, Paths.animateAtlas("charSelect/charSelectSpeakers"));
     speakers.anim.play("");
@@ -136,7 +139,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var cursorConfirmed:FlxSprite;
   var cursorDenied:FlxSprite;
 
-  function initCursors()
+  function initCursors():Void
   {
     grpCursors = new FlxTypedSpriteGroup<FlxSprite>();
     add(grpCursors);
@@ -179,7 +182,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var lockedSound:FunkinSound;
   var staticSound:FunkinSound;
 
-  function initSounds()
+  function initSounds():Void
   {
     selectSound = new FunkinSound();
     selectSound.loadEmbedded(Paths.sound('CS_select'));
@@ -250,7 +253,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     }
   }
 
-  function updateIconPositions()
+  function updateIconPositions():Void
   {
     grpIcons.x = 450;
     grpIcons.y = 120;
@@ -293,10 +296,14 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   {
     super.update(elapsed);
 
-    handleCursor(elapsed);
+    changeSelectedIcon();
+
+    handleMousePress();
+
+    handleCursorPosition(elapsed);
   }
 
-  function handleCursor(elapsed:Float):Void
+  function changeSelectedIcon():Void
   {
     var mouseX:Float = FlxG.mouse.viewX - grpIcons.x;
     var mouseY:Float = FlxG.mouse.viewY - grpIcons.y;
@@ -309,9 +316,41 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       return;
     }
 
-    selectedIndex = cursorY * 3 + cursorX;
+    var newIndex:Int = cursorY * 3 + cursorX;
 
-    var selectedIcon = grpIcons.members[selectedIndex];
+    if (newIndex == cursorIndex)
+    {
+      return;
+    }
+
+    selectSound.play(true);
+
+    cursorIndex = newIndex;
+  }
+
+  function handleMousePress():Void
+  {
+    if (!FlxG.mouse.justPressed)
+    {
+      return;
+    }
+
+    var selectedIcon = grpIcons.members[cursorIndex];
+
+    // skip if the selected icon is already used
+    if (selectedIcon.ID == 0)
+    {
+      lockedSound.play(true);
+      return;
+    }
+
+    selectedIndexData = cursorIndex;
+    selectSound.play(true);
+  }
+
+  function handleCursorPosition(elapsed:Float):Void
+  {
+    var selectedIcon = grpIcons.members[cursorIndex];
 
     var cursorLocIntended:FlxPoint = FlxPoint.get(selectedIcon.x + ICON_SIZE / 2 - cursor.width / 2, selectedIcon.y + ICON_SIZE / 2 - cursor.height / 2);
 
