@@ -216,6 +216,11 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     grpIcons = new FlxSpriteGroup();
     add(grpIcons);
 
+    // only the unused slots should be selectable
+    // i dont know if i like using the lock sprite
+    // maybe there is a different placeholder we could use
+    // also, we should probably make the used slots
+    // less visible or something like that
     for (i in 0...9)
     {
       if (availableChars.exists(i))
