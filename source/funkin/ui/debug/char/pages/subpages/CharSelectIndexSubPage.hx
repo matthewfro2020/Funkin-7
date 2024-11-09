@@ -73,6 +73,9 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     this.visible = true;
     this.active = true;
 
+    cursorConfirmed.visible = false;
+    cursorDenied.visible = false;
+
     parentPage.handleInput = false;
   }
 
@@ -192,6 +195,8 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
         grpIcons.add(temp);
       }
     }
+
+    updateIconPositions();
   }
 
   function updateIconPositions():Void
