@@ -279,7 +279,7 @@ class CharCreatorCharacter extends Bopper
   public function toJSON():String
   {
     var writer = new json2object.JsonWriter<CharacterData>(true);
-    return writer.write(toCharacterData(), '  ');
+    return writer.write(toCharacterData(), "  ");
   }
 
   /**

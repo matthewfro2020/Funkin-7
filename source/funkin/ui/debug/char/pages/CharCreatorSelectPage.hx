@@ -170,8 +170,17 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
   public function toJSON():String
   {
-    var writer = new json2object.JsonWriter<{id:String}>(true);
-    return writer.write({id: 'lol'}, '  ');
+    var playerData:PlayerData = new PlayerData();
+    playerData.name = "Unknown";
+    playerData.ownedChars = [];
+    playerData.showUnownedChars = false;
+    playerData.freeplayStyle = "bf";
+    playerData.freeplayDJ = null;
+    playerData.charSelect = new PlayerCharSelectData(selectedIndexData);
+    playerData.results = null;
+    playerData.unlocked = true;
+
+    return playerData.serialize();
   }
 }
 
