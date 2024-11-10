@@ -43,7 +43,8 @@ class AddCharFilesDialog extends DefaultWizardDialog
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
 
       case CharacterRenderType.MultiSparrow:
-        recursiveUploadBox();
+        addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
+        addAssetsBox.addComponent(new AddAssetBox());
 
       case CharacterRenderType.Packer:
         addAssetsBox.addComponent(new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG));
@@ -81,7 +82,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
     // check if the files even exist
     for (thingy in uploadBoxes)
     {
-      if (!FileUtil.doesFileExist(thingy.daField.text)) return false;
+      if (!FileUtil.doesFileExist(thingy.daField.text) && !openfl.Assets.exists(thingy.daField.text)) return false;
     }
 
     // we do a little trollin
@@ -105,6 +106,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
           // testing if we could actually use these
           var imgBytes = CharCreatorUtil.gimmeTheBytes(imgPath);
           var xmlBytes = CharCreatorUtil.gimmeTheBytes(xmlPath);
+          if (imgBytes == null || xmlBytes == null) return false;
 
           var tempSprite = new FlxSprite();
           try
@@ -144,6 +146,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
         // testing if we could actually use these
         var imgBytes = CharCreatorUtil.gimmeTheBytes(imgPath);
         var txtBytes = CharCreatorUtil.gimmeTheBytes(txtPath);
+        if (imgBytes == null || txtBytes == null) return false;
 
         var tempSprite = new FlxSprite();
         try
@@ -230,13 +233,62 @@ class AddCharFilesDialog extends DefaultWizardDialog
   }
 }
 
+class AddAssetBox extends HBox
+{
+  override public function new()
+  {
+    super();
+
+    styleString = "border:1px solid $normal-border-color";
+    percentWidth = 100;
+    height = 25;
+    verticalAlign = "center";
+
+    var addButton = new Button();
+    addButton.text = "Add New Box";
+    var removeButton = new Button();
+    removeButton.text = "Remove Last Box";
+
+    addButton.percentWidth = removeButton.percentWidth = 50;
+    addButton.percentHeight = removeButton.percentHeight = 100;
+
+    addButton.onClick = function(_) {
+      var parentList = this.parentComponent;
+      if (parentList == null) return;
+
+      var first = parentList.childComponents[0];
+      if (!Std.isOfType(first, UploadAssetsBox)) return;
+
+      var firstBox:UploadAssetsBox = cast first;
+
+      var newBox = new UploadAssetsBox(firstBox.daField.placeholder, firstBox.lookFor);
+      parentList.addComponentAt(newBox, parentList.childComponents.length - 1); // considering this box is last
+      removeButton.disabled = false;
+    }
+
+    removeButton.disabled = true;
+    removeButton.onClick = function(_) {
+      var parentList = this.parentComponent;
+      if (parentList == null) return;
+
+      parentList.removeComponentAt(parentList.childComponents.length - 2);
+      if (parentList.childComponents.length <= 2) removeButton.disabled = true;
+    }
+
+    addComponent(addButton);
+    addComponent(removeButton);
+  }
+}
+
 class UploadAssetsBox extends HBox
 {
   public var daField:TextField;
+  public var lookFor:FileDialogExtensionInfo = null;
 
   override public function new(title:String = "", lookFor:FileDialogExtensionInfo = null)
   {
     super();
+    this.lookFor = lookFor;
 
     styleString = "border:1px solid $normal-border-color";
     percentWidth = 100;

@@ -62,7 +62,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     if (!isSelecting)
     {
       changeSelectedIcon();
-
+      updateIconAnims();
       handleMousePress();
 
       if (FlxG.keys.justPressed.X)
@@ -332,5 +332,32 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     cursorDenied.y = cursor.y;
 
     cursorLocIntended.put();
+  }
+
+  var selectedBizz:Array<openfl.filters.BitmapFilter> = [
+    new openfl.filters.DropShadowFilter(0, 0, 0xFFFFFF, 1, 2, 2, 19, 1, false, false, false),
+    new openfl.filters.DropShadowFilter(5, 45, 0x000000, 1, 2, 2, 1, 1, false, false, false)
+  ];
+
+  function updateIconAnims():Void
+  {
+    for (index => member in grpIcons.group.members)
+    {
+      if (Std.isOfType(member, PixelatedIcon))
+      {
+        var memb:PixelatedIcon = cast member;
+
+        if (index == cursorIndex)
+        {
+          memb.filters = selectedBizz;
+          memb.scale.set(2.6, 2.6);
+        }
+        else
+        {
+          memb.filters = null;
+          memb.scale.set(2, 2);
+        }
+      }
+    }
   }
 }
