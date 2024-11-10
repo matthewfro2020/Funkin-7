@@ -295,6 +295,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
 
     iconTint.x = selectedIcon.x;
     iconTint.y = selectedIcon.y;
+    iconTint.scale.set(selectedIcon.scale.x, selectedIcon.scale.y);
 
     parentPage.selectedIndexData = cursorIndex;
     FlxG.sound.play(Paths.sound('CS_confirm'));
@@ -359,5 +360,9 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
         }
       }
     }
+
+    var selectedIcon = grpIcons.members[parentPage.selectedIndexData];
+
+    iconTint.scale.set(selectedIcon.scale.x, selectedIcon.scale.y);
   }
 }
