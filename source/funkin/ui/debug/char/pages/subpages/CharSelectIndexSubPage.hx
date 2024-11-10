@@ -169,6 +169,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
   var grpIcons:FlxSpriteGroup;
   final grpXSpread:Float = 107;
   final grpYSpread:Float = 127;
+  var iconTint:PixelatedIcon;
 
   function initLocks():Void
   {
@@ -205,6 +206,18 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     }
 
     updateIconPositions();
+
+    var selectedIcon = grpIcons.members[parentPage.selectedIndexData];
+
+    iconTint = new PixelatedIcon(selectedIcon.x, selectedIcon.y);
+    iconTint.setCharacter("bf");
+    iconTint.setGraphicSize(128, 128);
+    iconTint.updateHitbox();
+    var yellowShader = new funkin.graphics.shaders.PureColor(0xFFFFFF00);
+    yellowShader.colorSet = true;
+    iconTint.shader = yellowShader;
+    iconTint.blend = BlendMode.MULTIPLY;
+    add(iconTint);
   }
 
   function updateIconPositions():Void
@@ -279,6 +292,9 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       });
       return;
     }
+
+    iconTint.x = selectedIcon.x;
+    iconTint.y = selectedIcon.y;
 
     parentPage.selectedIndexData = cursorIndex;
     FlxG.sound.play(Paths.sound('CS_confirm'));
