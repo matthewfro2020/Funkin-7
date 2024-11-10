@@ -274,7 +274,7 @@ class CharCreatorCharacter extends Bopper
 
   /**
    * Returns the `CharacterData` in bytes
-   * @return Bytes
+   * @return String
    */
   public function toJSON():String
   {

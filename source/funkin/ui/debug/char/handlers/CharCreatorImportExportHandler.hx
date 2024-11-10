@@ -3,12 +3,14 @@ package funkin.ui.debug.char.handlers;
 import haxe.io.Path;
 import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
+import funkin.ui.debug.char.pages.CharCreatorSelectPage;
 import funkin.ui.debug.char.CharCreatorState;
 import funkin.util.FileUtil;
 
 using StringTools;
 
 @:access(funkin.ui.debug.char.CharCreatorState)
+@:access(funkin.ui.debug.char.pages.CharCreatorSelectPage)
 class CharCreatorImportExportHandler
 {
   public static function importCharacter(state:CharCreatorState, charId:String):Void
@@ -65,6 +67,27 @@ class CharCreatorImportExportHandler
 
     // we push this later in case we use a pre-existing icon
     zipEntries.push(FileUtil.makeZIPEntry('${gameplayPage.currentCharacter.characterId}.json', gameplayPage.currentCharacter.toJSON()));
+    FileUtil.saveFilesAsZIP(zipEntries);
+  }
+
+  public static function exportPlayableCharacter(state:CharCreatorState):Void
+  {
+    var selectPage:CharCreatorSelectPage = cast state.pages[CharacterSelect];
+
+    var zipEntries = [];
+
+    // for (file in selectPage.iconFiles)
+    // {
+    //   // skip if the file is in a character path
+    //   if (CharCreatorUtil.isPathProvided(file.name, "images/freeplay/icons"))
+    //   {
+    //     continue;
+    //   }
+
+    //   zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/icons/${Path.withoutDirectory(file.name)}', file.bytes));
+    // }
+
+    zipEntries.push(FileUtil.makeZIPEntry('${selectPage.data.characterID}.json', selectPage.toJSON()));
     FileUtil.saveFilesAsZIP(zipEntries);
   }
 }

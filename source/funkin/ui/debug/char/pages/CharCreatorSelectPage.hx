@@ -167,6 +167,12 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       }
     }
   }
+
+  public function toJSON():String
+  {
+    var writer = new json2object.JsonWriter<{id:String}>(true);
+    return writer.write({id: 'lol'}, '  ');
+  }
 }
 
 enum CharCreatorSelectSubPage

@@ -31,7 +31,7 @@ class CharCreatorState extends UIState
   var selectedPage:CharCreatorDefaultPage = null;
   var pages:Map<CharCreatorPage, CharCreatorDefaultPage> = []; // collect my pages
 
-  override public function create()
+  override public function create():Void
   {
     WindowManager.instance.reset();
     FlxG.sound.music?.stop();
@@ -78,7 +78,7 @@ class CharCreatorState extends UIState
     this.startWizard(wizardComplete, exitEditor);
   }
 
-  override public function update(elapsed:Float)
+  override public function update(elapsed:Float):Void
   {
     super.update(elapsed);
     Conductor.instance.update();
@@ -97,19 +97,19 @@ class CharCreatorState extends UIState
     bg.scale.set(1 / camGame.zoom, 1 / camGame.zoom);
   }
 
-  function setupUICallbacks()
+  function setupUICallbacks():Void
   {
     menubarOptionGameplay.onChange = function(_) switchToPage(Gameplay);
     menubarOptionCharSelect.onChange = function(_) switchToPage(CharacterSelect);
-    menubarItemExport.onClick = _ -> this.exportCharacter();
+    menubarItemExport.onClick = _ -> exportStuff();
   }
 
   function handleShortcuts():Void
   {
-    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) this.exportCharacter();
+    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) exportStuff();
   }
 
-  function wizardComplete(params:WizardGenerateParams)
+  function wizardComplete(params:WizardGenerateParams):Void
   {
     // clear da pages sorry chat
     remove(selectedPage);
@@ -138,14 +138,14 @@ class CharCreatorState extends UIState
     switchToPage(params.generateCharacter ? Gameplay : CharacterSelect);
   }
 
-  function exitEditor()
+  function exitEditor():Void
   {
     Cursor.hide();
     FlxG.switchState(() -> new DebugMenuSubState());
     FlxG.sound.music.stop();
   }
 
-  function switchToPage(page:CharCreatorPage)
+  function switchToPage(page:CharCreatorPage):Void
   {
     if (selectedPage == pages[page]) return;
 
@@ -161,6 +161,12 @@ class CharCreatorState extends UIState
 
     selectedPage.fillUpBottomBar(bottomBarLeftBox, bottomBarMiddleBox, bottomBarRightBox);
     selectedPage.fillUpPageSettings(menubarMenuSettings);
+  }
+
+  function exportStuff():Void
+  {
+    if (Std.isOfType(selectedPage, CharCreatorSelectPage)) this.exportPlayableCharacter();
+    else if (Std.isOfType(selectedPage, CharCreatorGameplayPage)) this.exportCharacter();
   }
 }
 
