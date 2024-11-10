@@ -23,7 +23,8 @@ class CharCreatorStartupWizard
       files: [],
       charSelectFile: null,
       freeplayFile: null,
-      importedCharacter: null
+      importedCharacter: null,
+      importedPlayerData: null
     }
 
   public static function startWizard(state:CharCreatorState, onComplete:WizardGenerateParams->Void = null, onQuit:Void->Void = null)
@@ -69,6 +70,8 @@ typedef WizardGenerateParams =
   var freeplayFile:WizardFile;
   @:optional
   var importedCharacter:String;
+  @:optional
+  var importedPlayerData:String;
 }
 
 typedef WizardFile =

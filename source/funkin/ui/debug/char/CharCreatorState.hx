@@ -147,7 +147,7 @@ class CharCreatorState extends UIState
 
   function switchToPage(page:CharCreatorPage):Void
   {
-    if (selectedPage == pages[page]) return;
+    if (selectedPage == pages[page] || pages[page] == null) return;
 
     for (box in [bottomBarLeftBox, bottomBarMiddleBox, bottomBarRightBox, menubarMenuSettings])
     {

@@ -183,26 +183,23 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     // less visible or something like that
     for (i in 0...9)
     {
+      var temp:PixelatedIcon = new PixelatedIcon(0, 0);
+      temp.setCharacter("bf");
+      temp.shader = new funkin.graphics.shaders.Grayscale();
+      temp.ID = 1;
+
       if (parentPage.availableChars.exists(i))
       {
-        var path:String = parentPage.availableChars.get(i);
-        var temp:PixelatedIcon = new PixelatedIcon(0, 0);
-        temp.setCharacter(path);
-        temp.setGraphicSize(128, 128);
-        temp.updateHitbox();
-        temp.ID = 0;
-        grpIcons.add(temp);
+        temp.setCharacter(parentPage.availableChars.get(i));
+        temp.shader = null;
+
+        if (parentPage.data.importedPlayerData != parentPage.availableChars[i]) temp.ID = 0;
       }
-      else
-      {
-        var temp:PixelatedIcon = new PixelatedIcon(0, 0);
-        temp.setCharacter("bf");
-        temp.setGraphicSize(128, 128);
-        temp.updateHitbox();
-        temp.shader = new funkin.graphics.shaders.Grayscale();
-        temp.ID = 1;
-        grpIcons.add(temp);
-      }
+
+      temp.setGraphicSize(128, 128);
+      temp.updateHitbox();
+
+      grpIcons.add(temp);
     }
 
     updateIconPositions();

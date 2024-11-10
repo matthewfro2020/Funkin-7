@@ -85,7 +85,9 @@ class ImportDataDialog extends DefaultWizardDialog
 
     if (params.importedCharacter != null) params.renderType = CharacterRegistry.parseCharacterData(params.importedCharacter)?.renderType ?? Sparrow;
 
-    // same shit for the player, though it's currently not my priority
+    if (params.generatePlayerData && importPlayerCheck.selected) params.importedPlayerData = selectedPlayer;
+    else
+      params.importedPlayerData = null;
 
     return true;
   }

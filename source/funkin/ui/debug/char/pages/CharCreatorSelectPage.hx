@@ -43,6 +43,13 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     loadAvailableCharacters();
     this.data = data;
+    if (data.importedPlayerData != null)
+    {
+      var playuh = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
+      if (playuh == null) return;
+
+      selectedIndexData = playuh.getCharSelectData()?.position ?? 0;
+    }
 
     // copied sum code LOL
     initBackground();
