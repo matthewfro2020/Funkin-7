@@ -65,7 +65,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       updateIconAnims();
       handleMousePress();
 
-      if (FlxG.keys.justPressed.X)
+      if (PlayerSettings.player1.controls.BACK)
       {
         close();
       }
@@ -294,6 +294,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
     iconTint.y = selectedIcon.y;
     iconTint.scale.set(selectedIcon.scale.x, selectedIcon.scale.y);
 
+    var ogIcon = grpIcons.members[parentPage.selectedIndexData];
     parentPage.selectedIndexData = cursorIndex;
     FlxG.sound.play(Paths.sound('CS_confirm'));
 
@@ -306,6 +307,69 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       cursorDarkBlue.visible = true;
       isSelecting = false;
     });
+
+    if (Std.isOfType(ogIcon, PixelatedIcon))
+    {
+      var icon:PixelatedIcon = cast ogIcon;
+      icon.shader = new funkin.graphics.shaders.Grayscale();
+
+      icon.setCharacter("bf");
+      icon.setGraphicSize(128, 128);
+      icon.updateHitbox();
+    }
+
+    if (Std.isOfType(selectedIcon, PixelatedIcon))
+    {
+      var icon:PixelatedIcon = cast selectedIcon;
+      icon.shader = null;
+
+      // also do we even need icontint anymore?
+      if (parentPage.pixelIconFiles.length > 0) // custom icons should have the priority over preset ones i think
+      {
+        var pngBytes = parentPage.pixelIconFiles[0].bytes;
+        var xmlBytes = parentPage.pixelIconFiles[1]?.bytes ?? null;
+        var graphic = openfl.display.BitmapData.fromBytes(pngBytes);
+
+        if (xmlBytes == null)
+        {
+          icon.loadGraphic(graphic);
+          iconTint.loadGraphic(graphic);
+        }
+        else
+        {
+          icon.frames = iconTint.frames = flixel.graphics.frames.FlxAtlasFrames.fromSparrow(graphic, xmlBytes.toString());
+          icon.animation.addByPrefix('idle', 'idle0', 10, true);
+          icon.animation.addByPrefix('confirm', 'confirm0', 10, false);
+          icon.animation.addByPrefix('confirm-hold', 'confirm-hold0', 10, true);
+
+          iconTint.animation.addByPrefix('idle', 'idle0', 10, true);
+          iconTint.animation.addByPrefix('confirm', 'confirm0', 10, false);
+          iconTint.animation.addByPrefix('confirm-hold', 'confirm-hold0', 10, true);
+
+          icon.animation.finishCallback = function(name:String):Void {
+            if (name == 'confirm') icon.animation.play('confirm-hold');
+          };
+          iconTint.animation.finishCallback = function(name:String):Void {
+            if (name == 'confirm') icon.animation.play('confirm-hold');
+          };
+
+          icon.animation.play('idle');
+          iconTint.animation.play('idle');
+        }
+      }
+      else if (parentPage.data.importedPlayerData != null)
+      {
+        icon.setCharacter(parentPage.data.importedPlayerData);
+        iconTint.setCharacter(parentPage.data.importedPlayerData);
+      }
+
+      icon.setGraphicSize(128, 128);
+      iconTint.setGraphicSize(128, 128);
+      icon.updateHitbox();
+      iconTint.updateHitbox();
+    }
+
+    updateIconPositions();
   }
 
   function handleCursorPosition(elapsed:Float):Void

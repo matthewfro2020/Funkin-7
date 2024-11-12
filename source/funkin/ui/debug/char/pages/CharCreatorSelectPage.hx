@@ -1,11 +1,14 @@
 package funkin.ui.debug.char.pages;
 
+import haxe.ui.containers.menus.Menu;
+import haxe.ui.containers.menus.MenuItem;
 import funkin.audio.FunkinSound;
 import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage;
+import funkin.util.FileUtil;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.tweens.FlxEase;
@@ -18,6 +21,8 @@ import funkin.util.MathUtil;
 import flixel.math.FlxPoint;
 import flixel.math.FlxMath;
 import flixel.FlxG;
+
+using StringTools;
 
 @:allow(funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage)
 class CharCreatorSelectPage extends CharCreatorDefaultPage
@@ -32,6 +37,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
   // used for `PlayableCharacter` generation
   var selectedIndexData:Int = 0;
+  var pixelIconFiles:Array<WizardFile> = [];
 
   var subPages:Map<CharCreatorSelectSubPage, FlxSpriteGroup>;
 
@@ -65,6 +71,44 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     subPages.set(IndexSubPage, new CharSelectIndexSubPage(this));
 
     add(subPages[IndexSubPage]);
+  }
+
+  override public function fillUpPageSettings(menu:Menu)
+  {
+    var pixelStuff = new Menu();
+    pixelStuff.text = "Pixel Icon";
+
+    var openPos = new MenuItem();
+    openPos.text = "Set Position";
+
+    var openFile = new MenuItem();
+    openFile.text = "Load from File";
+
+    // additions
+    menu.addComponent(pixelStuff);
+    pixelStuff.addComponent(openFile);
+    pixelStuff.addComponent(openPos);
+
+    // callbacks
+    openPos.onClick = function(_) {
+      cast(subPages[IndexSubPage], CharSelectIndexSubPage).open();
+    }
+
+    openFile.onClick = function(_) {
+      FileUtil.browseForBinaryFile("Load Pixel Icon File", [FileUtil.FILE_EXTENSION_INFO_PNG], function(_) {
+        if (_?.fullPath == null) return;
+
+        var daImgPath = _.fullPath;
+        var daXmlPath = daImgPath.replace(".png", ".xml");
+
+        pixelIconFiles = [
+          {name: daImgPath, bytes: FileUtil.readBytesFromPath(daImgPath)}];
+
+        if (FileUtil.doesFileExist(daXmlPath)) pixelIconFiles.push({name: daXmlPath, bytes: FileUtil.readBytesFromPath(daXmlPath)});
+
+        openFile.tooltip = "File Path: " + daImgPath;
+      });
+    }
   }
 
   function initBackground():Void
@@ -168,10 +212,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     if (handleInput)
     {
-      if (FlxG.keys.justPressed.B)
-      {
-        cast(subPages[IndexSubPage], CharSelectIndexSubPage).open();
-      }
+      if (FlxG.keys.justPressed.B) {}
     }
   }
 
