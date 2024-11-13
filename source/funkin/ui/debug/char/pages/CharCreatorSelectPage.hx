@@ -2,12 +2,14 @@ package funkin.ui.debug.char.pages;
 
 import haxe.ui.containers.menus.Menu;
 import haxe.ui.containers.menus.MenuItem;
+import haxe.ui.containers.menus.MenuCheckBox;
 import funkin.audio.FunkinSound;
 import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage;
+import funkin.ui.debug.char.components.dialogs.*;
 import funkin.util.FileUtil;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.group.FlxSpriteGroup;
@@ -39,6 +41,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var selectedIndexData:Int = 0;
   var pixelIconFiles:Array<WizardFile> = [];
 
+  var dialogMap:Map<PlayCharDialogType, DefaultPageDialog>;
+
   var subPages:Map<CharCreatorSelectSubPage, FlxSpriteGroup>;
 
   var handleInput:Bool = true;
@@ -67,6 +71,9 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     nametag = new FlxSprite();
     add(nametag);
 
+    dialogMap = new Map<PlayCharDialogType, DefaultPageDialog>();
+    dialogMap.set(SettingsDialog, new PlayableCharacterSettingsDialog(this));
+
     subPages = new Map<CharCreatorSelectSubPage, FlxSpriteGroup>();
     subPages.set(IndexSubPage, new CharSelectIndexSubPage(this));
 
@@ -89,6 +96,10 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     pixelStuff.addComponent(openFile);
     pixelStuff.addComponent(openPos);
 
+    var settingsDialog = new MenuCheckBox();
+    settingsDialog.text = "Playable Character Settings";
+    menu.addComponent(settingsDialog);
+
     // callbacks
     openPos.onClick = function(_) {
       cast(subPages[IndexSubPage], CharSelectIndexSubPage).open();
@@ -110,6 +121,10 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
         cast(subPages[IndexSubPage], CharSelectIndexSubPage).resetIconTexture();
       });
+    }
+
+    settingsDialog.onClick = function(_) {
+      dialogMap[SettingsDialog].hidden = !settingsDialog.selected;
     }
   }
 
@@ -237,4 +252,9 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 enum CharCreatorSelectSubPage
 {
   IndexSubPage;
+}
+
+enum PlayCharDialogType
+{
+  SettingsDialog;
 }
