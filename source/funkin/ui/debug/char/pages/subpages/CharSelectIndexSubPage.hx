@@ -316,6 +316,7 @@ class CharSelectIndexSubPage extends FlxSpriteGroup
       icon.setCharacter("bf");
       icon.setGraphicSize(128, 128);
       icon.updateHitbox();
+      icon.scale.set(2, 2);
     }
 
     if (Std.isOfType(selectedIcon, PixelatedIcon))
