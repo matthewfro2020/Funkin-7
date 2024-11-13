@@ -107,6 +107,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
         if (FileUtil.doesFileExist(daXmlPath)) pixelIconFiles.push({name: daXmlPath, bytes: FileUtil.readBytesFromPath(daXmlPath)});
 
         openFile.tooltip = "File Path: " + daImgPath;
+
+        cast(subPages[IndexSubPage], CharSelectIndexSubPage).resetIconTexture();
       });
     }
   }
