@@ -8,6 +8,7 @@ import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
+import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage;
 import funkin.ui.debug.char.components.dialogs.*;
 import funkin.util.FileUtil;
@@ -32,6 +33,9 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var data:WizardGenerateParams;
 
   var nametag:FlxSprite;
+  var gf:CharSelectAtlasSprite;
+  var bf:CharSelectAtlasSprite;
+
   var transitionGradient:FlxSprite;
   var autoFollow:Bool = false;
   var availableChars:Map<Int, String> = new Map<Int, String>();
@@ -53,20 +57,29 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     loadAvailableCharacters();
     this.data = data;
-    if (data.importedPlayerData != null)
-    {
-      var playuh = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
-      if (playuh == null) return;
 
-      selectedIndexData = playuh.getCharSelectData()?.position ?? 0;
-    }
+    var playuh = PlayerRegistry.instance.fetchEntry(data.importedPlayerData ?? "");
+    if (playuh != null) selectedIndexData = playuh.getCharSelectData()?.position ?? 0;
 
     // copied sum code LOL
     initBackground();
 
-    initForeground();
-
     // gf and player code doodoo
+    var gfPath = playuh.getCharSelectData()?.gf?.assetPath;
+    gf = new CharSelectAtlasSprite(0, 0, null, gfPath != null ? Paths.animateAtlas(gfPath) : null);
+    add(gf);
+
+    var bfPath = data.importedPlayerData == null ? null : "charSelect/" + data.importedPlayerData + "Chill";
+    bf = new CharSelectAtlasSprite(0, 0, null, Assets.exists(bfPath) ? Paths.animateAtlas(bfPath) : null);
+    add(bf);
+
+    gf.playAnimation("idle", true, false, false);
+    bf.playAnimation("idle", true, false, false);
+
+    gf.updateHitbox();
+    bf.updateHitbox();
+
+    initForeground();
 
     nametag = new FlxSprite();
     add(nametag);

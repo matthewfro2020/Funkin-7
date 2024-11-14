@@ -48,7 +48,7 @@ class CharSelectAtlasSprite extends FlxAnimate
 
     super(x, y, assetPath, settings);
 
-    if (assetPath == null)
+    if (assetPath == null && zipBytes != null)
     {
       var animData:String = "";
       var spritemapArray:Array<String> = [];
