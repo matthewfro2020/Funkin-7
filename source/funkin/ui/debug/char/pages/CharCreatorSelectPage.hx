@@ -250,7 +250,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   {
     var playerData:PlayerData = new PlayerData();
     playerData.name = "Unknown";
-    playerData.ownedChars = [];
+    playerData.ownedChars = cast(dialogMap[SettingsDialog], PlayableCharacterSettingsDialog).listOwnedCharacters();
     playerData.showUnownedChars = false;
     playerData.freeplayStyle = "bf";
     playerData.freeplayDJ = null;
