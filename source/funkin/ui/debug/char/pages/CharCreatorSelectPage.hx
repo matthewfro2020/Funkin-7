@@ -1,5 +1,8 @@
 package funkin.ui.debug.char.pages;
 
+import haxe.ui.components.Label;
+import haxe.ui.containers.Box;
+import haxe.ui.containers.HBox;
 import haxe.ui.containers.menus.Menu;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.containers.menus.MenuCheckBox;
@@ -65,16 +68,16 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     initBackground();
 
     // gf and player code doodoo
-    var gfPath = playuh.getCharSelectData()?.gf?.assetPath;
+    var gfPath = playuh?.getCharSelectData()?.gf?.assetPath;
     gf = new CharSelectAtlasSprite(0, 0, null, gfPath != null ? Paths.animateAtlas(gfPath) : null);
     add(gf);
 
     var bfPath = data.importedPlayerData == null ? null : "charSelect/" + data.importedPlayerData + "Chill";
-    bf = new CharSelectAtlasSprite(0, 0, null, Assets.exists(bfPath) ? Paths.animateAtlas(bfPath) : null);
+    bf = new CharSelectAtlasSprite(0, 0, null, bfPath != null ? Paths.animateAtlas(bfPath) : null);
     add(bf);
 
-    gf.playAnimation("idle", true, false, false);
-    bf.playAnimation("idle", true, false, false);
+    gf.playAnimation(ALL_PLAYER_ANIMS[0], true, false, false);
+    bf.playAnimation(ALL_GF_ANIMS[0], true, false, false);
 
     gf.updateHitbox();
     bf.updateHitbox();
@@ -91,6 +94,65 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     subPages.set(IndexSubPage, new CharSelectIndexSubPage(this));
 
     add(subPages[IndexSubPage]);
+  }
+
+  // i am unsure whether or not there are more animations than these
+  // also why is the gf select animation called confirm and not select grrrrrrrr >:[
+  static final ALL_PLAYER_ANIMS:Array<String> = [
+    "idle",
+    "select",
+    "deselect loop start",
+    "deselect",
+    "unlock",
+    "slidein",
+    "slidein idle point",
+    "slideout"
+  ];
+  static final ALL_GF_ANIMS:Array<String> = ["idle", "confirm", "deselect"];
+
+  var gfAnimLabel:Label = new Label();
+  var bfAnimLabel:Label = new Label();
+
+  override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
+  {
+    // middle box for anims !!!!
+    var midHBox = new HBox();
+    middle.add(midHBox);
+
+    var midRule = new haxe.ui.components.VerticalRule();
+    midRule.percentHeight = 80;
+
+    gfAnimLabel.styleNames = bfAnimLabel.styleNames = "infoText";
+    gfAnimLabel.verticalAlign = bfAnimLabel.verticalAlign = "center";
+
+    gfAnimLabel.text = "GF Anim: " + gf.getCurrentAnimation();
+    bfAnimLabel.text = "Player Anim: " + bf.getCurrentAnimation();
+
+    gfAnimLabel.onClick = _ -> changeCharAnim(1, true);
+    gfAnimLabel.onRightClick = _ -> changeCharAnim(-1, true);
+    bfAnimLabel.onClick = _ -> changeCharAnim(1);
+    bfAnimLabel.onRightClick = _ -> changeCharAnim(-1);
+
+    middle.addComponent(gfAnimLabel);
+    middle.addComponent(midRule);
+    middle.addComponent(bfAnimLabel);
+  }
+
+  function changeCharAnim(change:Int = 0, useGF:Bool = false)
+  {
+    var array = useGF ? ALL_GF_ANIMS : ALL_PLAYER_ANIMS;
+    var current = (useGF ? gfAnimLabel : bfAnimLabel).text.split(" Anim: ")[1]; // neat hack for avoiding scenario when a char doesnt have an animation
+
+    var idx = array.indexOf(current);
+    if (idx == -1) return;
+
+    idx += change;
+
+    if (idx >= array.length) idx = 0;
+    else if (idx < 0) idx = array.length - 1;
+
+      (useGF ? gf : bf).playAnimation(array[idx]);
+    (useGF ? gfAnimLabel : bfAnimLabel).text = (useGF ? "GF" : "Player") + " Anim: " + array[idx];
   }
 
   override public function fillUpPageSettings(menu:Menu)
