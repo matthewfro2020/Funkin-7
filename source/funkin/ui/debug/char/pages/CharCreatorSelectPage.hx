@@ -11,6 +11,7 @@ import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
+import funkin.graphics.shaders.MosaicEffect;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage;
 import funkin.ui.debug.char.components.dialogs.*;
@@ -36,6 +37,9 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var data:WizardGenerateParams;
 
   var nametag:FlxSprite;
+  var nametagShader:MosaicEffect = new MosaicEffect();
+  var nametagFile:WizardFile;
+
   var gf:CharSelectAtlasSprite;
   var bf:CharSelectAtlasSprite;
 
@@ -85,6 +89,21 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     initForeground();
 
     nametag = new FlxSprite();
+    if (data.importedPlayerData != null) nametag.loadGraphic(Paths.image('charSelect/'
+      + (data.importedPlayerData == "bf" ? "boyfriend" : data.importedPlayerData)
+      + "Nametag"));
+    nametag.updateHitbox();
+
+    nametag.scale.set(0.77, 0.77);
+    updateNametagPos();
+
+    nametag.shader = nametagShader; // truly a sight to behold
+    setNametagShaderBlockSize(0, 1, 1);
+    setNametagShaderBlockSize(1, nametag.width / 27, nametag.height / 26);
+    setNametagShaderBlockSize(2, nametag.width / 10, nametag.height / 10);
+
+    setNametagShaderBlockSize(3, 1, 1);
+
     add(nametag);
 
     dialogMap = new Map<PlayCharDialogType, DefaultPageDialog>();
@@ -151,7 +170,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     if (idx >= array.length) idx = 0;
     else if (idx < 0) idx = array.length - 1;
 
-      (useGF ? gf : bf).playAnimation(array[idx]);
+      (useGF ? gf : bf).stopAnimation();
+    (useGF ? gf : bf).playAnimation(array[idx]);
     (useGF ? gfAnimLabel : bfAnimLabel).text = (useGF ? "GF" : "Player") + " Anim: " + array[idx];
   }
 
@@ -166,10 +186,15 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     var openFile = new MenuItem();
     openFile.text = "Load from File";
 
+    var openNametag = new MenuItem();
+    openNametag.text = "Load Nametag Image";
+
     // additions
     menu.addComponent(pixelStuff);
     pixelStuff.addComponent(openFile);
     pixelStuff.addComponent(openPos);
+
+    menu.addComponent(openNametag);
 
     var settingsDialog = new MenuCheckBox();
     settingsDialog.text = "Playable Character Settings";
@@ -198,9 +223,46 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       });
     }
 
+    openNametag.onClick = function(_) {
+      FileUtil.browseForBinaryFile("Load Nametag Image", [FileUtil.FILE_EXTENSION_INFO_PNG], function(_) {
+        if (_?.fullPath == null) return;
+
+        nametagFile = {name: _.fullPath, bytes: FileUtil.readBytesFromPath(_.fullPath)}
+
+        nametag.loadGraphic(openfl.display.BitmapData.fromBytes(nametagFile.bytes));
+        nametag.updateHitbox();
+
+        updateNametagPos();
+
+        setNametagShaderBlockSize(0, 1, 1);
+        setNametagShaderBlockSize(1, nametag.width / 27, nametag.height / 26);
+        setNametagShaderBlockSize(2, nametag.width / 10, nametag.height / 10);
+        setNametagShaderBlockSize(3, 1, 1);
+      });
+    }
+
     settingsDialog.onClick = function(_) {
       dialogMap[SettingsDialog].hidden = !settingsDialog.selected;
     }
+  }
+
+  function updateNametagPos()
+  {
+    nametag.x -= (nametag.getMidpoint().x - 1008);
+    nametag.y -= (nametag.getMidpoint().y - 100);
+  }
+
+  function setNametagShaderBlockSize(frame:Int, ?forceX:Float, ?forceY:Float)
+  {
+    var daX:Float = 10 * FlxG.random.int(1, 4);
+    var daY:Float = 10 * FlxG.random.int(1, 4);
+
+    if (forceX != null) daX = forceX;
+    if (forceY != null) daY = forceY;
+
+    new flixel.util.FlxTimer().start(frame / 30, _ -> {
+      nametagShader.setBlockSize(daX, daY);
+    });
   }
 
   function initBackground():Void
@@ -304,7 +366,18 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     if (handleInput)
     {
-      if (FlxG.keys.justPressed.B) {}
+      if (FlxG.keys.justPressed.SPACE)
+      {
+        gf.stopAnimation();
+        gf.playAnimation(gfAnimLabel.text.split(" Anim: ")[1], true, true);
+
+        bf.stopAnimation();
+        bf.playAnimation(bfAnimLabel.text.split(" Anim: ")[1], true, true);
+      }
+
+      // perhaps gonan find a better keybind for this idk
+      if (FlxG.keys.justPressed.W) changeCharAnim(-1, FlxG.keys.pressed.SHIFT);
+      if (FlxG.keys.justPressed.S) changeCharAnim(1, FlxG.keys.pressed.SHIFT);
     }
   }
 

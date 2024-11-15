@@ -28,21 +28,43 @@ class CharCreatorImportExportHandler
     gameplayPage.currentCharacter.fromCharacterData(CharacterRegistry.fetchCharacterData(charId));
   }
 
-  public static function exportCharacter(state:CharCreatorState):Void
+  public static function exportAll(state:CharCreatorState)
+  {
+    var zipEntries = [];
+    if (state.params.generateCharacter) exportCharacter(state, zipEntries);
+    if (state.params.generatePlayerData) exportPlayableCharacter(state, zipEntries);
+
+    FileUtil.saveFilesAsZIP(zipEntries);
+  }
+
+  public static function exportCharacter(state:CharCreatorState, zipEntries:Array<haxe.zip.Entry>):Void
   {
     var gameplayPage:CharCreatorGameplayPage = cast state.pages[Gameplay];
 
-    var zipEntries = [];
-
-    for (file in gameplayPage.currentCharacter.files)
+    if (gameplayPage.currentCharacter.renderType != funkin.data.character.CharacterData.CharacterRenderType.AnimateAtlas)
     {
-      // skip if the file is in a character path
-      if (CharCreatorUtil.isPathProvided(file.name, "images/characters"))
+      for (file in gameplayPage.currentCharacter.files)
       {
-        continue;
-      }
+        // skip if the file is in a character path
+        if (CharCreatorUtil.isPathProvided(file.name, "images/characters"))
+        {
+          continue;
+        }
 
-      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(file.name)}', file.bytes));
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(file.name)}', file.bytes));
+      }
+    }
+    else
+    {
+      // no check needed there's no zip files in assets folder
+
+      for (file in FileUtil.readZIPFromBytes(gameplayPage.currentCharacter.files[0].bytes))
+      {
+        var zipName = gameplayPage.currentCharacter.files[0].name.replace(".zip", "");
+
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(zipName)}/${Path.withoutDirectory(file.fileName)}',
+          file.data));
+      }
     }
 
     // if the icon path isn't absolute, in the proper folder AND there already was an xml file (if we added one), then we don't save files and replace the typedef's id field
@@ -67,14 +89,12 @@ class CharCreatorImportExportHandler
 
     // we push this later in case we use a pre-existing icon
     zipEntries.push(FileUtil.makeZIPEntry('${gameplayPage.currentCharacter.characterId}.json', gameplayPage.currentCharacter.toJSON()));
-    FileUtil.saveFilesAsZIP(zipEntries);
   }
 
-  public static function exportPlayableCharacter(state:CharCreatorState):Void
+  public static function exportPlayableCharacter(state:CharCreatorState, zipEntries:Array<haxe.zip.Entry>):Void
   {
     var selectPage:CharCreatorSelectPage = cast state.pages[CharacterSelect];
-
-    var zipEntries = [];
+    var charID = selectPage.data.importedCharacter ?? selectPage.data.characterID;
 
     // for (file in selectPage.iconFiles)
     // {
@@ -87,7 +107,7 @@ class CharCreatorImportExportHandler
     //   zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/icons/${Path.withoutDirectory(file.name)}', file.bytes));
     // }
 
-    zipEntries.push(FileUtil.makeZIPEntry('${selectPage.data.characterID}.json', selectPage.toJSON()));
-    FileUtil.saveFilesAsZIP(zipEntries);
+    zipEntries.push(FileUtil.makeZIPEntry('data/players/${charID}.json', selectPage.toJSON()));
+    if (selectPage.nametagFile != null) zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect${charID}Nametag.png', selectPage.nametagFile.bytes));
   }
 }

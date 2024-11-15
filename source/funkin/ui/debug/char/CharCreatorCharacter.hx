@@ -78,7 +78,7 @@ class CharCreatorCharacter extends Bopper
         var data = generatedParams.files[1].bytes.toString();
         this.frames = FlxAtlasFrames.fromSpriteSheetPacker(img, data);
 
-      case CharacterRenderType.AnimateAtlas: // todo
+      case CharacterRenderType.AnimateAtlas:
         if (generatedParams.files.length != 1) return; // zip file with all the data
         atlasCharacter = new CharSelectAtlasSprite(0, 0, generatedParams.files[0].bytes);
 

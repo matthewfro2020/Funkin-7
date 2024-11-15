@@ -101,19 +101,22 @@ class CharCreatorState extends UIState
   {
     menubarOptionGameplay.onChange = function(_) switchToPage(Gameplay);
     menubarOptionCharSelect.onChange = function(_) switchToPage(CharacterSelect);
-    menubarItemExport.onClick = _ -> exportStuff();
+    menubarItemExport.onClick = _ -> this.exportAll();
   }
 
   function handleShortcuts():Void
   {
-    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) exportStuff();
+    if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S) this.exportAll();
   }
+
+  var params:WizardGenerateParams;
 
   function wizardComplete(params:WizardGenerateParams):Void
   {
     // clear da pages sorry chat
     remove(selectedPage);
     selectedPage = null;
+    this.params = params;
 
     var allPages = [for (k => p in pages) p];
     while (allPages.length > 0)
@@ -161,12 +164,6 @@ class CharCreatorState extends UIState
 
     selectedPage.fillUpBottomBar(bottomBarLeftBox, bottomBarMiddleBox, bottomBarRightBox);
     selectedPage.fillUpPageSettings(menubarMenuSettings);
-  }
-
-  function exportStuff():Void
-  {
-    if (Std.isOfType(selectedPage, CharCreatorSelectPage)) this.exportPlayableCharacter();
-    else if (Std.isOfType(selectedPage, CharCreatorGameplayPage)) this.exportCharacter();
   }
 }
 
