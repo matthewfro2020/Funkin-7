@@ -1,8 +1,15 @@
 package funkin.ui.debug.char.pages;
 
+import haxe.ui.components.Label;
+import haxe.ui.containers.Box;
+import haxe.ui.containers.HBox;
+import haxe.ui.containers.menus.Menu;
+import haxe.ui.containers.menus.MenuItem;
+import haxe.ui.containers.menus.MenuCheckBox;
 import funkin.ui.freeplay.LetterSort;
 import flixel.text.FlxText;
 import funkin.ui.freeplay.FreeplayState.DifficultySprite;
+import funkin.ui.debug.char.components.dialogs.*;
 import funkin.graphics.FunkinSprite;
 import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.graphics.shaders.AngleMask;
@@ -20,6 +27,8 @@ import openfl.display.BlendMode;
 // mainly used for dj animations and style
 class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 {
+  var dialogMap:Map<FreeplayDialogType, DefaultPageDialog>;
+
   var data:WizardGenerateParams;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
@@ -29,6 +38,20 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
     initBackingCard();
     initBackground();
+
+    dialogMap = new Map<FreeplayDialogType, DefaultPageDialog>();
+    dialogMap.set(FreeplayDJSettings, new FreeplayDJSettingsDialog(this));
+  }
+
+  override public function fillUpPageSettings(menu:Menu)
+  {
+    var settingsDialog = new MenuCheckBox();
+    settingsDialog.text = "Freeplay DJ Settings";
+    menu.addComponent(settingsDialog);
+
+    settingsDialog.onClick = function(_) {
+      dialogMap[FreeplayDJSettings].hidden = !settingsDialog.selected;
+    }
   }
 
   var pinkBack:FunkinSprite;
@@ -141,4 +164,9 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
       tmr.time = FlxG.random.float(20, 60);
     }, 0);
   }
+}
+
+enum FreeplayDialogType
+{
+  FreeplayDJSettings;
 }

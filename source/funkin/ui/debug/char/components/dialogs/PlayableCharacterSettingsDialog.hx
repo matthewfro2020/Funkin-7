@@ -8,8 +8,6 @@ import haxe.ui.data.ArrayDataSource;
 import funkin.data.character.CharacterRegistry;
 import funkin.util.SortUtil;
 
-// TODO: Move bgText to FreeplayDJCreator
-
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/playable-character-settings-dialog.xml"))
 class PlayableCharacterSettingsDialog extends DefaultPageDialog
 {
@@ -18,27 +16,6 @@ class PlayableCharacterSettingsDialog extends DefaultPageDialog
   function get_ownedCharacters():Array<String>
   {
     return ownedCharBox.listOwnedCharacters();
-  }
-
-  public var bgText1(get, never):String;
-
-  function get_bgText1():String
-  {
-    return bgTextField1.value ?? bgTextField1.placeholder;
-  }
-
-  public var bgText2(get, never):String;
-
-  function get_bgText2():String
-  {
-    return bgTextField2.value ?? bgTextField2.placeholder;
-  }
-
-  public var bgText3(get, never):String;
-
-  function get_bgText3():String
-  {
-    return bgTextField3.value ?? bgTextField3.placeholder;
   }
 
   var ownedCharBox:AddOwnedCharBox;
@@ -67,9 +44,9 @@ private class AddOwnedCharBox extends HBox
     verticalAlign = "center";
 
     var addButton = new Button();
-    addButton.text = "Add";
+    addButton.text = "Add New Box";
     var removeButton = new Button();
-    removeButton.text = "Remove";
+    removeButton.text = "Remove Last Box";
 
     addButton.percentWidth = removeButton.percentWidth = 50;
     addButton.percentHeight = removeButton.percentHeight = 100;
