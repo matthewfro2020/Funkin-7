@@ -27,6 +27,27 @@ import openfl.display.BlendMode;
 // mainly used for dj animations and style
 class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 {
+  public var bgText1(get, never):String;
+
+  function get_bgText1():String
+  {
+    return cast(dialogMap[FreeplayDJSettings], FreeplayDJSettingsDialog).bgText1;
+  }
+
+  public var bgText2(get, never):String;
+
+  function get_bgText2():String
+  {
+    return cast(dialogMap[FreeplayDJSettings], FreeplayDJSettingsDialog).bgText2;
+  }
+
+  public var bgText3(get, never):String;
+
+  function get_bgText3():String
+  {
+    return cast(dialogMap[FreeplayDJSettings], FreeplayDJSettingsDialog).bgText3;
+  }
+
   var dialogMap:Map<FreeplayDialogType, DefaultPageDialog>;
 
   var data:WizardGenerateParams;

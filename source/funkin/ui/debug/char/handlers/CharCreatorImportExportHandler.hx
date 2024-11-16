@@ -4,7 +4,9 @@ import haxe.io.Path;
 import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import funkin.ui.debug.char.pages.CharCreatorSelectPage;
+import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
 import funkin.ui.debug.char.CharCreatorState;
+import funkin.data.freeplay.player.PlayerData;
 import funkin.util.FileUtil;
 
 using StringTools;
@@ -96,6 +98,8 @@ class CharCreatorImportExportHandler
     var selectPage:CharCreatorSelectPage = cast state.pages[CharacterSelect];
     var charID = selectPage.data.importedCharacter ?? selectPage.data.characterID;
 
+    var freeplayPage:CharCreatorFreeplayPage = cast state.pages[Freeplay];
+
     // for (file in selectPage.iconFiles)
     // {
     //   // skip if the file is in a character path
@@ -107,7 +111,25 @@ class CharCreatorImportExportHandler
     //   zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/icons/${Path.withoutDirectory(file.name)}', file.bytes));
     // }
 
-    zipEntries.push(FileUtil.makeZIPEntry('data/players/${charID}.json', selectPage.toJSON()));
+    var playerData:PlayerData = new PlayerData();
+    playerData.name = "Unknown";
+    playerData.ownedChars = selectPage.ownedCharacters;
+    playerData.showUnownedChars = false;
+    playerData.freeplayStyle = "bf";
+
+    @:privateAccess
+    {
+      playerData.freeplayDJ = new PlayerFreeplayDJData();
+      playerData.freeplayDJ.text1 = freeplayPage.bgText1;
+      playerData.freeplayDJ.text2 = freeplayPage.bgText2;
+      playerData.freeplayDJ.text3 = freeplayPage.bgText3;
+    }
+
+    playerData.charSelect = new PlayerCharSelectData(selectPage.position);
+    playerData.results = null;
+    playerData.unlocked = true;
+
+    zipEntries.push(FileUtil.makeZIPEntry('data/players/${charID}.json', playerData.serialize()));
     if (selectPage.nametagFile != null) zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect${charID}Nametag.png', selectPage.nametagFile.bytes));
   }
 }

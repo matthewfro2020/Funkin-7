@@ -7,7 +7,6 @@ import haxe.ui.containers.menus.Menu;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.containers.menus.MenuCheckBox;
 import funkin.audio.FunkinSound;
-import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
@@ -34,6 +33,20 @@ using StringTools;
 @:allow(funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage)
 class CharCreatorSelectPage extends CharCreatorDefaultPage
 {
+  public var ownedCharacters(get, never):Array<String>;
+
+  function get_ownedCharacters():Array<String>
+  {
+    return cast(dialogMap[SettingsDialog], PlayableCharacterSettingsDialog).ownedCharacters;
+  }
+
+  public var position(get, never):Int;
+
+  function get_position():Int
+  {
+    return selectedIndexData;
+  }
+
   var data:WizardGenerateParams;
 
   var nametag:FlxSprite;
@@ -379,23 +392,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       if (FlxG.keys.justPressed.W) changeCharAnim(-1, FlxG.keys.pressed.SHIFT);
       if (FlxG.keys.justPressed.S) changeCharAnim(1, FlxG.keys.pressed.SHIFT);
     }
-  }
-
-  public function toJSON():String
-  {
-    var settingsDialog:PlayableCharacterSettingsDialog = cast dialogMap[SettingsDialog];
-
-    var playerData:PlayerData = new PlayerData();
-    playerData.name = "Unknown";
-    playerData.ownedChars = settingsDialog.ownedCharacters;
-    playerData.showUnownedChars = false;
-    playerData.freeplayStyle = "bf";
-    playerData.freeplayDJ = null;
-    playerData.charSelect = new PlayerCharSelectData(selectedIndexData);
-    playerData.results = null;
-    playerData.unlocked = true;
-
-    return playerData.serialize();
   }
 }
 
