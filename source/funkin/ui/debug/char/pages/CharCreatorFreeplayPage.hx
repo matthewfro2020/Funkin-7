@@ -7,17 +7,21 @@ import haxe.ui.containers.menus.Menu;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.containers.menus.MenuCheckBox;
 import funkin.ui.freeplay.LetterSort;
+import funkin.ui.freeplay.CapsuleText;
 import flixel.text.FlxText;
 import funkin.ui.freeplay.FreeplayState.DifficultySprite;
 import funkin.ui.debug.char.components.dialogs.*;
 import funkin.graphics.FunkinSprite;
+import funkin.ui.freeplay.FreeplayStyle;
 import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.graphics.shaders.AngleMask;
+import funkin.graphics.shaders.Grayscale;
 import funkin.graphics.shaders.StrokeShader;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.ui.freeplay.BGScrollingText;
 import funkin.ui.AtlasText;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
@@ -200,6 +204,8 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     var diffSprite = new DifficultySprite(Constants.DEFAULT_DIFFICULTY);
     diffSprite.setPosition(90, 80);
 
+    var randomCapsule = new RandomCapsule(stylishSunglasses);
+
     var fnfFreeplay:FlxText = new FlxText(8, 8, 0, 'FREEPLAY PAGE', 48);
     fnfFreeplay.font = 'VCR OSD Mono';
 
@@ -228,6 +234,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
     add(blackUnderlay);
     add(bgDad);
+    add(randomCapsule);
     add(diffSprite);
     add(fnfHighscoreSpr);
 
@@ -246,6 +253,51 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
       fnfHighscoreSpr.animation.play('highscore');
       tmr.time = FlxG.random.float(20, 60);
     }, 0);
+  }
+}
+
+// this is just cuz using the pre-established capsules won't help with creating styles (also we don't need to worry for recycling!)
+class RandomCapsule extends FlxSpriteGroup
+{
+  public var capsule:FlxSprite;
+  public var songText:CapsuleText;
+
+  public var grayscaleShader:Grayscale;
+
+  override public function new(?startingData:FreeplayStyle)
+  {
+    super();
+
+    this.x = 270;
+    this.y = (0 * ((height * 0.8) + 10)) + 130;
+
+    capsule = new FlxSprite();
+    capsule.frames = Paths.getSparrowAtlas(startingData == null ? 'freeplay/freeplayCapsule/capsule/freeplayCapsule' : startingData.getCapsuleAssetKey());
+    capsule.animation.addByPrefix('selected', 'mp3 capsule w backing0', 24);
+    capsule.animation.addByPrefix('unselected', 'mp3 capsule w backing NOT SELECTED', 24);
+    add(capsule);
+
+    songText = new CapsuleText(capsule.width * 0.26, 45, 'Random', Std.int(40 * 0.8));
+    if (startingData != null) songText.applyStyle(startingData);
+    add(songText);
+
+    grayscaleShader = new Grayscale(1);
+  }
+
+  override public function update(elapsed:Float)
+  {
+    super.update(elapsed);
+
+    var selected = FlxG.mouse.overlaps(this);
+
+    grayscaleShader.setAmount(selected ? 0 : 0.8);
+    songText.alpha = selected ? 1 : 0.6;
+    songText.blurredText.visible = selected ? true : false;
+    capsule.offset.x = selected ? 0 : -5;
+    capsule.animation.play(selected ? "selected" : "unselected");
+
+    if (songText.tooLong) songText.resetText();
+    if (selected && songText.tooLong) songText.initMove();
   }
 }
 
