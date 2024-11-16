@@ -15,6 +15,7 @@ import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.graphics.shaders.AngleMask;
 import funkin.graphics.shaders.StrokeShader;
 import funkin.data.freeplay.player.PlayerRegistry;
+import funkin.ui.freeplay.BGScrollingText;
 import funkin.ui.AtlasText;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import flixel.math.FlxPoint;
@@ -57,11 +58,11 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     super(state);
     this.data = data;
 
-    initBackingCard();
-    initBackground();
-
     dialogMap = new Map<FreeplayDialogType, DefaultPageDialog>();
     dialogMap.set(FreeplayDJSettings, new FreeplayDJSettingsDialog(this));
+
+    initBackingCard();
+    initBackground();
   }
 
   override public function fillUpPageSettings(menu:Menu)
@@ -76,6 +77,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   }
 
   var pinkBack:FunkinSprite;
+  var orangeBackShit:FunkinSprite;
 
   function initBackingCard()
   {
@@ -88,7 +90,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     pinkBack = FunkinSprite.create('freeplay/pinkBack');
     pinkBack.color = 0xFFFFD863;
 
-    var orangeBackShit = new FunkinSprite(84, 440).makeSolidColor(Std.int(pinkBack.width), 75, 0xFFFEDA00);
+    orangeBackShit = new FunkinSprite(84, 440).makeSolidColor(Std.int(pinkBack.width), 75, 0xFFFEDA00);
     FlxSpriteUtil.alphaMaskFlxSprite(orangeBackShit, pinkBack, orangeBackShit);
 
     var alsoOrangeLOL = new FunkinSprite(0, orangeBackShit.y).makeSolidColor(100, Std.int(orangeBackShit.height), 0xFFFFD400);
@@ -103,6 +105,9 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
         ScrollFactor: new FlxPoint(1, 1),
       });
 
+    confirmGlow.visible = confirmGlow2.visible = confirmTextGlow.visible = false;
+    cardGlow.alpha = 0;
+
     add(pinkBack);
     add(orangeBackShit);
     add(alsoOrangeLOL);
@@ -110,7 +115,64 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     add(confirmGlow);
     add(confirmTextGlow);
     add(backingTextYeah);
+
+    initScrollingTexts();
+
     add(cardGlow);
+  }
+
+  var text1:BGScrollingText;
+  var text2:BGScrollingText;
+  var text3:BGScrollingText;
+  var text4:BGScrollingText;
+  var text5:BGScrollingText;
+  var text6:BGScrollingText;
+
+  function initScrollingTexts()
+  {
+    var currentChar = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
+    var dialog:FreeplayDJSettingsDialog = cast dialogMap[FreeplayDJSettings];
+
+    var texts = currentChar != null ? [
+      currentChar.getFreeplayDJText(1),
+      currentChar.getFreeplayDJText(2),
+      currentChar.getFreeplayDJText(3)
+    ] : [
+      bgText1 ?? "YO IM A PLACEHOLDER",
+      bgText2 ?? "YOU SHOULD PUT UR TEXT IN THE DIALOG",
+      bgText3 ?? "IT COULD LOOK LIKE THIS"
+      ];
+
+    // yanderev moment i think
+    text1 = new BGScrollingText(0, 220, texts[0], FlxG.width / 2, false, 60);
+    text2 = new BGScrollingText(0, 335, texts[0], FlxG.width / 2, false, 60);
+    text3 = new BGScrollingText(0, 160, texts[1], FlxG.width, true, 43);
+    text4 = new BGScrollingText(0, 397, texts[1], FlxG.width, true, 43);
+    text5 = new BGScrollingText(0, 285, texts[2], FlxG.width / 2, true, 43);
+    text6 = new BGScrollingText(0, orangeBackShit.y + 10, texts[0], FlxG.width / 2, 60);
+
+    text1.funnyColor = text2.funnyColor = 0xFFFF9963;
+    text3.funnyColor = text4.funnyColor = 0xFFFFF383;
+    text6.funnyColor = 0xFFFEA400;
+
+    text1.speed = text2.speed = text6.speed = -3.8;
+    text3.speed = text4.speed = 6.8;
+    text5.speed = 3.5;
+
+    add(text1);
+    add(text2);
+    add(text3);
+    add(text4);
+    add(text5);
+    add(text6);
+
+    var glowDark = new FlxSprite(-300, 330).loadGraphic(Paths.image('freeplay/beatglow'));
+    glowDark.blend = BlendMode.MULTIPLY;
+    add(glowDark);
+
+    var glow = new FlxSprite(-300, 330).loadGraphic(Paths.image('freeplay/beatglow'));
+    glow.blend = BlendMode.ADD;
+    add(glow);
   }
 
   var bgDad:FlxSprite;
