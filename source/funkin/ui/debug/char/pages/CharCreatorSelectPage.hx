@@ -383,9 +383,11 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
   public function toJSON():String
   {
+    var settingsDialog:PlayableCharacterSettingsDialog = cast dialogMap[SettingsDialog];
+
     var playerData:PlayerData = new PlayerData();
     playerData.name = "Unknown";
-    playerData.ownedChars = cast(dialogMap[SettingsDialog], PlayableCharacterSettingsDialog).listOwnedCharacters();
+    playerData.ownedChars = settingsDialog.ownedCharacters;
     playerData.showUnownedChars = false;
     playerData.freeplayStyle = "bf";
     playerData.freeplayDJ = null;
