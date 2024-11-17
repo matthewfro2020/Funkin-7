@@ -1,6 +1,9 @@
 package funkin.ui.debug.char.pages;
 
 import haxe.ui.containers.Box;
+import haxe.ui.containers.menus.Menu;
+import haxe.ui.containers.menus.MenuItem;
+import haxe.ui.containers.menus.MenuCheckBox;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.components.dialogs.*;
@@ -28,10 +31,15 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var previewRank:ScoringRank = PERFECT_GOLD;
 
+  var dialogMap:Map<ResultsDialogType, DefaultPageDialog>;
+
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
     super(state);
     this.data = data;
+
+    dialogMap = new Map<ResultsDialogType, DefaultPageDialog>();
+    dialogMap.set(RankAnims, new ResultsAnimDialog(this));
 
     initFunkinUI();
     initAnimations();
@@ -39,7 +47,15 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     refresh();
   }
 
-  override public function fillUpBottomBar(left:Box, middle:Box, right:Box) {}
+  override public function fillUpPageSettings(menu:Menu):Void
+  {
+    var animDialog = new MenuCheckBox();
+    animDialog.text = "Rank Animations";
+    animDialog.onClick = function(_) {
+      dialogMap[RankAnims].hidden = !animDialog.selected;
+    }
+    menu.addComponent(animDialog);
+  }
 
   override public function update(elapsed:Float):Void
   {
@@ -186,13 +202,17 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   function initAnimations():Void
   {
-    var charId = data.importedPlayerData;
-    createAnimationsForRank(charId, PERFECT_GOLD);
-    createAnimationsForRank(charId, PERFECT);
-    createAnimationsForRank(charId, EXCELLENT);
-    createAnimationsForRank(charId, GREAT);
-    createAnimationsForRank(charId, GOOD);
-    createAnimationsForRank(charId, SHIT);
+    if (data.importedPlayerData != null)
+    {
+      var charId = data.importedPlayerData;
+      createAnimationsForRank(charId, PERFECT_GOLD);
+      createAnimationsForRank(charId, PERFECT);
+      createAnimationsForRank(charId, EXCELLENT);
+      createAnimationsForRank(charId, GREAT);
+      createAnimationsForRank(charId, GOOD);
+      createAnimationsForRank(charId, SHIT);
+    }
+    else {}
   }
 
   function createAnimationsForRank(charId:String, rank:ScoringRank):Void
@@ -296,4 +316,9 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
   {
     sort(SortUtil.byZIndex, FlxSort.ASCENDING);
   }
+}
+
+enum ResultsDialogType
+{
+  RankAnims;
 }
