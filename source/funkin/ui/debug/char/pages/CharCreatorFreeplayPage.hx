@@ -134,26 +134,13 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
   function initScrollingTexts()
   {
-    var currentChar = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
-    var dialog:FreeplayDJSettingsDialog = cast dialogMap[FreeplayDJSettings];
-
-    var texts = currentChar != null ? [
-      currentChar.getFreeplayDJText(1),
-      currentChar.getFreeplayDJText(2),
-      currentChar.getFreeplayDJText(3)
-    ] : [
-      bgText1 ?? "YO IM A PLACEHOLDER",
-      bgText2 ?? "YOU SHOULD PUT UR TEXT IN THE DIALOG",
-      bgText3 ?? "IT COULD LOOK LIKE THIS"
-      ];
-
     // yanderev moment i think
-    text1 = new BGScrollingText(0, 220, texts[0], FlxG.width / 2, false, 60);
-    text2 = new BGScrollingText(0, 335, texts[0], FlxG.width / 2, false, 60);
-    text3 = new BGScrollingText(0, 160, texts[1], FlxG.width, true, 43);
-    text4 = new BGScrollingText(0, 397, texts[1], FlxG.width, true, 43);
-    text5 = new BGScrollingText(0, 285, texts[2], FlxG.width / 2, true, 43);
-    text6 = new BGScrollingText(0, orangeBackShit.y + 10, texts[0], FlxG.width / 2, 60);
+    text1 = new BGScrollingText(0, 220, bgText1, FlxG.width / 2, false, 60);
+    text2 = new BGScrollingText(0, 335, bgText1, FlxG.width / 2, false, 60);
+    text3 = new BGScrollingText(0, 160, bgText2, FlxG.width, true, 43);
+    text4 = new BGScrollingText(0, 397, bgText2, FlxG.width, true, 43);
+    text5 = new BGScrollingText(0, 285, bgText3, FlxG.width / 2, true, 43);
+    text6 = new BGScrollingText(0, orangeBackShit.y + 10, bgText1, FlxG.width / 2, 60);
 
     text1.funnyColor = text2.funnyColor = 0xFFFF9963;
     text3.funnyColor = text4.funnyColor = 0xFFFFF383;

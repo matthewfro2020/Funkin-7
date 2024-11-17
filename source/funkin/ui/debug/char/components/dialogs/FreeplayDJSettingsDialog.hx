@@ -1,6 +1,10 @@
 package funkin.ui.debug.char.components.dialogs;
 
+import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
+import funkin.data.freeplay.player.PlayerRegistry;
+
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/freeplay-dj-settings-dialog.xml"))
+@:access(funkin.ui.debug.char.pages.CharCreatorFreeplayPage)
 class FreeplayDJSettingsDialog extends DefaultPageDialog
 {
   public var bgText1(get, never):String;
@@ -27,5 +31,15 @@ class FreeplayDJSettingsDialog extends DefaultPageDialog
   override public function new(daPage:CharCreatorDefaultPage)
   {
     super(daPage);
+
+    var data = cast(daPage, CharCreatorFreeplayPage).data;
+
+    var currentChar = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
+    if (currentChar != null)
+    {
+      bgTextField1.value = currentChar.getFreeplayDJText(1);
+      bgTextField2.value = currentChar.getFreeplayDJText(2);
+      bgTextField3.value = currentChar.getFreeplayDJText(3);
+    }
   }
 }
