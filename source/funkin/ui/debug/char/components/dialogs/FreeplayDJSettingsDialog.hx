@@ -28,11 +28,11 @@ class FreeplayDJSettingsDialog extends DefaultPageDialog
     return bgTextField3.value ?? bgTextField3.placeholder;
   }
 
-  override public function new(daPage:CharCreatorDefaultPage)
+  override public function new(daPage:CharCreatorFreeplayPage)
   {
     super(daPage);
 
-    var data = cast(daPage, CharCreatorFreeplayPage).data;
+    var data = daPage.data;
 
     var currentChar = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
     if (currentChar != null)

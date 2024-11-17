@@ -10,7 +10,7 @@ class AddAnimDialog extends DefaultPageDialog
 {
   public var linkedChar:CharCreatorCharacter = null;
 
-  override public function new(daPage:CharCreatorDefaultPage, char:CharCreatorCharacter)
+  override public function new(daPage:CharCreatorGameplayPage, char:CharCreatorCharacter)
   {
     super(daPage);
     linkedChar = char;
@@ -86,7 +86,7 @@ class AddAnimDialog extends DefaultPageDialog
 
       if (linkedChar.generatedParams.importedCharacter == null)
       {
-        cast(page, CharCreatorGameplayPage).ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
+        daPage.ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
           (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
       }
 
@@ -98,7 +98,7 @@ class AddAnimDialog extends DefaultPageDialog
       if ((charAnimName.text ?? "") == "") return;
 
       if (!char.removeAnimation(charAnimName.text)) return;
-      if (linkedChar.generatedParams.importedCharacter == null) cast(page, CharCreatorGameplayPage).ghostCharacter.removeAnimation(charAnimName.text);
+      if (linkedChar.generatedParams.importedCharacter == null) daPage.ghostCharacter.removeAnimation(charAnimName.text);
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
@@ -107,7 +107,7 @@ class AddAnimDialog extends DefaultPageDialog
 
       var anim:String = charAnimDropdown.value.text;
       char.playAnimation(anim);
-      cast(page, CharCreatorGameplayPage).ghostCharacter.playAnimation(anim);
+      daPage.ghostCharacter.playAnimation(anim);
     }
   }
 

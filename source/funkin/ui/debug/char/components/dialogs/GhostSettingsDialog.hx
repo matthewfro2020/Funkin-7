@@ -15,12 +15,12 @@ class GhostSettingsDialog extends DefaultPageDialog
   public var attachedMenu:GhostCharacterMenu;
   public var charId:String = Constants.DEFAULT_CHARACTER;
 
-  override public function new(daPage:CharCreatorDefaultPage)
+  override public function new(daPage:CharCreatorGameplayPage)
   {
     super(daPage);
 
-    var regularChar = cast(daPage, CharCreatorGameplayPage).currentCharacter;
-    var ghostChar = cast(daPage, CharCreatorGameplayPage).ghostCharacter;
+    var regularChar = daPage.currentCharacter;
+    var ghostChar = daPage.ghostCharacter;
     var charData = CharacterRegistry.fetchCharacterData(Constants.DEFAULT_CHARACTER);
 
     ghostTypeButton.icon = (charData == null ? null : CharacterRegistry.getCharPixelIconAsset(Constants.DEFAULT_CHARACTER));
@@ -33,7 +33,7 @@ class GhostSettingsDialog extends DefaultPageDialog
 
       if (ghostChar.visible) // i love saving on data
       {
-        cast(daPage, CharCreatorGameplayPage).ghostId = (ghostCustomChar.selected ? charId : "");
+        daPage.ghostId = (ghostCustomChar.selected ? charId : "");
       }
     }
 
@@ -41,14 +41,14 @@ class GhostSettingsDialog extends DefaultPageDialog
       ghostTypeButton.disabled = ghostCurChar.selected;
       if (ghostCurChar.selected) Screen.instance.removeComponent(attachedMenu);
 
-      if (ghostChar.visible && ghostCurChar.selected) cast(daPage, CharCreatorGameplayPage).ghostId = "";
+      if (ghostChar.visible && ghostCurChar.selected) daPage.ghostId = "";
     }
 
     ghostCustomChar.onChange = function(_) {
       ghostTypeButton.disabled = !ghostCustomChar.selected;
       if (!ghostCustomChar.selected) Screen.instance.removeComponent(attachedMenu);
 
-      if (ghostChar.visible && ghostCustomChar.selected) cast(daPage, CharCreatorGameplayPage).ghostId = charId;
+      if (ghostChar.visible && ghostCustomChar.selected) daPage.ghostId = charId;
     }
 
     ghostTypeButton.onClick = function(_) {
