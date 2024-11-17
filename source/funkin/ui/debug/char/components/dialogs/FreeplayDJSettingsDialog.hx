@@ -41,5 +41,7 @@ class FreeplayDJSettingsDialog extends DefaultPageDialog
       bgTextField2.value = currentChar.getFreeplayDJText(2);
       bgTextField3.value = currentChar.getFreeplayDJText(3);
     }
+
+    bgTextField1.onChange = bgTextField2.onChange = bgTextField3.onChange = _ -> daPage.updateScrollingTexts();
   }
 }

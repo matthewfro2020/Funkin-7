@@ -121,8 +121,47 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     add(backingTextYeah);
 
     initScrollingTexts();
+    updateScrollingTexts();
 
     add(cardGlow);
+  }
+
+  function updateScrollingTexts()
+  {
+    var elderScrolls = [text1, text2, text3, text4, text5, text6];
+    var newerStrings = [bgText1, bgText1, bgText2, bgText2, bgText3, bgText1];
+
+    @:privateAccess
+    for (i in 0...elderScrolls.length)
+    {
+      var ogText = elderScrolls[i];
+      var ogColor = ogText.grpTexts.members[0].color;
+      var ogBold = ogText.grpTexts.members[0].bold;
+
+      ogText.grpTexts.clear();
+      ogText.active = false;
+
+      var testText:FlxText = new FlxText(0, 0, 0, newerStrings[i], ogText.size);
+      testText.font = "5by7";
+      testText.bold = ogBold;
+      testText.updateHitbox();
+      ogText.grpTexts.add(testText);
+
+      var needed:Int = Math.ceil(ogText.widthShit / testText.frameWidth) + 1;
+
+      for (j in 0...needed)
+      {
+        var coolText:FlxText = new FlxText(((j + 1) * testText.frameWidth) + ((j + 1) * 20), 0, 0, newerStrings[i], ogText.size);
+
+        coolText.font = "5by7";
+        coolText.bold = ogBold;
+        coolText.updateHitbox();
+        ogText.grpTexts.add(coolText);
+      }
+
+      ogText.funnyColor = ogColor;
+      ogText.active = true;
+    }
   }
 
   var text1:BGScrollingText;
