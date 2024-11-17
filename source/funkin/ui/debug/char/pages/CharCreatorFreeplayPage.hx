@@ -64,6 +64,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
     dialogMap = new Map<FreeplayDialogType, DefaultPageDialog>();
     dialogMap.set(FreeplayDJSettings, new FreeplayDJSettingsDialog(this));
+    dialogMap.set(FreeplayStyle, new FreeplayStyleDialog(this));
 
     initBackingCard();
     initBackground();
@@ -77,6 +78,14 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
     settingsDialog.onClick = function(_) {
       dialogMap[FreeplayDJSettings].hidden = !settingsDialog.selected;
+    }
+
+    var styleDialog = new MenuCheckBox();
+    styleDialog.text = "Freeplay Style Settings";
+    menu.addComponent(styleDialog);
+
+    styleDialog.onClick = function(_) {
+      dialogMap[FreeplayStyle].hidden = !styleDialog.selected;
     }
   }
 
@@ -208,6 +217,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   var bgDad:FlxSprite;
   var arrowLeft:FlxSprite;
   var arrowRight:FlxSprite;
+  var randomCapsule:RandomCapsule;
 
   function initBackground()
   {
@@ -230,7 +240,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     var diffSprite = new DifficultySprite(Constants.DEFAULT_DIFFICULTY);
     diffSprite.setPosition(90, 80);
 
-    var randomCapsule = new RandomCapsule(stylishSunglasses);
+    randomCapsule = new RandomCapsule(stylishSunglasses);
 
     var fnfFreeplay:FlxText = new FlxText(8, 8, 0, 'FREEPLAY PAGE', 48);
     fnfFreeplay.font = 'VCR OSD Mono';
@@ -298,16 +308,23 @@ class RandomCapsule extends FlxSpriteGroup
     this.y = (0 * ((height * 0.8) + 10)) + 130;
 
     capsule = new FlxSprite();
-    capsule.frames = Paths.getSparrowAtlas(startingData == null ? 'freeplay/freeplayCapsule/capsule/freeplayCapsule' : startingData.getCapsuleAssetKey());
-    capsule.animation.addByPrefix('selected', 'mp3 capsule w backing0', 24);
-    capsule.animation.addByPrefix('unselected', 'mp3 capsule w backing NOT SELECTED', 24);
     add(capsule);
 
     songText = new CapsuleText(capsule.width * 0.26, 45, 'Random', Std.int(40 * 0.8));
-    if (startingData != null) songText.applyStyle(startingData);
     add(songText);
 
     grayscaleShader = new Grayscale(1);
+    applyStyle(startingData);
+  }
+
+  public function applyStyle(?style:FreeplayStyle)
+  {
+    capsule.frames = Paths.getSparrowAtlas(style == null ? 'freeplay/freeplayCapsule/capsule/freeplayCapsule' : style.getCapsuleAssetKey());
+    capsule.animation.addByPrefix('selected', 'mp3 capsule w backing0', 24);
+    capsule.animation.addByPrefix('unselected', 'mp3 capsule w backing NOT SELECTED', 24);
+
+    if (style != null) songText.applyStyle(style);
+    songText.x = capsule.width * 0.26;
   }
 
   override public function update(elapsed:Float)
@@ -330,4 +347,5 @@ class RandomCapsule extends FlxSpriteGroup
 enum FreeplayDialogType
 {
   FreeplayDJSettings;
+  FreeplayStyle;
 }
