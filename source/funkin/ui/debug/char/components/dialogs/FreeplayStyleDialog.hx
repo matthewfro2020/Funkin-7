@@ -3,13 +3,16 @@ package funkin.ui.debug.char.components.dialogs;
 import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.data.freeplay.player.PlayerRegistry;
 import haxe.ui.components.OptionBox;
+import haxe.ui.util.Color;
+import funkin.util.FileUtil;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.util.FlxColor;
 import openfl.display.BitmapData;
 
 @:access(funkin.ui.debug.char.pages.CharCreatorFreeplayPage)
 @:xml('
 <?xml version="1.0" encoding="utf-8"?>
-<collapsible-dialog width="400" height="425" title="Freeplay Style Settings">
+<collapsible-dialog width="400" height="425" title="Freeplay Style Settings" closable="false">
   <vbox width="100%" height="100%">
     <hbox width="100%" height="100%">
 
@@ -97,6 +100,11 @@ class FreeplayStyleDialog extends DefaultPageDialog
     optionUsePreset.selected = (daPlayuh != null);
     optionMakeNew.selected = (daPlayuh == null);
 
+    buttonBGAsset.onClick = _ -> buttonCallbackForField(fieldBGAsset);
+    buttonArrow.onClick = _ -> buttonCallbackForField(fieldArrow);
+    buttonNumbers.onClick = _ -> buttonCallbackForField(fieldNumbers);
+    buttonCapsule.onClick = _ -> buttonCallbackForField(fieldCapsule);
+
     buttonApplyStyle.onClick = function(_) {
       if (optionUsePreset.selected)
       {
@@ -114,17 +122,17 @@ class FreeplayStyleDialog extends DefaultPageDialog
       }
       else if (optionMakeNew.selected)
       {
-        var dadBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldBGAsset.text));
-        var arrowBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldArrow.text));
-        var capsuleBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldCapsule.text));
+        var dadBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldBGAsset.text?.length > 0 ? fieldBGAsset.text : Paths.image('freeplay/freeplayBGdad')));
+        var arrowBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldArrow.text?.length > 0 ? fieldArrow.text : Paths.image('freeplay/freeplaySelector')));
+        var capsuleBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldCapsule.text?.length > 0 ? fieldCapsule.text : Paths.image('freeplay/freeplayCapsule/capsule/freeplayCapsule')));
 
-        var arrowXML = CharCreatorUtil.gimmeTheBytes(fieldArrow.text.replace(".png", ".xml"))?.toString() ?? "";
-        var capsuleXML = CharCreatorUtil.gimmeTheBytes(fieldCapsule.text.replace(".png", ".xml"))?.toString() ?? "";
+        var arrowXML = CharCreatorUtil.gimmeTheBytes(fieldArrow.text.replace(".png", ".xml"))?.toString() ?? Paths.file("images/freeplay/freeplaySelector.xml");
+        var capsuleXML = CharCreatorUtil.gimmeTheBytes(fieldCapsule.text.replace(".png",
+          ".xml"))?.toString() ?? Paths.file("images/freeplay/freeplayCapsule/capsule/freeplayCapsule.xml");
 
-        daPage.bgDad.loadGraphic(dadBitmap != null ? dadBitmap : Paths.image('freeplay/freeplayBGdad'));
+        daPage.bgDad.loadGraphic(dadBitmap);
 
-        daPage.arrowLeft.frames = daPage.arrowRight.frames = (arrowBitmap != null && arrowXML != "") ? FlxAtlasFrames.fromSparrow(arrowBitmap,
-          arrowXML) : Paths.getSparrowAtlas('freeplay/freeplaySelector');
+        daPage.arrowLeft.frames = daPage.arrowRight.frames = FlxAtlasFrames.fromSparrow(arrowBitmap, arrowXML);
 
         daPage.arrowLeft.animation.addByPrefix('shine', 'arrow pointer loop', 24);
         daPage.arrowRight.animation.addByPrefix('shine', 'arrow pointer loop', 24);
@@ -132,21 +140,28 @@ class FreeplayStyleDialog extends DefaultPageDialog
         daPage.arrowRight.animation.play('shine');
 
         // overcomplicating capsule stuff
-        daPage.randomCapsule.capsule.frames = (capsuleBitmap != null && capsuleXML != "") ? FlxAtlasFrames.fromSparrow(capsuleBitmap,
-          capsuleXML) : Paths.getSparrowAtlas('freeplay/freeplayCapsule/capsule/freeplayCapsule');
+        daPage.randomCapsule.capsule.frames = FlxAtlasFrames.fromSparrow(capsuleBitmap, capsuleXML);
         daPage.randomCapsule.capsule.animation.addByPrefix('selected', 'mp3 capsule w backing0', 24);
         daPage.randomCapsule.capsule.animation.addByPrefix('unselected', 'mp3 capsule w backing NOT SELECTED', 24);
 
         @:privateAccess
         {
-          trace(selectPicker.selectedItem);
-          daPage.randomCapsule.songText.glowColor = daPage.randomCapsule.songText.blurredText.color = flixel.util.FlxColor.fromRGB(selectPicker.selectedItem?.r ?? 0,
-            selectPicker.selectedItem?.g ?? 0, selectPicker.selectedItem?.b ?? 0);
+          var compColor:Color = selectPicker.selectedItem != null ? cast(selectPicker.selectedItem) : Color.fromString("white");
+          daPage.randomCapsule.songText.glowColor = FlxColor.fromRGB(compColor.r, compColor.g, compColor.b);
+          daPage.randomCapsule.songText.blurredText.color = daPage.randomCapsule.songText.glowColor;
+
           daPage.randomCapsule.songText.whiteText.textField.filters = [
             new openfl.filters.GlowFilter(daPage.randomCapsule.songText.glowColor, 1, 5, 5, 210, openfl.filters.BitmapFilterQuality.MEDIUM),
           ];
         }
       }
     }
+  }
+
+  function buttonCallbackForField(field:haxe.ui.components.TextField)
+  {
+    FileUtil.browseForBinaryFile("Load Image", [FileUtil.FILE_EXTENSION_INFO_PNG], function(_) {
+      if (_?.fullPath != null) field.text = _.fullPath;
+    });
   }
 }
