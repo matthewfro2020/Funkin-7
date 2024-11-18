@@ -13,6 +13,7 @@ import funkin.ui.freeplay.FreeplayState.DifficultySprite;
 import funkin.ui.debug.char.components.dialogs.*;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.freeplay.FreeplayStyle;
+import funkin.data.freeplay.style.FreeplayStyleData;
 import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.graphics.shaders.AngleMask;
 import funkin.graphics.shaders.Grayscale;
@@ -56,6 +57,19 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   var dialogMap:Map<FreeplayDialogType, DefaultPageDialog>;
 
   var data:WizardGenerateParams;
+
+  public var useStyle:Null<String> = null;
+  public var customStyleData:FreeplayStyleData =
+    {
+      version: FreeplayStyleRegistry.FREEPLAYSTYLE_DATA_VERSION,
+      bgAsset: 'freeplay/freeplayBGdad',
+      selectorAsset: 'freeplay/freeplaySelector',
+      numbersAsset: "digital_numbers",
+      capsuleAsset: "freeplay/freeplayCapsule/capsule/freeplayCapsule",
+      capsuleTextColors: ["#00ccff", "#00ccff"],
+      startDelay: 1.0
+    }
+  public var styleFiles:Array<WizardFile> = [];
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -223,6 +237,8 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   {
     var currentChar = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
     var stylishSunglasses = FreeplayStyleRegistry.instance.fetchEntry(currentChar?.getFreeplayStyleID() ?? "");
+
+    if (stylishSunglasses != null) useStyle = currentChar.getFreeplayStyleID();
 
     bgDad = new FlxSprite(pinkBack.width * 0.74)
       .loadGraphic(stylishSunglasses == null ? Paths.image('freeplay/freeplayBGdad') : stylishSunglasses.getBgAssetGraphic());

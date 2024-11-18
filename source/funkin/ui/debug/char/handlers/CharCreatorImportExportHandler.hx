@@ -7,6 +7,7 @@ import funkin.ui.debug.char.pages.CharCreatorSelectPage;
 import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
 import funkin.ui.debug.char.CharCreatorState;
 import funkin.data.freeplay.player.PlayerData;
+import funkin.data.freeplay.style.FreeplayStyleData;
 import funkin.util.FileUtil;
 
 using StringTools;
@@ -115,7 +116,7 @@ class CharCreatorImportExportHandler
     playerData.name = "Unknown";
     playerData.ownedChars = selectPage.ownedCharacters;
     playerData.showUnownedChars = false;
-    playerData.freeplayStyle = "bf";
+    playerData.freeplayStyle = freeplayPage.useStyle ?? charID;
 
     @:privateAccess
     {
@@ -131,5 +132,14 @@ class CharCreatorImportExportHandler
 
     zipEntries.push(FileUtil.makeZIPEntry('data/players/${charID}.json', playerData.serialize()));
     if (selectPage.nametagFile != null) zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect${charID}Nametag.png', selectPage.nametagFile.bytes));
+
+    if (freeplayPage.useStyle == null)
+    {
+      zipEntries.push(FileUtil.makeZIPEntry('data/ui/styles/${charID}.json',
+        new json2object.JsonWriter<FreeplayStyleData>().write(freeplayPage.customStyleData, '  ')));
+
+      for (file in freeplayPage.styleFiles)
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/${file.name}', file.bytes));
+    }
   }
 }
