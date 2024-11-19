@@ -57,30 +57,41 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     menu.addComponent(animDialog);
   }
 
+  var animTimers:Array<FlxTimer> = [];
+
   override public function update(elapsed:Float):Void
   {
     super.update(elapsed);
 
     if (FlxG.keys.justPressed.SPACE)
     {
+      while (animTimers.length > 0)
+      {
+        var timer = animTimers.shift();
+        timer.cancel();
+        timer.destroy();
+      }
+
       refresh(); // just to be sure
 
       for (atlas in characterAtlasAnimations[previewRank])
       {
-        new FlxTimer().start(atlas.delay, _ -> {
+        atlas.sprite.visible = false;
+        animTimers.push(new FlxTimer().start(atlas.delay, _ -> {
           if (atlas.sprite == null) return;
           atlas.sprite.visible = true;
-          atlas.sprite.playAnimation('');
-        });
+          atlas.sprite.anim.play('', true);
+        }));
       }
 
       for (sprite in characterSparrowAnimations[previewRank])
       {
-        new FlxTimer().start(sprite.delay, _ -> {
+        sprite.sprite.visible = false;
+        animTimers.push(new FlxTimer().start(sprite.delay, _ -> {
           if (sprite.sprite == null) return;
           sprite.sprite.visible = true;
           sprite.sprite.animation.play('idle', true);
-        });
+        }));
       }
     }
   }
