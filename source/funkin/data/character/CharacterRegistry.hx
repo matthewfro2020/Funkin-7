@@ -69,7 +69,6 @@ class CharacterRegistry
       try
       {
         var charData:CharacterData = parseCharacterData(charId);
-        charData = validateCharacterData(charId, charData);
         if (charData != null)
         {
           trace('    Loaded character data: ${charId}');
@@ -399,19 +398,23 @@ class CharacterRegistry
       return null;
     }
 
+    var data:Null<CharacterData> = null;
+
     if (CHARACTER_DATA_VERSION_RULE == null || VersionUtil.validateVersion(version, CHARACTER_DATA_VERSION_RULE))
     {
-      return buildCharacterData(rawJson, charId);
+      data = buildCharacterData(rawJson, charId);
     }
     else if (VersionUtil.validateVersion(version, "1.0.x"))
     {
-      return buildCharacterData_v1_0_0(rawJson, charId);
+      data = buildCharacterData_v1_0_0(rawJson, charId);
     }
     else
     {
       trace('[CHARACTER] Could not load character data for "$charId": bad version (got ${version}, expected ${CHARACTER_DATA_VERSION_RULE})');
       return null;
     }
+
+    return validateCharacterData(charId, data);
   }
 
   static function loadCharacterFile(charPath:String):JsonFile
