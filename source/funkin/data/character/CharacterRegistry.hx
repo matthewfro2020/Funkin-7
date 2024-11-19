@@ -69,6 +69,7 @@ class CharacterRegistry
       try
       {
         var charData:CharacterData = parseCharacterData(charId);
+        charData = validateCharacterData(charId, charData);
         if (charData != null)
         {
           trace('    Loaded character data: ${charId}');

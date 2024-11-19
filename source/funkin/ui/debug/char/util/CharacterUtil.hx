@@ -58,7 +58,11 @@ class CharacterUtil
       default: // nothing, what the fuck are you even doing
     }
 
+    char.characterCameraOffsets = other.characterCameraOffsets.copy();
     char.globalOffsets = other.globalOffsets.copy();
+    char.characterFlipX = other.characterFlipX;
+    char.characterScale = other.characterScale;
+    char.deathData = other.deathData;
 
     for (anim in other.animations)
     {
@@ -109,9 +113,12 @@ class CharacterUtil
       default: // nuthin
     }
 
+    char.characterCameraOffsets = data.cameraOffsets ?? [0, 0];
     char.globalOffsets = data.offsets ?? [0, 0];
     char.characterFlipX = data.flipX ?? false;
     char.characterScale = data.scale ?? 1;
+    char.deathData = data.death;
+    char.holdTimer = data.singTime;
 
     for (anim in data.animations)
     {

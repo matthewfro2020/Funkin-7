@@ -56,6 +56,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     updateCharPerStageData();
 
     dialogMap.set(Animation, new AddAnimDialog(this, currentCharacter));
+    dialogMap.set(Data, new CharMetadataDialog(this, currentCharacter));
     dialogMap.set(Ghost, new GhostSettingsDialog(this));
     dialogMap.set(Health, new HealthIconDialog(this, currentCharacter));
 
@@ -147,12 +148,14 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   }
 
   var checkAnim:MenuCheckBox = new MenuCheckBox();
+  var checkData:MenuCheckBox = new MenuCheckBox();
   var checkHealth:MenuCheckBox = new MenuCheckBox();
   var checkGhost:MenuCheckBox = new MenuCheckBox();
 
   override public function fillUpPageSettings(item:haxe.ui.containers.menus.Menu)
   {
     item.addComponent(checkAnim);
+    item.addComponent(checkData);
     item.addComponent(checkHealth);
     item.addComponent(checkGhost);
   }
@@ -246,6 +249,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
       stageDropdown.dataSource.add({text: aught});
 
     checkAnim.text = "Animation Data";
+    checkData.text = "Character Metadata";
     checkHealth.text = "Health Icon Data";
     checkGhost.text = "Ghost Settings";
 
@@ -298,6 +302,9 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
     checkAnim.onChange = function(_) {
       dialogMap[Animation].hidden = !checkAnim.selected;
+    }
+    checkData.onChange = function(_) {
+      dialogMap[Data].hidden = !checkData.selected;
     }
     checkHealth.onChange = function(_) {
       dialogMap[Health].hidden = !checkHealth.selected;

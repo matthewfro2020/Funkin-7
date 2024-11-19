@@ -32,6 +32,7 @@ class CharCreatorCharacter extends Bopper
   public var holdTimer:Float = 0;
   public var characterCameraOffsets:Array<Float> = [0.0, 0.0];
   public var animations:Array<AnimationData> = [];
+  public var deathData:DeathData = null;
 
   public var characterFlipX:Bool = false;
   public var characterScale:Float = 1.0; // character scale to be used in the data, ghosts need one
@@ -303,6 +304,11 @@ class CharCreatorCharacter extends Bopper
       renderType: generatedParams.renderType,
       healthIcon: healthIcon,
       animations: animations,
+      offsets: globalOffsets,
+      isPixel: isPixel,
+      cameraOffsets: characterCameraOffsets,
+      singTime: holdTimer,
+      death: deathData
     };
   }
 
