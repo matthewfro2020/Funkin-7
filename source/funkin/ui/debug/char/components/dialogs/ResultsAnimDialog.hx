@@ -6,45 +6,184 @@ import haxe.ui.components.Button;
 import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.play.scoring.Scoring.ScoringRank;
+import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import funkin.graphics.FunkinSprite;
 
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/results-anim-dialog.xml"))
 @:access(funkin.ui.debug.char.pages.CharCreatorResultsPage)
 class ResultsAnimDialog extends DefaultPageDialog
 {
-  var rankAnimationDataMap:Map<ScoringRank, Array<PlayerResultsAnimationData>> = [
-    PERFECT_GOLD => [],
-    PERFECT => [],
-    EXCELLENT => [],
-    GREAT => [],
-    GOOD => [],
-    SHIT => [],
-  ];
+  public var currentRank(get, never):ScoringRank;
+
+  public var characterAtlasAnimations(get, never):Array<
+    {
+      sprite:FlxAtlasSprite,
+      delay:Float,
+      forceLoop:Bool
+    }>;
+
+  public var characterSparrowAnimations(get, never):Array<
+    {
+      sprite:FunkinSprite,
+      delay:Float
+    }>;
+
+  var rankAnimationDataMap:Map<ScoringRank, Array<PlayerResultsAnimationData>> = [];
+
+  var characterAtlasAnimationsMap:Map<ScoringRank, Array<
+    {
+      sprite:FlxAtlasSprite,
+      delay:Float,
+      forceLoop:Bool
+    }>> = [];
+  var characterSparrowAnimationsMap:Map<ScoringRank, Array<
+    {
+      sprite:FunkinSprite,
+      delay:Float
+    }>> = [];
 
   var rankAnimationBox:AddRankAnimationDataBox;
 
-  var currentRank(get, never):ScoringRank;
+  var previousRank:ScoringRank;
 
   override public function new(daPage:CharCreatorResultsPage)
   {
     super(daPage);
 
-    if (daPage.data.importedPlayerData != null)
+    var charId = daPage.data.importedPlayerData ?? "";
+    var currentChar = PlayerRegistry.instance.fetchEntry(charId);
+    for (rank in [PERFECT_GOLD, PERFECT, EXCELLENT, GREAT, GOOD, SHIT])
     {
-      var currentChar = PlayerRegistry.instance.fetchEntry(daPage.data.importedPlayerData);
-      for (rank in rankAnimationDataMap.keys())
-      {
-        var playerAnimations = currentChar?.getResultsAnimationDatas(rank) ?? [];
-        rankAnimationDataMap.set(rank, playerAnimations);
-      }
+      var playerAnimations = currentChar?.getResultsAnimationDatas(rank) ?? [];
+      rankAnimationDataMap.set(rank, playerAnimations);
+      createAnimations(rank, playerAnimations);
     }
 
     rankAnimationBox = new AddRankAnimationDataBox();
     rankAnimationView.addComponent(rankAnimationBox);
 
     rankDropdown.selectedIndex = 0;
-    rankDropdown.onChange = _ -> rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
+    rankDropdown.onChange = function(_) {
+      if (previousRank == currentRank) return;
+
+      daPage.stopTimers();
+
+      for (atlas in characterAtlasAnimationsMap[previousRank])
+        atlas.sprite.visible = false;
+
+      for (sprite in characterSparrowAnimationsMap[previousRank])
+        sprite.sprite.visible = false;
+
+      rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
+      previousRank = currentRank;
+    }
 
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
+    previousRank = currentRank;
+  }
+
+  function createAnimations(rank:ScoringRank, playerAnimations:Array<PlayerResultsAnimationData>):Void
+  {
+    var atlasAnimations = [];
+    var sparrowAnimations = [];
+    for (animData in playerAnimations)
+    {
+      if (animData == null) continue;
+
+      var animPath:String = Paths.stripLibrary(animData.assetPath);
+      var animLibrary:String = Paths.getLibrary(animData.assetPath);
+      var offsets = animData.offsets ?? [0, 0];
+      switch (animData.renderType)
+      {
+        case 'animateatlas':
+          var animation:FlxAtlasSprite = new FlxAtlasSprite(offsets[0], offsets[1], Paths.animateAtlas(animPath, animLibrary));
+          animation.zIndex = animData.zIndex ?? 500;
+
+          animation.scale.set(animData.scale ?? 1.0, animData.scale ?? 1.0);
+
+          if (!(animData.looped ?? true))
+          {
+            // Animation is not looped.
+            animation.onAnimationComplete.add((_name:String) -> {
+              trace("AHAHAH 2");
+              if (animation != null)
+              {
+                animation.anim.pause();
+              }
+            });
+          }
+          else if (animData.loopFrameLabel != null)
+          {
+            animation.onAnimationComplete.add((_name:String) -> {
+              trace("AHAHAH 2");
+              if (animation != null)
+              {
+                animation.playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
+              }
+            });
+          }
+          else if (animData.loopFrame != null)
+          {
+            animation.onAnimationComplete.add((_name:String) -> {
+              if (animation != null)
+              {
+                trace("AHAHAH");
+                animation.anim.curFrame = animData.loopFrame ?? 0;
+                animation.anim.play(); // unpauses this anim, since it's on PlayOnce!
+              }
+            });
+          }
+
+          // Hide until ready to play.
+          animation.visible = false;
+          // Queue to play.
+          atlasAnimations.push(
+            {
+              sprite: animation,
+              delay: animData.delay ?? 0.0,
+              forceLoop: (animData.loopFrame ?? -1) == 0
+            });
+          // Add to the scene.
+          this.page.add(animation);
+        case 'sparrow':
+          var animation:FunkinSprite = FunkinSprite.createSparrow(offsets[0], offsets[1], animPath);
+          animation.animation.addByPrefix('idle', '', 24, false, false, false);
+
+          if (animData.loopFrame != null)
+          {
+            animation.animation.finishCallback = (_name:String) -> {
+              if (animation != null)
+              {
+                animation.animation.play('idle', true, false, animData.loopFrame ?? 0);
+              }
+            }
+          }
+
+          // Hide until ready to play.
+          animation.visible = false;
+          // Queue to play.
+          sparrowAnimations.push(
+            {
+              sprite: animation,
+              delay: animData.delay ?? 0.0
+            });
+          // Add to the scene.
+          this.page.add(animation);
+      }
+    }
+
+    characterAtlasAnimationsMap.set(rank, atlasAnimations);
+    characterSparrowAnimationsMap.set(rank, sparrowAnimations);
+  }
+
+  function get_characterAtlasAnimations()
+  {
+    return characterAtlasAnimationsMap[currentRank];
+  }
+
+  function get_characterSparrowAnimations()
+  {
+    return characterSparrowAnimationsMap[currentRank];
   }
 
   function get_currentRank():ScoringRank

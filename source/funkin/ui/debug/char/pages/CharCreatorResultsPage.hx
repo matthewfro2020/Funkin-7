@@ -29,8 +29,6 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 {
   var data:WizardGenerateParams;
 
-  var previewRank:ScoringRank = PERFECT_GOLD;
-
   var dialogMap:Map<ResultsDialogType, DefaultPageDialog>;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
@@ -42,7 +40,6 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     dialogMap.set(RankAnims, new ResultsAnimDialog(this));
 
     initFunkinUI();
-    initAnimations();
 
     refresh();
   }
@@ -65,16 +62,13 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     if (FlxG.keys.justPressed.SPACE)
     {
-      while (animTimers.length > 0)
-      {
-        var timer = animTimers.shift();
-        timer.cancel();
-        timer.destroy();
-      }
+      stopTimers();
 
       refresh(); // just to be sure
 
-      for (atlas in characterAtlasAnimations[previewRank])
+      var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
+
+      for (atlas in animDialog.characterAtlasAnimations)
       {
         atlas.sprite.visible = false;
         animTimers.push(new FlxTimer().start(atlas.delay, _ -> {
@@ -84,7 +78,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         }));
       }
 
-      for (sprite in characterSparrowAnimations[previewRank])
+      for (sprite in animDialog.characterSparrowAnimations)
       {
         sprite.sprite.visible = false;
         animTimers.push(new FlxTimer().start(sprite.delay, _ -> {
@@ -93,6 +87,16 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
           sprite.sprite.animation.play('idle', true);
         }));
       }
+    }
+  }
+
+  public function stopTimers():Void
+  {
+    while (animTimers.length > 0)
+    {
+      var timer = animTimers.shift();
+      timer.cancel();
+      timer.destroy();
     }
   }
 
@@ -197,130 +201,6 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     score = new ResultScore(35, 305, 10, 999);
     score.zIndex = 1200;
     add(score);
-  }
-
-  var characterAtlasAnimations:Map<ScoringRank, Array<
-    {
-      sprite:FlxAtlasSprite,
-      delay:Float,
-      forceLoop:Bool
-    }>> = [];
-  var characterSparrowAnimations:Map<ScoringRank, Array<
-    {
-      sprite:FunkinSprite,
-      delay:Float
-    }>> = [];
-
-  function initAnimations():Void
-  {
-    if (data.importedPlayerData != null)
-    {
-      var charId = data.importedPlayerData;
-      createAnimationsForRank(charId, PERFECT_GOLD);
-      createAnimationsForRank(charId, PERFECT);
-      createAnimationsForRank(charId, EXCELLENT);
-      createAnimationsForRank(charId, GREAT);
-      createAnimationsForRank(charId, GOOD);
-      createAnimationsForRank(charId, SHIT);
-    }
-    else {}
-  }
-
-  function createAnimationsForRank(charId:String, rank:ScoringRank):Void
-  {
-    var currentChar = PlayerRegistry.instance.fetchEntry(charId);
-    var playerAnimations = currentChar?.getResultsAnimationDatas(rank) ?? [];
-
-    var atlasAnimations = [];
-    var sparrowAnimations = [];
-    for (animData in playerAnimations)
-    {
-      if (animData == null) continue;
-
-      var animPath:String = Paths.stripLibrary(animData.assetPath);
-      var animLibrary:String = Paths.getLibrary(animData.assetPath);
-      var offsets = animData.offsets ?? [0, 0];
-      switch (animData.renderType)
-      {
-        case 'animateatlas':
-          var animation:FlxAtlasSprite = new FlxAtlasSprite(offsets[0], offsets[1], Paths.animateAtlas(animPath, animLibrary));
-          animation.zIndex = animData.zIndex ?? 500;
-
-          animation.scale.set(animData.scale ?? 1.0, animData.scale ?? 1.0);
-
-          if (!(animData.looped ?? true))
-          {
-            // Animation is not looped.
-            animation.onAnimationComplete.add((_name:String) -> {
-              trace("AHAHAH 2");
-              if (animation != null)
-              {
-                animation.anim.pause();
-              }
-            });
-          }
-          else if (animData.loopFrameLabel != null)
-          {
-            animation.onAnimationComplete.add((_name:String) -> {
-              trace("AHAHAH 2");
-              if (animation != null)
-              {
-                animation.playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
-              }
-            });
-          }
-          else if (animData.loopFrame != null)
-          {
-            animation.onAnimationComplete.add((_name:String) -> {
-              if (animation != null)
-              {
-                trace("AHAHAH");
-                animation.anim.curFrame = animData.loopFrame ?? 0;
-                animation.anim.play(); // unpauses this anim, since it's on PlayOnce!
-              }
-            });
-          }
-
-          // Hide until ready to play.
-          animation.visible = false;
-          // Queue to play.
-          atlasAnimations.push(
-            {
-              sprite: animation,
-              delay: animData.delay ?? 0.0,
-              forceLoop: (animData.loopFrame ?? -1) == 0
-            });
-          // Add to the scene.
-          add(animation);
-        case 'sparrow':
-          var animation:FunkinSprite = FunkinSprite.createSparrow(offsets[0], offsets[1], animPath);
-          animation.animation.addByPrefix('idle', '', 24, false, false, false);
-
-          if (animData.loopFrame != null)
-          {
-            animation.animation.finishCallback = (_name:String) -> {
-              if (animation != null)
-              {
-                animation.animation.play('idle', true, false, animData.loopFrame ?? 0);
-              }
-            }
-          }
-
-          // Hide until ready to play.
-          animation.visible = false;
-          // Queue to play.
-          sparrowAnimations.push(
-            {
-              sprite: animation,
-              delay: animData.delay ?? 0.0
-            });
-          // Add to the scene.
-          add(animation);
-      }
-    }
-
-    characterAtlasAnimations.set(rank, atlasAnimations);
-    characterSparrowAnimations.set(rank, sparrowAnimations);
   }
 
   function refresh():Void
