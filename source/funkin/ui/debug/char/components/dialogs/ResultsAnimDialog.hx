@@ -66,7 +66,7 @@ class ResultsAnimDialog extends DefaultPageDialog
     rankDropdown.onChange = function(_) {
       if (previousRank == currentRank) return;
 
-      daPage.stopTimers();
+      updateRankAnimations(previousRank);
 
       for (atlas in characterAtlasAnimationsMap[previousRank])
         atlas.sprite.visible = false;
@@ -76,10 +76,25 @@ class ResultsAnimDialog extends DefaultPageDialog
 
       rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
       previousRank = currentRank;
+
+      daPage.playAnimation();
     }
 
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
     previousRank = currentRank;
+  }
+
+  function updateRankAnimations(rank:ScoringRank):Void
+  {
+    var parentList = rankAnimationBox.parentComponent;
+    if (parentList == null) return;
+
+    var animations = [
+      for (animData in parentList.childComponents)
+        if (Std.isOfType(animData, RankAnimationData)) cast(animData, RankAnimationData).animData
+    ];
+
+    rankAnimationDataMap.set(rank, animations);
   }
 
   function createAnimations(rank:ScoringRank, playerAnimations:Array<PlayerResultsAnimationData>):Void
@@ -322,6 +337,24 @@ private class AddRankAnimationDataBox extends HBox
 ')
 private class RankAnimationData extends VBox
 {
+  public var animData(get, never):PlayerResultsAnimationData;
+
+  function get_animData():PlayerResultsAnimationData
+  {
+    return {
+      renderType: animRenderType.selectedItem.value,
+      assetPath: animAssetPath.text,
+      offsets: [animOffsetX.value, animOffsetY.value],
+      zIndex: animZIndex.value,
+      delay: animDelay.value,
+      scale: animScale.value,
+      startFrameLabel: animStartFrameLabel.text,
+      looped: animLooped.selected,
+      loopFrame: animLoopFrame.value,
+      loopFrameLabel: animLoopFrameLabel.text,
+    };
+  }
+
   public function new(?data:PlayerResultsAnimationData)
   {
     super();

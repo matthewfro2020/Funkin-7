@@ -42,6 +42,8 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     initFunkinUI();
 
     refresh();
+
+    playAnimation();
   }
 
   override public function fillUpPageSettings(menu:Menu):Void
@@ -62,35 +64,40 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     if (FlxG.keys.justPressed.SPACE)
     {
-      stopTimers();
-
-      refresh(); // just to be sure
-
-      var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
-
-      for (atlas in animDialog.characterAtlasAnimations)
-      {
-        atlas.sprite.visible = false;
-        animTimers.push(new FlxTimer().start(atlas.delay, _ -> {
-          if (atlas.sprite == null) return;
-          atlas.sprite.visible = true;
-          atlas.sprite.anim.play('', true);
-        }));
-      }
-
-      for (sprite in animDialog.characterSparrowAnimations)
-      {
-        sprite.sprite.visible = false;
-        animTimers.push(new FlxTimer().start(sprite.delay, _ -> {
-          if (sprite.sprite == null) return;
-          sprite.sprite.visible = true;
-          sprite.sprite.animation.play('idle', true);
-        }));
-      }
+      playAnimation();
     }
   }
 
-  public function stopTimers():Void
+  public function playAnimation():Void
+  {
+    stopTimers();
+
+    refresh(); // just to be sure
+
+    var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
+
+    for (atlas in animDialog.characterAtlasAnimations)
+    {
+      atlas.sprite.visible = false;
+      animTimers.push(new FlxTimer().start(atlas.delay, _ -> {
+        if (atlas.sprite == null) return;
+        atlas.sprite.visible = true;
+        atlas.sprite.anim.play('', true);
+      }));
+    }
+
+    for (sprite in animDialog.characterSparrowAnimations)
+    {
+      sprite.sprite.visible = false;
+      animTimers.push(new FlxTimer().start(sprite.delay, _ -> {
+        if (sprite.sprite == null) return;
+        sprite.sprite.visible = true;
+        sprite.sprite.animation.play('idle', true);
+      }));
+    }
+  }
+
+  function stopTimers():Void
   {
     while (animTimers.length > 0)
     {
