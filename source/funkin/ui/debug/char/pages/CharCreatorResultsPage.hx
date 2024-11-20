@@ -1,5 +1,8 @@
 package funkin.ui.debug.char.pages;
 
+import openfl.media.Sound;
+import haxe.ui.components.Label;
+import haxe.ui.components.CheckBox;
 import haxe.ui.containers.Box;
 import haxe.ui.containers.menus.Menu;
 import haxe.ui.containers.menus.MenuItem;
@@ -17,19 +20,26 @@ import flixel.graphics.frames.FlxBitmapFont;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.text.FlxBitmapText;
+import flixel.sound.FlxSound;
 import flixel.util.FlxGradient;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSort;
 import flixel.FlxSprite;
 import flixel.FlxG;
+import lime.media.AudioBuffer;
 
 using StringTools;
 
 class CharCreatorResultsPage extends CharCreatorDefaultPage
 {
+  static final ALL_RANKS:Array<ScoringRank> = [PERFECT_GOLD, PERFECT, EXCELLENT, GREAT, GOOD, SHIT];
+
   var data:WizardGenerateParams;
 
   var dialogMap:Map<ResultsDialogType, DefaultPageDialog>;
+
+  var rankMusicMap:Map<ScoringRank, Sound> = [];
+  var rankMusic:FlxSound = new FlxSound();
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -39,12 +49,28 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     dialogMap = new Map<ResultsDialogType, DefaultPageDialog>();
     dialogMap.set(RankAnims, new ResultsAnimDialog(this));
 
+    if (data.importedPlayerData != null)
+    {
+      var player = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
+
+      for (rank in ALL_RANKS)
+      {
+        var musicPath = player?.getResultsMusicPath(rank) ?? "";
+        rankMusicMap.set(rank, openfl.utils.Assets.getSound(Paths.music('$musicPath/$musicPath')));
+      }
+    }
+
+    generateUI();
+
     initFunkinUI();
 
     refresh();
 
     playAnimation();
   }
+
+  var labelRank:Label = new Label();
+  var checkPlayMusic:CheckBox = new CheckBox();
 
   override public function fillUpPageSettings(menu:Menu):Void
   {
@@ -54,6 +80,53 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       dialogMap[RankAnims].hidden = !animDialog.selected;
     }
     menu.addComponent(animDialog);
+  }
+
+  override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
+  {
+    var splitRule = new haxe.ui.components.VerticalRule();
+    splitRule.percentHeight = 80;
+
+    middle.addComponent(labelRank);
+    middle.addComponent(splitRule);
+    middle.addComponent(checkPlayMusic);
+  }
+
+  function generateUI()
+  {
+    var rankAnimDialog = cast(dialogMap[RankAnims], ResultsAnimDialog);
+
+    labelRank.text = Std.string(rankAnimDialog.currentRank);
+    labelRank.styleNames = "infoText";
+    labelRank.verticalAlign = "center";
+
+    checkPlayMusic.text = "Play Music";
+
+    labelRank.onClick = function(_) {
+      var drop = cast(dialogMap[RankAnims], ResultsAnimDialog).rankDropdown;
+      if (drop.selectedIndex == -1) return;
+
+      var id = drop.selectedIndex + 1;
+      if (id >= drop.dataSource.size) id = 0;
+      drop.selectedIndex = id;
+      playAnimation();
+    }
+
+    labelRank.onRightClick = function(_) {
+      var drop = cast(dialogMap[RankAnims], ResultsAnimDialog).rankDropdown;
+      if (drop.selectedIndex == -1) return;
+
+      var id = drop.selectedIndex - 1;
+      if (id < 0) id = drop.dataSource.size;
+      drop.selectedIndex = id;
+      playAnimation();
+    }
+  }
+
+  override public function performCleanup()
+  {
+    rankMusic.stop();
+    FlxG.sound.music.volume = 1;
   }
 
   var animTimers:Array<FlxTimer> = [];
@@ -75,6 +148,19 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     refresh(); // just to be sure
 
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
+
+    labelRank.text = Std.string(animDialog.currentRank);
+    if (checkPlayMusic.selected)
+    {
+      FlxG.sound.music.volume = 0;
+      rankMusic.loadEmbedded(rankMusicMap[animDialog.currentRank], true);
+      rankMusic.play();
+    }
+    else
+    {
+      rankMusic.stop();
+      FlxG.sound.music.volume = 1;
+    }
 
     for (atlas in animDialog.characterAtlasAnimations)
     {
