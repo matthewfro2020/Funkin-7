@@ -82,7 +82,11 @@ class AddCharFilesDialog extends DefaultWizardDialog
     // check if the files even exist
     for (thingy in uploadBoxes)
     {
-      if (!FileUtil.doesFileExist(thingy.daField.text) && !openfl.Assets.exists(thingy.daField.text)) return false;
+      if (!FileUtil.doesFileExist(thingy.daField.text) && !openfl.Assets.exists(thingy.daField.text))
+      {
+        CharCreatorUtil.error("Add Files", "Path: " + thingy.daField.text + " doesn't exist. Is the spelling correct?");
+        return false;
+      }
     }
 
     // we do a little trollin
@@ -101,12 +105,20 @@ class AddCharFilesDialog extends DefaultWizardDialog
           var xmlPath = uploadBox.daField.text.replace(".png", ".xml");
 
           // checking if we even have the correct file types in the correct places
-          if (Path.extension(imgPath) != "png" || Path.extension(xmlPath) != "xml") return false;
+          if (Path.extension(imgPath) != "png" || Path.extension(xmlPath) != "xml")
+          {
+            CharCreatorUtil.error("Add Files", "The provided Path doesn't end with the supported format, (.png).");
+            return false;
+          }
 
           // testing if we could actually use these
           var imgBytes = CharCreatorUtil.gimmeTheBytes(imgPath);
           var xmlBytes = CharCreatorUtil.gimmeTheBytes(xmlPath);
-          if (imgBytes == null || xmlBytes == null) return false;
+          if (imgBytes == null || xmlBytes == null)
+          {
+            CharCreatorUtil.error("Add Files", "Error retrieving Bytes from the given Path.");
+            return false;
+          }
 
           var tempSprite = new FlxSprite();
           try
@@ -116,6 +128,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
           }
           catch (e)
           {
+            CharCreatorUtil.error("Add Files", "The provided Bytes cannot be used to make Character Frames.");
             tempSprite.destroy();
             return false;
           }
@@ -141,12 +154,20 @@ class AddCharFilesDialog extends DefaultWizardDialog
         var txtPath = uploadBoxes[0].daField.text.replace(".png", ".txt");
 
         // checking if we even have the correct file types in the correct places
-        if (Path.extension(imgPath) != "png" || Path.extension(txtPath) != "txt") return false;
+        if (Path.extension(imgPath) != "png" || Path.extension(txtPath) != "txt")
+        {
+          CharCreatorUtil.error("Add Files", "The provided Path doesn't end with the supported format, (.png).");
+          return false;
+        }
 
         // testing if we could actually use these
         var imgBytes = CharCreatorUtil.gimmeTheBytes(imgPath);
         var txtBytes = CharCreatorUtil.gimmeTheBytes(txtPath);
-        if (imgBytes == null || txtBytes == null) return false;
+        if (imgBytes == null || txtBytes == null)
+        {
+          CharCreatorUtil.error("Add Files", "Error retrieving Bytes from the given Path.");
+          return false;
+        }
 
         var tempSprite = new FlxSprite();
         try
@@ -156,6 +177,7 @@ class AddCharFilesDialog extends DefaultWizardDialog
         }
         catch (e)
         {
+          CharCreatorUtil.error("Add Files", "The provided Bytes cannot be used to make Character Frames.");
           tempSprite.destroy();
           return false;
         }
@@ -170,13 +192,25 @@ class AddCharFilesDialog extends DefaultWizardDialog
         var zipPath = uploadBoxes[0].daField.text;
 
         // checking if we even have the correct file types in the correct places
-        if (Path.extension(zipPath) != "zip") return false;
+        if (Path.extension(zipPath) != "zip")
+        {
+          CharCreatorUtil.error("Add Files", "The provided Path doesn't end with the supported format, (.zip).");
+          return false;
+        }
 
         var zipBytes = CharCreatorUtil.gimmeTheBytes(zipPath);
-        if (zipBytes == null) return false;
+        if (zipBytes == null)
+        {
+          CharCreatorUtil.error("Add Files", "Error retrieving Bytes from the given Path.");
+          return false;
+        }
 
         var zipFiles = FileUtil.readZIPFromBytes(zipBytes);
-        if (zipFiles.length == 0) return false;
+        if (zipFiles.length == 0)
+        {
+          CharCreatorUtil.error("Add Files", "The provided .zip file has no content.");
+          return false;
+        }
 
         params.files = [];
         var hasAnimData:Bool = false;
@@ -191,7 +225,11 @@ class AddCharFilesDialog extends DefaultWizardDialog
           {
             var fileData = entry.data.toString();
             var animData:AnimAtlas = haxe.Json.parse(CharCreatorUtil.normalizeJSONText(fileData));
-            if (animData == null) return false;
+            if (animData == null)
+            {
+              CharCreatorUtil.error("Add Files", "Error parsing the Animation.json File.");
+              return false;
+            }
 
             hasAnimData = true;
           }
@@ -200,36 +238,40 @@ class AddCharFilesDialog extends DefaultWizardDialog
           {
             var fileData = entry.data.toString();
             var spritemapData:AnimateAtlas = haxe.Json.parse(CharCreatorUtil.normalizeJSONText(fileData));
-            if (spritemapData == null) return false;
+            if (spritemapData == null)
+            {
+              CharCreatorUtil.error("Add Files", "Error parsing the Spritemap.json File.");
+              return false;
+            }
 
             hasSpritemapData = true;
           }
 
           if (entry.fileName.startsWith("spritemap") && entry.fileName.endsWith(".png"))
           {
-            if (BitmapData.fromBytes(entry.data) == null) return false;
+            if (BitmapData.fromBytes(entry.data) == null)
+            {
+              CharCreatorUtil.error("Add Files", "Error parsing the Spritemap.png File.");
+              return false;
+            }
             hasImageData = true;
           }
         }
 
         if (hasAnimData && hasSpritemapData && hasImageData) params.files.push({name: zipPath, bytes: zipBytes});
-        return hasAnimData && hasSpritemapData && hasImageData;
 
+        if (!(hasAnimData && hasSpritemapData && hasImageData))
+        {
+          CharCreatorUtil.error("Add Files", "Insufficient amount of Files in the .zip File.");
+          return false;
+        }
+
+        return true;
       default:
         return false;
     }
 
     return false;
-  }
-
-  function recursiveUploadBox():Void
-  {
-    var uploadBox = new UploadAssetsBox("Put the path to the Spritesheet Image here.", FileUtil.FILE_EXTENSION_INFO_PNG);
-    uploadBox.daField.onChange = _ -> {
-      uploadBox.daField.onChange = null;
-      recursiveUploadBox();
-    };
-    addAssetsBox.addComponent(uploadBox);
   }
 }
 

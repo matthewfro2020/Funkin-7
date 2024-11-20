@@ -3,6 +3,8 @@ package funkin.ui.debug.char.util;
 import haxe.io.Path;
 import haxe.ui.core.Screen;
 import haxe.ui.focus.FocusManager;
+import haxe.ui.notifications.NotificationType;
+import haxe.ui.notifications.NotificationManager;
 
 class CharCreatorUtil
 {
@@ -41,5 +43,25 @@ class CharCreatorUtil
     path = Path.normalize(path);
     path = path.replace(cwd, "");
     return !Path.isAbsolute(path) && path.indexOf(checkFor) != -1;
+  }
+
+  public static function error(title:String, body:String)
+  {
+    NotificationManager.instance.addNotification(
+      {
+        title: title,
+        body: body,
+        type: NotificationType.Error
+      });
+  }
+
+  public static function info(title:String, body:String)
+  {
+    NotificationManager.instance.addNotification(
+      {
+        title: title,
+        body: body,
+        type: NotificationType.Info
+      });
   }
 }

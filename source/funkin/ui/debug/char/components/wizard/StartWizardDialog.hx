@@ -14,7 +14,19 @@ class StartWizardDialog extends DefaultWizardDialog
 
   override public function isNextStepAvailable()
   {
-    return ((params.generateCharacter || params.generatePlayerData) && params.characterID != "");
+    if ((!params.generateCharacter || !params.generatePlayerData))
+    {
+      CharCreatorUtil.error("Start", "Please choose to Generate at least one thing.");
+      return false;
+    }
+
+    if (params.characterID == "")
+    {
+      CharCreatorUtil.error("Start", "Missing the Character ID.");
+      return false;
+    }
+
+    return true;
   }
 
   override public function showDialog(modal:Bool = true)

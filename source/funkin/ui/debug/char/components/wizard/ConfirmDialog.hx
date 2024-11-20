@@ -27,5 +27,8 @@ class ConfirmDialog extends DefaultWizardDialog
   }
 
   override public function isNextStepAvailable()
+  {
+    CharCreatorUtil.info("Character Generating Wizard", "Generating Character based on the files...");
     return true;
+  }
 }
