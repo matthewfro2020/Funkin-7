@@ -311,7 +311,7 @@ private class RankAnimationData extends VBox
   function get_animData():PlayerResultsAnimationData
   {
     return {
-      renderType: animRenderType.dataSource.get(animRenderType.selectedIndex),
+      renderType: animRenderType.safeSelectedItem,
       assetPath: animAssetPath.text,
       offsets: [animOffsetX.value, animOffsetY.value],
       zIndex: animZIndex.value,
