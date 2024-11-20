@@ -41,7 +41,9 @@ class ResultsAnimDialog extends DefaultPageDialog
     rankDropdown.onChange = function(_) {
       if (previousRank == currentRank) return;
 
-      daPage.curRankInt = rankDropdown.selectedIndex;
+      daPage.clearSprites();
+      changeRankPreview();
+      daPage.playAnimation();
     }
 
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
@@ -50,15 +52,7 @@ class ResultsAnimDialog extends DefaultPageDialog
 
   public function changeRankPreview():Void
   {
-    try
-    {
-      updateRankAnimations(previousRank);
-    }
-    catch (e)
-    {
-      // do nothing, janky fix around null object reference
-    }
-
+    updateRankAnimations(previousRank);
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
     previousRank = currentRank;
   }
@@ -172,9 +166,9 @@ class ResultsAnimDialog extends DefaultPageDialog
 
   function get_currentRank():ScoringRank
   {
-    if (rankDropdown.selectedItem == null) return PERFECT_GOLD;
+    if (rankDropdown.safeSelectedItem == null) return PERFECT_GOLD;
 
-    switch (rankDropdown.selectedItem.text)
+    switch (rankDropdown.safeSelectedItem.text)
     {
       case "Perfect Gold":
         return PERFECT_GOLD;

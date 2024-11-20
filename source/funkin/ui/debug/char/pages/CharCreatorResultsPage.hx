@@ -41,7 +41,6 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var rankMusicMap:Map<ScoringRank, ResultsMusic> = [];
 
-  public var curRankInt(default, set):Int = 0;
   public var characterAtlasAnimationsMap:Map<ScoringRank, Array<
     {
       sprite:FlxAtlasSprite,
@@ -104,45 +103,39 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   function generateUI():Void
   {
-    labelRank.text = "PERFECT_GOLD";
+    var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
+
+    labelRank.text = animDialog.rankDropdown.safeSelectedItem.text;
     labelRank.styleNames = "infoText";
     labelRank.verticalAlign = "center";
 
     checkPlayMusic.text = "Play Music";
 
     labelRank.onClick = function(_) {
-      var supposedInt = curRankInt + 1;
-      if (supposedInt >= ALL_RANKS.length) supposedInt = 0;
-      curRankInt = supposedInt;
+      var supposedInd = animDialog.rankDropdown.selectedIndex + 1;
+      if (supposedInd >= animDialog.rankDropdown.dataSource.size) supposedInd = 0;
+      animDialog.rankDropdown.selectedIndex = supposedInd;
+
+      clearSprites();
+      animDialog.changeRankPreview();
+      playAnimation();
     }
 
     labelRank.onRightClick = function(_) {
-      var supposedInt = curRankInt - 1;
-      if (supposedInt < 0) supposedInt = ALL_RANKS.length - 1;
-      curRankInt = supposedInt;
+      var supposedInd = animDialog.rankDropdown.selectedIndex - 1;
+      if (supposedInd < 0) supposedInd = animDialog.rankDropdown.dataSource.size - 1;
+      animDialog.rankDropdown.selectedIndex = supposedInd;
+
+      clearSprites();
+      animDialog.changeRankPreview();
+      playAnimation();
     }
-  }
-
-  function set_curRankInt(value:Int)
-  {
-    if (this.curRankInt == value) return this.curRankInt;
-
-    this.curRankInt = value;
-
-    var rankAnimDialog = cast(dialogMap[RankAnims], ResultsAnimDialog);
-    if (rankAnimDialog.rankDropdown.selectedIndex != value) rankAnimDialog.rankDropdown.selectedIndex = value;
-
-    clearSprites();
-    rankAnimDialog.changeRankPreview();
-    playAnimation();
-
-    return value;
   }
 
   override public function performCleanup():Void
   {
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
-    rankMusicMap[ALL_RANKS[curRankInt]].stop();
+    rankMusicMap[animDialog.currentRank].stop();
     FlxG.sound.music.volume = 1;
   }
 
@@ -156,9 +149,9 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
   }
 
-  public function clearSprites()
+  public function clearSprites():Void
   {
-    for (r => array in characterAtlasAnimationsMap)
+    for (_ => array in characterAtlasAnimationsMap)
     {
       for (atlas in array)
       {
@@ -166,7 +159,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       }
     }
 
-    for (r => array in characterSparrowAnimationsMap)
+    for (_ => array in characterSparrowAnimationsMap)
     {
       for (sparrow in array)
       {
@@ -188,9 +181,9 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
 
-    var rank = ALL_RANKS[curRankInt];
+    var rank = animDialog.currentRank;
 
-    labelRank.text = Std.string(rank);
+    labelRank.text = animDialog.rankDropdown.safeSelectedItem.text;
 
     var newMusic = rankMusicMap[rank];
     previousMusic = newMusic;
