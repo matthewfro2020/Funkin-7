@@ -41,6 +41,19 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var rankMusicMap:Map<ScoringRank, ResultsMusic> = [];
 
+  public var curRankInt(default, set):Int = 0;
+  public var characterAtlasAnimationsMap:Map<ScoringRank, Array<
+    {
+      sprite:FlxAtlasSprite,
+      delay:Float,
+      forceLoop:Bool
+    }>> = [];
+  public var characterSparrowAnimationsMap:Map<ScoringRank, Array<
+    {
+      sprite:FunkinSprite,
+      delay:Float
+    }>> = [];
+
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
     super(state);
@@ -91,43 +104,45 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   function generateUI():Void
   {
-    var rankAnimDialog = cast(dialogMap[RankAnims], ResultsAnimDialog);
-
-    labelRank.text = rankAnimDialog.currentRankText;
+    labelRank.text = "PERFECT_GOLD";
     labelRank.styleNames = "infoText";
     labelRank.verticalAlign = "center";
 
     checkPlayMusic.text = "Play Music";
 
     labelRank.onClick = function(_) {
-      var drop = rankAnimDialog.rankDropdown;
-      if (drop.selectedIndex == -1) return;
-
-      var id = drop.selectedIndex + 1;
-      if (id >= drop.dataSource.size) id = 0;
-      drop.selectedIndex = id;
-
-      rankAnimDialog.changeRankPreview();
-      playAnimation();
+      var supposedInt = curRankInt + 1;
+      if (supposedInt >= ALL_RANKS.length) supposedInt = 0;
+      curRankInt = supposedInt;
     }
 
     labelRank.onRightClick = function(_) {
-      var drop = rankAnimDialog.rankDropdown;
-      if (drop.selectedIndex == -1) return;
-
-      var id = drop.selectedIndex - 1;
-      if (id < 0) id = drop.dataSource.size - 1;
-      drop.selectedIndex = id;
-
-      rankAnimDialog.changeRankPreview();
-      playAnimation();
+      var supposedInt = curRankInt - 1;
+      if (supposedInt < 0) supposedInt = ALL_RANKS.length - 1;
+      curRankInt = supposedInt;
     }
+  }
+
+  function set_curRankInt(value:Int)
+  {
+    if (this.curRankInt == value) return this.curRankInt;
+
+    this.curRankInt = value;
+
+    var rankAnimDialog = cast(dialogMap[RankAnims], ResultsAnimDialog);
+    if (rankAnimDialog.rankDropdown.selectedIndex != value) rankAnimDialog.rankDropdown.selectedIndex = value;
+
+    clearSprites();
+    rankAnimDialog.changeRankPreview();
+    playAnimation();
+
+    return value;
   }
 
   override public function performCleanup():Void
   {
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
-    rankMusicMap[animDialog.currentRank].stop();
+    rankMusicMap[ALL_RANKS[curRankInt]].stop();
     FlxG.sound.music.volume = 1;
   }
 
@@ -138,6 +153,25 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     if (FlxG.keys.justPressed.SPACE)
     {
       playAnimation();
+    }
+  }
+
+  public function clearSprites()
+  {
+    for (r => array in characterAtlasAnimationsMap)
+    {
+      for (atlas in array)
+      {
+        atlas.sprite.visible = false;
+      }
+    }
+
+    for (r => array in characterSparrowAnimationsMap)
+    {
+      for (sparrow in array)
+      {
+        sparrow.sprite.visible = false;
+      }
     }
   }
 
@@ -154,9 +188,9 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
 
-    var rank = animDialog.currentRank;
+    var rank = ALL_RANKS[curRankInt];
 
-    labelRank.text = animDialog.currentRankText;
+    labelRank.text = Std.string(rank);
 
     var newMusic = rankMusicMap[rank];
     previousMusic = newMusic;
@@ -174,7 +208,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       FlxG.sound.music.volume = 1;
     }
 
-    for (atlas in animDialog.characterAtlasAnimations)
+    for (atlas in characterAtlasAnimationsMap[rank])
     {
       atlas.sprite.visible = false;
       animTimers.push(new FlxTimer().start(atlas.delay + rank.getBFDelay(), _ -> {
@@ -184,7 +218,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       }));
     }
 
-    for (sprite in animDialog.characterSparrowAnimations)
+    for (sprite in characterSparrowAnimationsMap[rank])
     {
       sprite.sprite.visible = false;
       animTimers.push(new FlxTimer().start(sprite.delay + rank.getBFDelay(), _ -> {

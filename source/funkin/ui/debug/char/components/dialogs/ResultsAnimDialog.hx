@@ -15,34 +15,7 @@ class ResultsAnimDialog extends DefaultPageDialog
 {
   public var currentRank(get, never):ScoringRank;
 
-  public var currentRankText(get, never):String;
-
-  public var characterAtlasAnimations(get, never):Array<
-    {
-      sprite:FlxAtlasSprite,
-      delay:Float,
-      forceLoop:Bool
-    }>;
-
-  public var characterSparrowAnimations(get, never):Array<
-    {
-      sprite:FunkinSprite,
-      delay:Float
-    }>;
-
   var rankAnimationDataMap:Map<ScoringRank, Array<PlayerResultsAnimationData>> = [];
-
-  var characterAtlasAnimationsMap:Map<ScoringRank, Array<
-    {
-      sprite:FlxAtlasSprite,
-      delay:Float,
-      forceLoop:Bool
-    }>> = [];
-  var characterSparrowAnimationsMap:Map<ScoringRank, Array<
-    {
-      sprite:FunkinSprite,
-      delay:Float
-    }>> = [];
 
   var rankAnimationBox:AddRankAnimationDataBox;
 
@@ -68,11 +41,7 @@ class ResultsAnimDialog extends DefaultPageDialog
     rankDropdown.onChange = function(_) {
       if (previousRank == currentRank) return;
 
-      changeRankPreview();
-
-      daPage.labelRank.text = currentRankText;
-
-      daPage.playAnimation();
+      daPage.curRankInt = rankDropdown.selectedIndex;
     }
 
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
@@ -81,13 +50,14 @@ class ResultsAnimDialog extends DefaultPageDialog
 
   public function changeRankPreview():Void
   {
-    updateRankAnimations(previousRank);
-
-    for (atlas in characterAtlasAnimationsMap[previousRank])
-      atlas.sprite.visible = false;
-
-    for (sprite in characterSparrowAnimationsMap[previousRank])
-      sprite.sprite.visible = false;
+    try
+    {
+      updateRankAnimations(previousRank);
+    }
+    catch (e)
+    {
+      // do nothing, janky fix around null object reference
+    }
 
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
     previousRank = currentRank;
@@ -196,18 +166,8 @@ class ResultsAnimDialog extends DefaultPageDialog
       }
     }
 
-    characterAtlasAnimationsMap.set(rank, atlasAnimations);
-    characterSparrowAnimationsMap.set(rank, sparrowAnimations);
-  }
-
-  function get_characterAtlasAnimations()
-  {
-    return characterAtlasAnimationsMap[currentRank];
-  }
-
-  function get_characterSparrowAnimations()
-  {
-    return characterSparrowAnimationsMap[currentRank];
+    cast(page, CharCreatorResultsPage).characterAtlasAnimationsMap.set(rank, atlasAnimations);
+    cast(page, CharCreatorResultsPage).characterSparrowAnimationsMap.set(rank, sparrowAnimations);
   }
 
   function get_currentRank():ScoringRank
@@ -231,11 +191,6 @@ class ResultsAnimDialog extends DefaultPageDialog
     }
 
     return PERFECT_GOLD;
-  }
-
-  function get_currentRankText():String
-  {
-    return rankDropdown.selectedItem?.text ?? "Perfect Gold";
   }
 }
 
@@ -351,12 +306,14 @@ private class AddRankAnimationDataBox extends HBox
 ')
 private class RankAnimationData extends VBox
 {
+  var animRenderTypeValue:String = "sparrow";
+
   public var animData(get, never):PlayerResultsAnimationData;
 
   function get_animData():PlayerResultsAnimationData
   {
     return {
-      renderType: animRenderType.selectedItem.value,
+      renderType: animRenderTypeValue,
       assetPath: animAssetPath.text,
       offsets: [animOffsetX.value, animOffsetY.value],
       zIndex: animZIndex.value,
@@ -388,6 +345,7 @@ private class RankAnimationData extends VBox
     if (data != null)
     {
       animRenderType.selectedIndex = data.renderType == "sparrow" ? 1 : 0;
+      animRenderTypeValue = data.renderType;
       animAssetPath.value = data.assetPath;
 
       if (data.offsets != null)
