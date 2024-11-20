@@ -14,7 +14,7 @@ class StartWizardDialog extends DefaultWizardDialog
 
   override public function isNextStepAvailable()
   {
-    if ((!params.generateCharacter || !params.generatePlayerData))
+    if ((!params.generateCharacter && !params.generatePlayerData))
     {
       CharCreatorUtil.error("Start", "Please choose to Generate at least one thing.");
       return false;
