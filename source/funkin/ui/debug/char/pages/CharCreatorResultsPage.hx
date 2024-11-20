@@ -21,6 +21,7 @@ import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.text.FlxBitmapText;
 import flixel.sound.FlxSound;
+import funkin.audio.FunkinSound;
 import flixel.util.FlxGradient;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSort;
@@ -38,8 +39,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var dialogMap:Map<ResultsDialogType, DefaultPageDialog>;
 
-  var rankMusicMap:Map<ScoringRank, Sound> = [];
-  var rankMusic:FlxSound = new FlxSound();
+  var rankMusicMap:Map<ScoringRank, ResultsMusic> = [];
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -54,10 +54,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       var player = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
 
       for (rank in ALL_RANKS)
-      {
-        var musicPath = player?.getResultsMusicPath(rank) ?? "";
-        rankMusicMap.set(rank, openfl.utils.Assets.getSound(Paths.music('$musicPath/$musicPath')));
-      }
+        rankMusicMap.set(rank, new ResultsMusic(player, rank));
     }
 
     generateUI();
@@ -82,7 +79,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     menu.addComponent(animDialog);
   }
 
-  override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
+  override public function fillUpBottomBar(left:Box, middle:Box, right:Box):Void
   {
     var splitRule = new haxe.ui.components.VerticalRule();
     splitRule.percentHeight = 80;
@@ -92,18 +89,18 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     middle.addComponent(checkPlayMusic);
   }
 
-  function generateUI()
+  function generateUI():Void
   {
     var rankAnimDialog = cast(dialogMap[RankAnims], ResultsAnimDialog);
 
-    labelRank.text = Std.string(rankAnimDialog.currentRank);
+    labelRank.text = rankAnimDialog.currentRankText;
     labelRank.styleNames = "infoText";
     labelRank.verticalAlign = "center";
 
     checkPlayMusic.text = "Play Music";
 
     labelRank.onClick = function(_) {
-      var drop = cast(dialogMap[RankAnims], ResultsAnimDialog).rankDropdown;
+      var drop = rankAnimDialog.rankDropdown;
       if (drop.selectedIndex == -1) return;
 
       var id = drop.selectedIndex + 1;
@@ -113,7 +110,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
 
     labelRank.onRightClick = function(_) {
-      var drop = cast(dialogMap[RankAnims], ResultsAnimDialog).rankDropdown;
+      var drop = rankAnimDialog.rankDropdown;
       if (drop.selectedIndex == -1) return;
 
       var id = drop.selectedIndex - 1;
@@ -123,13 +120,12 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
   }
 
-  override public function performCleanup()
+  override public function performCleanup():Void
   {
-    rankMusic.stop();
+    var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
+    rankMusicMap[animDialog.currentRank].stop();
     FlxG.sound.music.volume = 1;
   }
-
-  var animTimers:Array<FlxTimer> = [];
 
   override public function update(elapsed:Float):Void
   {
@@ -141,31 +137,43 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
   }
 
+  var animTimers:Array<FlxTimer> = [];
+  var previousMusic:Null<ResultsMusic> = null;
+
   public function playAnimation():Void
   {
     stopTimers();
+
+    if (previousMusic != null) previousMusic.stop();
 
     refresh(); // just to be sure
 
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
 
-    labelRank.text = Std.string(animDialog.currentRank);
+    var rank = animDialog.currentRank;
+
+    labelRank.text = animDialog.currentRankText;
+
+    var newMusic = rankMusicMap[rank];
+    previousMusic = newMusic;
+
     if (checkPlayMusic.selected)
     {
       FlxG.sound.music.volume = 0;
-      rankMusic.loadEmbedded(rankMusicMap[animDialog.currentRank], true);
-      rankMusic.play();
+      animTimers.push(new FlxTimer().start(rank.getMusicDelay(), _ -> {
+        newMusic.play();
+      }));
     }
     else
     {
-      rankMusic.stop();
+      newMusic.stop();
       FlxG.sound.music.volume = 1;
     }
 
     for (atlas in animDialog.characterAtlasAnimations)
     {
       atlas.sprite.visible = false;
-      animTimers.push(new FlxTimer().start(atlas.delay, _ -> {
+      animTimers.push(new FlxTimer().start(atlas.delay + rank.getBFDelay(), _ -> {
         if (atlas.sprite == null) return;
         atlas.sprite.visible = true;
         atlas.sprite.anim.play('', true);
@@ -175,7 +183,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     for (sprite in animDialog.characterSparrowAnimations)
     {
       sprite.sprite.visible = false;
-      animTimers.push(new FlxTimer().start(sprite.delay, _ -> {
+      animTimers.push(new FlxTimer().start(sprite.delay + rank.getBFDelay(), _ -> {
         if (sprite.sprite == null) return;
         sprite.sprite.visible = true;
         sprite.sprite.animation.play('idle', true);
@@ -299,6 +307,41 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
   function refresh():Void
   {
     sort(SortUtil.byZIndex, FlxSort.ASCENDING);
+  }
+}
+
+private class ResultsMusic
+{
+  var introMusic:Null<FunkinSound>;
+  var music:Null<FunkinSound>;
+
+  public function new(player, rank)
+  {
+    var path = player?.getResultsMusicPath(rank) ?? "";
+
+    var musicPath = Paths.music('$path/$path');
+    music = FunkinSound.load(musicPath, 1.0);
+
+    var introMusicPath = Paths.music('$path/$path-intro');
+    if (openfl.utils.Assets.exists(introMusicPath))
+    {
+      introMusic = FunkinSound.load(introMusicPath, 1.0, () -> {
+        music?.play();
+      });
+    }
+  }
+
+  public function play():Void
+  {
+    if (introMusic != null) introMusic?.play();
+    else
+      music?.play();
+  }
+
+  public function stop():Void
+  {
+    introMusic?.stop();
+    music?.stop();
   }
 }
 

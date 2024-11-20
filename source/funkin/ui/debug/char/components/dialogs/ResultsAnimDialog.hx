@@ -15,6 +15,8 @@ class ResultsAnimDialog extends DefaultPageDialog
 {
   public var currentRank(get, never):ScoringRank;
 
+  public var currentRankText(get, never):String;
+
   public var characterAtlasAnimations(get, never):Array<
     {
       sprite:FlxAtlasSprite,
@@ -52,7 +54,7 @@ class ResultsAnimDialog extends DefaultPageDialog
 
     var charId = daPage.data.importedPlayerData ?? "";
     var currentChar = PlayerRegistry.instance.fetchEntry(charId);
-    for (rank in [PERFECT_GOLD, PERFECT, EXCELLENT, GREAT, GOOD, SHIT])
+    for (rank in CharCreatorResultsPage.ALL_RANKS)
     {
       var playerAnimations = currentChar?.getResultsAnimationDatas(rank) ?? [];
       rankAnimationDataMap.set(rank, playerAnimations);
@@ -222,6 +224,11 @@ class ResultsAnimDialog extends DefaultPageDialog
     }
 
     return PERFECT_GOLD;
+  }
+
+  function get_currentRankText():String
+  {
+    return rankDropdown.selectedItem?.text ?? "Perfect Gold";
   }
 }
 
