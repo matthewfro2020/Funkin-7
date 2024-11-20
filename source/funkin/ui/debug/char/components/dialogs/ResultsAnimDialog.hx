@@ -306,14 +306,12 @@ private class AddRankAnimationDataBox extends HBox
 ')
 private class RankAnimationData extends VBox
 {
-  var animRenderTypeValue:String = "sparrow";
-
   public var animData(get, never):PlayerResultsAnimationData;
 
   function get_animData():PlayerResultsAnimationData
   {
     return {
-      renderType: animRenderTypeValue,
+      renderType: animRenderType.dataSource.get(animRenderType.selectedIndex),
       assetPath: animAssetPath.text,
       offsets: [animOffsetX.value, animOffsetY.value],
       zIndex: animZIndex.value,
@@ -345,7 +343,6 @@ private class RankAnimationData extends VBox
     if (data != null)
     {
       animRenderType.selectedIndex = data.renderType == "sparrow" ? 1 : 0;
-      animRenderTypeValue = data.renderType;
       animAssetPath.value = data.assetPath;
 
       if (data.offsets != null)
