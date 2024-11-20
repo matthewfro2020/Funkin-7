@@ -106,6 +106,8 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       var id = drop.selectedIndex + 1;
       if (id >= drop.dataSource.size) id = 0;
       drop.selectedIndex = id;
+
+      rankAnimDialog.changeRankPreview();
       playAnimation();
     }
 
@@ -114,8 +116,10 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       if (drop.selectedIndex == -1) return;
 
       var id = drop.selectedIndex - 1;
-      if (id < 0) id = drop.dataSource.size;
+      if (id < 0) id = drop.dataSource.size - 1;
       drop.selectedIndex = id;
+
+      rankAnimDialog.changeRankPreview();
       playAnimation();
     }
   }

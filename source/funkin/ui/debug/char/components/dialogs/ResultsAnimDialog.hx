@@ -68,19 +68,26 @@ class ResultsAnimDialog extends DefaultPageDialog
     rankDropdown.onChange = function(_) {
       if (previousRank == currentRank) return;
 
-      updateRankAnimations(previousRank);
+      changeRankPreview();
 
-      for (atlas in characterAtlasAnimationsMap[previousRank])
-        atlas.sprite.visible = false;
-
-      for (sprite in characterSparrowAnimationsMap[previousRank])
-        sprite.sprite.visible = false;
-
-      rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
-      previousRank = currentRank;
+      daPage.labelRank.text = currentRankText;
 
       daPage.playAnimation();
     }
+
+    rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
+    previousRank = currentRank;
+  }
+
+  public function changeRankPreview():Void
+  {
+    updateRankAnimations(previousRank);
+
+    for (atlas in characterAtlasAnimationsMap[previousRank])
+      atlas.sprite.visible = false;
+
+    for (sprite in characterSparrowAnimationsMap[previousRank])
+      sprite.sprite.visible = false;
 
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
     previousRank = currentRank;
