@@ -1,5 +1,6 @@
 package funkin.ui.debug.char.pages;
 
+import flixel.tweens.FlxEase;
 import openfl.media.Sound;
 import haxe.ui.components.Label;
 import haxe.ui.components.CheckBox;
@@ -20,6 +21,7 @@ import flixel.graphics.frames.FlxBitmapFont;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.text.FlxBitmapText;
+import flixel.tweens.FlxTween;
 import flixel.sound.FlxSound;
 import funkin.audio.FunkinSound;
 import flixel.util.FlxGradient;
@@ -169,11 +171,12 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
   }
 
   var animTimers:Array<FlxTimer> = [];
+  var animTweens:Array<FlxTween> = [];
   var previousMusic:Null<ResultsMusic> = null;
 
   public function playAnimation():Void
   {
-    stopTimers();
+    stopTweensAndTimers();
 
     if (previousMusic != null) previousMusic.stop();
 
@@ -201,6 +204,92 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       FlxG.sound.music.volume = 1;
     }
 
+    for (ind => rating in ratingGrp.members)
+    {
+      rating.curNumber = 0;
+      rating.visible = false;
+      animTimers.push(new FlxTimer().start((0.3 * ind) + 1.20, _ -> {
+        rating.visible = true;
+        animTweens.push(FlxTween.tween(rating, {curNumber: rating.neededNumber}, 0.5, {ease: FlxEase.quartOut}));
+      }));
+    }
+
+    resultsAnim.visible = false;
+    animTimers.push(new FlxTimer().start(6 / 24, _ -> {
+      resultsAnim.visible = true;
+      resultsAnim.animation.play("result", true);
+    }));
+
+    ratingsPopin.visible = false;
+    animTimers.push(new FlxTimer().start(21 / 24, _ -> {
+      ratingsPopin.visible = true;
+      ratingsPopin.animation.play("idle", true);
+    }));
+
+    scorePopin.visible = false;
+    animTimers.push(new FlxTimer().start(36 / 24, _ -> {
+      scorePopin.visible = true;
+      scorePopin.animation.play("score", true);
+    }));
+
+    score.visible = false;
+    clearPercentCounter.visible = false;
+
+    animTimers.push(new FlxTimer().start(37 / 24, _ -> {
+      score.visible = true;
+      score.animateNumbers();
+
+      var clearPercentLerp:Float = 0;
+      clearPercentCounter.alpha = 1.0;
+      clearPercentCounter.curNumber = 0;
+      clearPercentCounter.visible = true;
+      animTweens.push(FlxTween.tween(clearPercentCounter, {curNumber: 100}, 58 / 24,
+        {
+          ease: FlxEase.quartOut,
+          onUpdate: _ -> {
+            clearPercentLerp = Math.round(clearPercentLerp);
+            clearPercentCounter.curNumber = Math.round(clearPercentCounter.curNumber);
+            if (clearPercentLerp != clearPercentCounter.curNumber)
+            {
+              clearPercentLerp = clearPercentCounter.curNumber;
+
+              if (checkPlayMusic.selected) FunkinSound.playOnce(Paths.sound('scrollMenu'));
+            }
+          },
+          onComplete: _ -> {
+            if (checkPlayMusic.selected) FunkinSound.playOnce(Paths.sound('confirmMenu'));
+
+            clearPercentCounter.curNumber = 100;
+
+            clearPercentCounter.flash(true);
+            animTimers.push(new FlxTimer().start(0.4, _ -> {
+              clearPercentCounter.flash(false);
+            }));
+
+            animTimers.push(new FlxTimer().start(0.25, _ -> {
+              animTweens.push(FlxTween.tween(clearPercentCounter, {alpha: 0}, 0.5,
+                {
+                  startDelay: 0.5,
+                  ease: FlxEase.quartOut,
+                  onComplete: _ -> {
+                    clearPercentCounter.visible = false;
+                  }
+                }));
+            }));
+          }
+        }));
+    }));
+
+    clearPercentSmall.curNumber = 100;
+    clearPercentSmall.visible = false;
+    animTimers.push(new FlxTimer().start(rank.getBFDelay(), _ -> {
+      clearPercentSmall.visible = true;
+      clearPercentSmall.flash(true);
+      animTimers.push(new FlxTimer().start(0.4, _ -> {
+        clearPercentSmall.flash(false);
+      }));
+    }));
+
     for (atlas in characterAtlasAnimationsMap[rank])
     {
       atlas.sprite.visible = false;
@@ -222,7 +311,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
   }
 
-  function stopTimers():Void
+  function stopTweensAndTimers():Void
   {
     while (animTimers.length > 0)
     {
@@ -230,15 +319,24 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       timer.cancel();
       timer.destroy();
     }
+
+    while (animTweens.length > 0)
+    {
+      var tween = animTweens.shift();
+      tween.cancel();
+      tween.destroy();
+    }
   }
 
   var difficulty:FlxSprite;
   var songName:FlxBitmapText;
+  var clearPercentCounter:ClearPercentCounter;
   var clearPercentSmall:ClearPercentCounter;
   var resultsAnim:FunkinSprite;
   var ratingsPopin:FunkinSprite;
   var scorePopin:FunkinSprite;
   var score:ResultScore;
+  var ratingGrp:FlxTypedSpriteGroup<TallyCounter>;
 
   function initFunkinUI():Void
   {
@@ -246,6 +344,10 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     bg.scrollFactor.set();
     bg.zIndex = 10;
     add(bg);
+
+    clearPercentCounter = new ClearPercentCounter(FlxG.width / 2 + 190, FlxG.height / 2 - 70, 0);
+    clearPercentCounter.zIndex = 450;
+    add(clearPercentCounter);
 
     difficulty = new FlxSprite(555, 122);
     difficulty.zIndex = 1000;
@@ -296,7 +398,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     var hStuf:Int = 50;
 
-    var ratingGrp:FlxTypedSpriteGroup<TallyCounter> = new FlxTypedSpriteGroup<TallyCounter>();
+    ratingGrp = new FlxTypedSpriteGroup<TallyCounter>();
     ratingGrp.zIndex = 1200;
     add(ratingGrp);
 
