@@ -13,12 +13,14 @@ import funkin.ui.freeplay.FreeplayState.DifficultySprite;
 import funkin.ui.debug.char.components.dialogs.*;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.freeplay.FreeplayStyle;
+import funkin.data.animation.AnimationData;
 import funkin.data.freeplay.style.FreeplayStyleData;
 import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.graphics.shaders.AngleMask;
 import funkin.graphics.shaders.Grayscale;
 import funkin.graphics.shaders.StrokeShader;
 import funkin.data.freeplay.player.PlayerRegistry;
+import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.ui.freeplay.BGScrollingText;
 import funkin.ui.AtlasText;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
@@ -71,6 +73,10 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     }
   public var styleFiles:Array<WizardFile> = [];
 
+  var dj:CharSelectAtlasSprite;
+  var djAnims:Array<AnimationData> = [];
+  var currentDJAnimation:Int = 0;
+
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
     super(state);
@@ -81,7 +87,47 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     dialogMap.set(FreeplayStyle, new FreeplayStyleDialog(this));
 
     initBackingCard();
+
+    var playuh = PlayerRegistry.instance.fetchEntry(data.importedPlayerData ?? "");
+
+    dj = new CharSelectAtlasSprite(640, 366, null, playuh?.getFreeplayDJData()?.getAtlasPath() != null ? playuh.getFreeplayDJData().getAtlasPath() : null);
+    add(dj);
+
+    if (playuh != null)
+    {
+      @:privateAccess
+      djAnims = playuh.getFreeplayDJData().animations.copy();
+
+      playDJAnimation();
+    }
+
     initBackground();
+  }
+
+  override public function update(elapsed:Float)
+  {
+    super.update(elapsed);
+
+    if (FlxG.keys.justPressed.SPACE) playDJAnimation();
+
+    if (FlxG.keys.justPressed.W) changeDJAnimation(-1);
+    if (FlxG.keys.justPressed.S) changeDJAnimation(1);
+  }
+
+  public function changeDJAnimation(change:Int = 0)
+  {
+    currentDJAnimation += change;
+
+    if (currentDJAnimation < 0) currentDJAnimation = djAnims.length - 1;
+    else if (currentDJAnimation >= djAnims.length) currentDJAnimation = 0;
+
+    playDJAnimation();
+  }
+
+  function playDJAnimation()
+  {
+    dj.playAnimation(djAnims[currentDJAnimation].prefix);
+    dj.offset.set(djAnims[currentDJAnimation].offsets[0] ?? 0.0, djAnims[currentDJAnimation].offsets[1] ?? 0.0);
   }
 
   override public function fillUpPageSettings(menu:Menu)
