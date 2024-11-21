@@ -76,8 +76,6 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     initFunkinUI();
 
     refresh();
-
-    playAnimation();
   }
 
   var labelRank:Label = new Label();
