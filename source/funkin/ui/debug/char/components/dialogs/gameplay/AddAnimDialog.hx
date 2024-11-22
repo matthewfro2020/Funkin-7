@@ -1,4 +1,4 @@
-package funkin.ui.debug.char.components.dialogs;
+package funkin.ui.debug.char.components.dialogs.gameplay;
 
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage.CharDialogType;
 import funkin.data.character.CharacterData.CharacterRenderType;

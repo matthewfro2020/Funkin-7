@@ -1,4 +1,4 @@
-package funkin.ui.debug.char.components.dialogs;
+package funkin.ui.debug.char.components.dialogs.gameplay;
 
 import funkin.play.components.HealthIcon;
 import funkin.util.FileUtil;

@@ -1,6 +1,7 @@
 package funkin.ui.debug.char.pages;
 
 import haxe.ui.components.Label;
+import haxe.ui.components.VerticalRule;
 import haxe.ui.containers.Box;
 import haxe.ui.containers.HBox;
 import haxe.ui.containers.menus.Menu;
@@ -10,7 +11,8 @@ import funkin.ui.freeplay.LetterSort;
 import funkin.ui.freeplay.CapsuleText;
 import flixel.text.FlxText;
 import funkin.ui.freeplay.FreeplayState.DifficultySprite;
-import funkin.ui.debug.char.components.dialogs.*;
+import funkin.ui.debug.char.components.dialogs.freeplay.*;
+import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.freeplay.FreeplayStyle;
 import funkin.data.animation.AnimationData;
@@ -93,6 +95,8 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     dj = new CharSelectAtlasSprite(640, 366, null, playuh?.getFreeplayDJData()?.getAtlasPath() != null ? playuh.getFreeplayDJData().getAtlasPath() : null);
     add(dj);
 
+    generateUI();
+
     if (playuh != null)
     {
       @:privateAccess
@@ -108,10 +112,16 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   {
     super.update(elapsed);
 
+    // no need for handleKeybinds function since these are the only functions in update methinks
     if (FlxG.keys.justPressed.SPACE) playDJAnimation();
 
     if (FlxG.keys.justPressed.W) changeDJAnimation(-1);
     if (FlxG.keys.justPressed.S) changeDJAnimation(1);
+
+    if (FlxG.keys.justPressed.UP) changeDJAnimationOffsets(0, 5);
+    if (FlxG.keys.justPressed.DOWN) changeDJAnimationOffsets(0, -5);
+    if (FlxG.keys.justPressed.LEFT) changeDJAnimationOffsets(5);
+    if (FlxG.keys.justPressed.RIGHT) changeDJAnimationOffsets(-5);
   }
 
   public function changeDJAnimation(change:Int = 0)
@@ -126,8 +136,23 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
   function playDJAnimation()
   {
-    dj.playAnimation(djAnims[currentDJAnimation].prefix);
+    labelAnimName.text = djAnims[currentDJAnimation].name;
+    labelAnimOffsetX.text = "" + (djAnims[currentDJAnimation].offsets[0] ?? 0.0);
+    labelAnimOffsetY.text = "" + (djAnims[currentDJAnimation].offsets[1] ?? 0.0);
+
+    dj.playAnimation(djAnims[currentDJAnimation].prefix, true);
     dj.offset.set(djAnims[currentDJAnimation].offsets[0] ?? 0.0, djAnims[currentDJAnimation].offsets[1] ?? 0.0);
+  }
+
+  function changeDJAnimationOffsets(xOff:Float = 0, yOff:Float = 0)
+  {
+    if (currentDJAnimation >= djAnims.length) return; // this should in theory detect if we have dj animations loaded from an imported character
+    if (djAnims[currentDJAnimation].offsets.length < 2) djAnims[currentDJAnimation].offsets = [0.0, 0.0];
+
+    djAnims[currentDJAnimation].offsets[0] += xOff;
+    djAnims[currentDJAnimation].offsets[1] += yOff;
+
+    playDJAnimation();
   }
 
   override public function fillUpPageSettings(menu:Menu)
@@ -147,6 +172,44 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     styleDialog.onClick = function(_) {
       dialogMap[FreeplayStyle].hidden = !styleDialog.selected;
     }
+  }
+
+  var labelAnimName:Label = new Label();
+  var labelAnimOffsetX:Label = new Label();
+  var labelAnimOffsetY:Label = new Label();
+
+  function generateUI()
+  {
+    labelAnimName.styleNames = labelAnimOffsetX.styleNames = labelAnimOffsetY.styleNames = "infoText";
+    labelAnimName.verticalAlign = labelAnimOffsetX.verticalAlign = labelAnimOffsetY.verticalAlign = "center";
+
+    labelAnimName.tooltip = "Left/Right Click to play the Next/Previous Animation";
+    labelAnimOffsetX.tooltip = "Left/Right Click to Increase/Decrease the Horizontal Offset.";
+    labelAnimOffsetY.tooltip = "Left/Right Click to Increase/Decrease the Vertical Offset.";
+
+    labelAnimName.text = "None";
+    labelAnimOffsetX.text = labelAnimOffsetY.text = "0";
+
+    labelAnimName.onClick = _ -> changeDJAnimation(1);
+    labelAnimName.onRightClick = _ -> changeDJAnimation(-1);
+
+    labelAnimOffsetX.onClick = _ -> changeDJAnimationOffsets(5);
+    labelAnimOffsetX.onRightClick = _ -> changeDJAnimationOffsets(-5);
+    labelAnimOffsetY.onClick = _ -> changeDJAnimationOffsets(0, 5);
+    labelAnimOffsetY.onRightClick = _ -> changeDJAnimationOffsets(0, -5);
+  }
+
+  override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
+  {
+    var rule1 = new VerticalRule();
+    var rule2 = new VerticalRule();
+    rule1.percentHeight = rule2.percentHeight = 80;
+
+    middle.addComponent(labelAnimName);
+    middle.addComponent(rule1);
+    middle.addComponent(labelAnimOffsetX);
+    middle.addComponent(rule2);
+    middle.addComponent(labelAnimOffsetY);
   }
 
   var pinkBack:FunkinSprite;

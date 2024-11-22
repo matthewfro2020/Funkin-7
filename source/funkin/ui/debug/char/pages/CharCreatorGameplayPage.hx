@@ -14,7 +14,8 @@ import funkin.data.character.CharacterRegistry;
 import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.play.stage.StageProp;
 import funkin.data.stage.StageRegistry;
-import funkin.ui.debug.char.components.dialogs.*;
+import funkin.ui.debug.char.components.dialogs.gameplay.*;
+import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import flixel.util.FlxColor;
 
 using StringTools;

@@ -1,4 +1,4 @@
-package funkin.ui.debug.char.components.dialogs;
+package funkin.ui.debug.char.components.dialogs.gameplay;
 
 import haxe.ui.core.Screen;
 import haxe.ui.containers.Grid;

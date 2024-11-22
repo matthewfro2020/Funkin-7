@@ -1,4 +1,4 @@
-package funkin.ui.debug.char.components.dialogs;
+package funkin.ui.debug.char.components.dialogs.results;
 
 import haxe.ui.containers.VBox;
 import haxe.ui.containers.HBox;

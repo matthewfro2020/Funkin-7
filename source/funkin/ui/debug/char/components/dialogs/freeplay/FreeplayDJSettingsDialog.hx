@@ -1,4 +1,4 @@
-package funkin.ui.debug.char.components.dialogs;
+package funkin.ui.debug.char.components.dialogs.freeplay;
 
 import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
 import funkin.data.freeplay.player.PlayerRegistry;

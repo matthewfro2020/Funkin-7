@@ -1,4 +1,4 @@
-package funkin.ui.debug.char.components.dialogs;
+package funkin.ui.debug.char.components.dialogs.gameplay;
 
 @:xml('<?xml version="1.0" encoding="utf-8"?>
 <collapsible-dialog title="Character Metadata" width="400" height="400">
