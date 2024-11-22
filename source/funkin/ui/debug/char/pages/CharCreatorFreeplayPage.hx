@@ -85,6 +85,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     this.data = data;
 
     dialogMap = new Map<FreeplayDialogType, DefaultPageDialog>();
+    dialogMap.set(FreeplayDJAnimations, new FreeplayDJAnimsDialog(this));
     dialogMap.set(FreeplayDJSettings, new FreeplayDJSettingsDialog(this));
     dialogMap.set(FreeplayStyle, new FreeplayStyleDialog(this));
 
@@ -103,6 +104,14 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
       djAnims = playuh.getFreeplayDJData().animations.copy();
 
       playDJAnimation();
+
+      var dialog:FreeplayDJAnimsDialog = cast dialogMap[FreeplayDJAnimations];
+      for (animData in djAnims)
+      {
+        dialog.djAnimList.dataSource.add({text: animData.name});
+      }
+
+      dialog.djAnimList.selectedIndex = 0;
     }
 
     initBackground();
@@ -131,6 +140,16 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     if (currentDJAnimation < 0) currentDJAnimation = djAnims.length - 1;
     else if (currentDJAnimation >= djAnims.length) currentDJAnimation = 0;
 
+    var dialog:FreeplayDJAnimsDialog = cast dialogMap[FreeplayDJAnimations];
+    if (dialog.djAnimList.selectedIndex != currentDJAnimation) dialog.djAnimList.selectedIndex = currentDJAnimation;
+
+    dialog.djAnimName.text = djAnims[currentDJAnimation].name;
+    dialog.djAnimPrefix.text = djAnims[currentDJAnimation].prefix;
+    dialog.djAnimLooped.selected = djAnims[currentDJAnimation].looped;
+
+    dialog.djAnimOffsetX.pos = djAnims[currentDJAnimation].offsets[0] ?? 0.0;
+    dialog.djAnimOffsetY.pos = djAnims[currentDJAnimation].offsets[1] ?? 0.0;
+
     playDJAnimation();
   }
 
@@ -152,11 +171,23 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     djAnims[currentDJAnimation].offsets[0] += xOff;
     djAnims[currentDJAnimation].offsets[1] += yOff;
 
+    var dialog:FreeplayDJAnimsDialog = cast dialogMap[FreeplayDJAnimations];
+    dialog.djAnimOffsetX.pos = djAnims[currentDJAnimation].offsets[0];
+    dialog.djAnimOffsetY.pos = djAnims[currentDJAnimation].offsets[1];
+
     playDJAnimation();
   }
 
   override public function fillUpPageSettings(menu:Menu)
   {
+    var animsDialog = new MenuCheckBox();
+    animsDialog.text = "DJ Animations Settings";
+    menu.addComponent(animsDialog);
+
+    animsDialog.onClick = function(_) {
+      dialogMap[FreeplayDJAnimations].hidden = !animsDialog.selected;
+    }
+
     var settingsDialog = new MenuCheckBox();
     settingsDialog.text = "Freeplay DJ Settings";
     menu.addComponent(settingsDialog);
@@ -474,6 +505,7 @@ class RandomCapsule extends FlxSpriteGroup
 
 enum FreeplayDialogType
 {
+  FreeplayDJAnimations;
   FreeplayDJSettings;
   FreeplayStyle;
 }
