@@ -93,7 +93,8 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
     var playuh = PlayerRegistry.instance.fetchEntry(data.importedPlayerData ?? "");
 
-    dj = new CharSelectAtlasSprite(640, 366, null, playuh?.getFreeplayDJData()?.getAtlasPath() != null ? playuh.getFreeplayDJData().getAtlasPath() : null);
+    dj = new CharSelectAtlasSprite(640, 366, data.freeplayFile?.bytes,
+      playuh?.getFreeplayDJData()?.getAtlasPath() != null ? playuh.getFreeplayDJData().getAtlasPath() : null);
     add(dj);
 
     generateUI();

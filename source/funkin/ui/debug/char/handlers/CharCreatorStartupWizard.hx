@@ -55,6 +55,7 @@ class CharCreatorStartupWizard
     dialogArray.push(new ImportDataDialog());
     dialogArray.push(new RenderWizardDialog());
     dialogArray.push(new AddCharFilesDialog());
+    dialogArray.push(new AddPlayerFilesDialog());
     dialogArray.push(new ConfirmDialog());
   }
 }
@@ -86,6 +87,6 @@ enum abstract WizardStep(Int) from Int to Int
   public var IMPORT_DATA = 1;
   public var SELECT_CHAR_TYPE = 2;
   public var UPLOAD_ASSETS = 3;
-  public var UPLOAD_PLAYER_ASSETS = -1; // not implemented yet!
-  public var CONFIRM = 4;
+  public var UPLOAD_PLAYER_ASSETS = 4;
+  public var CONFIRM = 5;
 }

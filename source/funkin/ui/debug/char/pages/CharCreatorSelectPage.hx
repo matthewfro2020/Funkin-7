@@ -91,7 +91,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     add(gf);
 
     var bfPath = data.importedPlayerData == null ? null : "charSelect/" + data.importedPlayerData + "Chill";
-    bf = new CharSelectAtlasSprite(0, 0, null, bfPath != null ? Paths.animateAtlas(bfPath) : null);
+    bf = new CharSelectAtlasSprite(0, 0, data.charSelectFile?.bytes, bfPath != null ? Paths.animateAtlas(bfPath) : null);
     add(bf);
 
     gf.playAnimation(ALL_PLAYER_ANIMS[0], true, false, false);
