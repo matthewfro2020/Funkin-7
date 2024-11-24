@@ -26,6 +26,7 @@ import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.ui.freeplay.BGScrollingText;
 import funkin.ui.AtlasText;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import flixel.addons.display.shapes.FlxShapeCircle;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
@@ -79,6 +80,9 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   var djAnims:Array<AnimationData> = [];
   var currentDJAnimation:Int = 0;
 
+  var pivotPointer:FlxShapeCircle;
+  var basePointer:FlxShapeCircle;
+
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
     super(state);
@@ -116,11 +120,27 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     }
 
     initBackground();
+
+    pivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
+    basePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
+    pivotPointer.visible = basePointer.visible = false;
+
+    add(pivotPointer);
+    add(basePointer);
   }
 
   override public function update(elapsed:Float)
   {
     super.update(elapsed);
+
+    var pivotPos = dj.getPivotPosition();
+    var basePos = dj.getBasePosition();
+
+    if (pivotPos != null) pivotPointer.setPosition(pivotPos.x - pivotPointer.width / 2, pivotPos.y - pivotPointer.height / 2);
+    if (basePos != null) basePointer.setPosition(basePos.x - basePointer.width / 2, basePos.y - basePointer.height / 2);
+
+    pivotPointer.visible = (daState.menubarCheckViewPivot.selected && pivotPos != null);
+    basePointer.visible = (daState.menubarCheckViewBase.selected && basePos != null);
 
     // no need for handleKeybinds function since these are the only functions in update methinks
     if (FlxG.keys.justPressed.SPACE) playDJAnimation();

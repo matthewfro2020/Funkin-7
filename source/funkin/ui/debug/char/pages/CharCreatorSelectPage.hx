@@ -16,6 +16,7 @@ import funkin.ui.debug.char.pages.subpages.CharSelectIndexSubPage;
 import funkin.ui.debug.char.components.dialogs.select.*;
 import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import funkin.util.FileUtil;
+import flixel.addons.display.shapes.FlxShapeCircle;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.tweens.FlxEase;
@@ -67,10 +68,14 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var pixelIconFiles:Array<WizardFile> = [];
 
   var dialogMap:Map<PlayCharDialogType, DefaultPageDialog>;
-
   var subPages:Map<CharCreatorSelectSubPage, FlxSpriteGroup>;
 
   var handleInput:Bool = true;
+
+  var playerPivotPointer:FlxShapeCircle;
+  var playerBasePointer:FlxShapeCircle;
+  var gfPivotPointer:FlxShapeCircle;
+  var gfBasePointer:FlxShapeCircle;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -127,6 +132,17 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     subPages.set(IndexSubPage, new CharSelectIndexSubPage(this));
 
     add(subPages[IndexSubPage]);
+
+    playerPivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
+    playerBasePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
+    gfPivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
+    gfBasePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
+    playerPivotPointer.visible = playerBasePointer.visible = gfPivotPointer.visible = gfBasePointer.visible = false;
+
+    add(playerPivotPointer);
+    add(playerBasePointer);
+    add(gfPivotPointer);
+    add(gfPivotPointer);
   }
 
   // i am unsure whether or not there are more animations than these
@@ -393,6 +409,24 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       if (FlxG.keys.justPressed.W) changeCharAnim(-1, FlxG.keys.pressed.SHIFT);
       if (FlxG.keys.justPressed.S) changeCharAnim(1, FlxG.keys.pressed.SHIFT);
     }
+
+    var playerPivotPos = bf.getPivotPosition();
+    var playerBasePos = bf.getBasePosition();
+
+    if (playerPivotPos != null) playerPivotPointer.setPosition(playerPivotPos.x - playerPivotPointer.width / 2,
+      playerPivotPos.y - playerPivotPointer.height / 2);
+    if (playerBasePos != null) playerBasePointer.setPosition(playerBasePos.x - playerBasePointer.width / 2, playerBasePos.y - playerBasePointer.height / 2);
+
+    var gfPlayerPos = gf.getPivotPosition();
+    var gfBasePos = gf.getBasePosition();
+
+    if (gfPlayerPos != null) gfPivotPointer.setPosition(gfPlayerPos.x - gfPivotPointer.width / 2, gfPlayerPos.y - gfPivotPointer.height / 2);
+    if (gfBasePos != null) gfBasePointer.setPosition(gfBasePos.x - gfBasePointer.width / 2, gfBasePos.y - gfBasePointer.height / 2);
+
+    playerPivotPointer.visible = (daState.menubarCheckViewPivot.selected && playerPivotPos != null);
+    playerBasePointer.visible = (daState.menubarCheckViewBase.selected && playerBasePos != null);
+    gfPivotPointer.visible = (daState.menubarCheckViewPivot.selected && gfPlayerPos != null);
+    gfBasePointer.visible = (daState.menubarCheckViewBase.selected && gfBasePos != null);
   }
 }
 

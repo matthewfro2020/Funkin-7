@@ -17,6 +17,7 @@ import funkin.data.stage.StageRegistry;
 import funkin.ui.debug.char.components.dialogs.gameplay.*;
 import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import flixel.util.FlxColor;
+import flixel.addons.display.shapes.FlxShapeCircle;
 
 using StringTools;
 
@@ -37,6 +38,11 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   // onion skin/ghost
   public var ghostCharacter:CharCreatorCharacter;
   public var ghostId(default, set):String = ""; // empty string means current character
+
+  // points
+  var atlasCharPivotPointer:FlxShapeCircle;
+  var atlasCharBasePointer:FlxShapeCircle;
+  var midPointPointer:FlxShapeCircle;
 
   override public function new(daState:CharCreatorState, wizardParams:WizardGenerateParams)
   {
@@ -71,6 +77,19 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
       animDialog.charAnimDropdown.selectedIndex = 0;
       currentCharacter.playAnimation(currentCharacter.animations[0].name);
     }
+
+    atlasCharPivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
+    atlasCharBasePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
+    midPointPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffffff00}, 0xffffff00);
+
+    atlasCharPivotPointer.zIndex = atlasCharBasePointer.zIndex = midPointPointer.zIndex = 10000;
+    atlasCharPivotPointer.visible = atlasCharBasePointer.visible = midPointPointer.visible = false;
+
+    add(atlasCharPivotPointer);
+    add(atlasCharBasePointer);
+    add(midPointPointer);
+
+    sortAssets();
   }
 
   override public function update(elapsed:Float)
@@ -78,6 +97,23 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     labelAnimName.text = currentCharacter.getCurrentAnimation() ?? "None";
     labelAnimOffsetX.text = "" + (currentCharacter.getAnimationData(currentCharacter.getCurrentAnimation())?.offsets[0] ?? 0);
     labelAnimOffsetY.text = "" + (currentCharacter.getAnimationData(currentCharacter.getCurrentAnimation())?.offsets[1] ?? 0);
+
+    if (currentCharacter.atlasCharacter != null)
+    {
+      var pivotPos = currentCharacter.atlasCharacter.getPivotPosition();
+      var basePos = currentCharacter.atlasCharacter.getBasePosition();
+
+      if (pivotPos != null) atlasCharPivotPointer.setPosition(pivotPos.x - atlasCharPivotPointer.width / 2, pivotPos.y - atlasCharPivotPointer.height / 2);
+      if (basePos != null) atlasCharBasePointer.setPosition(basePos.x - atlasCharBasePointer.width / 2, basePos.y - atlasCharBasePointer.height / 2);
+
+      atlasCharPivotPointer.visible = (daState.menubarCheckViewPivot.selected && pivotPos != null);
+      atlasCharBasePointer.visible = (daState.menubarCheckViewBase.selected && basePos != null);
+    }
+    else
+    {
+      midPointPointer.setPosition(currentCharacter.getMidpoint().x - midPointPointer.width / 2, currentCharacter.getMidpoint().y - midPointPointer.height / 2);
+      midPointPointer.visible = daState.menubarCheckViewMidpoint.selected;
+    }
 
     super.update(elapsed);
   }
