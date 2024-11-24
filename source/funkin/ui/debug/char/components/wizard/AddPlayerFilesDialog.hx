@@ -39,6 +39,9 @@ class AddPlayerFilesDialog extends DefaultWizardDialog
 
   override public function isNextStepAvailable():Bool
   {
+    params.freeplayFile = null;
+    params.charSelectFile = null;
+
     // we skippin if we aint even doin these
     if (addAssetsBox.disabled) return true;
 
@@ -73,7 +76,7 @@ class AddPlayerFilesDialog extends DefaultWizardDialog
 
   public function typeCheck(uploadBoxes:Array<UploadAssetsBox>):Bool
   {
-    var allFiles = [params.charSelectFile, params.freeplayFile];
+    var allFiles = [];
 
     for (i in 0...uploadBoxes.length)
     {
@@ -145,7 +148,7 @@ class AddPlayerFilesDialog extends DefaultWizardDialog
         }
       }
 
-      if (hasAnimData && hasSpritemapData && hasImageData) allFiles[i] = {name: zipPath, bytes: zipBytes};
+      if (hasAnimData && hasSpritemapData && hasImageData) allFiles.push({name: zipPath, bytes: zipBytes});
 
       if (!(hasAnimData && hasSpritemapData && hasImageData))
       {
@@ -153,6 +156,9 @@ class AddPlayerFilesDialog extends DefaultWizardDialog
         return false;
       }
     }
+
+    params.charSelectFile = allFiles[0];
+    params.freeplayFile = allFiles[1];
 
     return true;
   }

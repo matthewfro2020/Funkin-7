@@ -144,24 +144,24 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     var dialog:FreeplayDJAnimsDialog = cast dialogMap[FreeplayDJAnimations];
     if (dialog.djAnimList.selectedIndex != currentDJAnimation) dialog.djAnimList.selectedIndex = currentDJAnimation;
 
-    dialog.djAnimName.text = djAnims[currentDJAnimation].name;
-    dialog.djAnimPrefix.text = djAnims[currentDJAnimation].prefix;
-    dialog.djAnimLooped.selected = djAnims[currentDJAnimation].looped;
+    dialog.djAnimName.text = djAnims[currentDJAnimation]?.name ?? "";
+    dialog.djAnimPrefix.text = djAnims[currentDJAnimation]?.prefix ?? "";
+    dialog.djAnimLooped.selected = djAnims[currentDJAnimation]?.looped ?? false;
 
-    dialog.djAnimOffsetX.pos = djAnims[currentDJAnimation].offsets[0] ?? 0.0;
-    dialog.djAnimOffsetY.pos = djAnims[currentDJAnimation].offsets[1] ?? 0.0;
+    dialog.djAnimOffsetX.pos = djAnims[currentDJAnimation]?.offsets[0] ?? 0.0;
+    dialog.djAnimOffsetY.pos = djAnims[currentDJAnimation]?.offsets[1] ?? 0.0;
 
     playDJAnimation();
   }
 
   function playDJAnimation()
   {
-    labelAnimName.text = djAnims[currentDJAnimation].name;
-    labelAnimOffsetX.text = "" + (djAnims[currentDJAnimation].offsets[0] ?? 0.0);
-    labelAnimOffsetY.text = "" + (djAnims[currentDJAnimation].offsets[1] ?? 0.0);
+    labelAnimName.text = djAnims[currentDJAnimation]?.name ?? "None";
+    labelAnimOffsetX.text = "" + (djAnims[currentDJAnimation]?.offsets[0] ?? 0.0);
+    labelAnimOffsetY.text = "" + (djAnims[currentDJAnimation]?.offsets[1] ?? 0.0);
 
-    dj.playAnimation(djAnims[currentDJAnimation].prefix, true);
-    dj.offset.set(djAnims[currentDJAnimation].offsets[0] ?? 0.0, djAnims[currentDJAnimation].offsets[1] ?? 0.0);
+    dj.playAnimation(djAnims[currentDJAnimation]?.prefix ?? "", true);
+    dj.offset.set(djAnims[currentDJAnimation]?.offsets[0] ?? 0.0, djAnims[currentDJAnimation]?.offsets[1] ?? 0.0);
   }
 
   function changeDJAnimationOffsets(xOff:Float = 0, yOff:Float = 0)

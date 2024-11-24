@@ -48,7 +48,7 @@ class FreeplayDJAnimsDialog extends DefaultPageDialog
         return;
       }
 
-      if (djAnimList.safeSelectedItem.text == djAnimName.text) // update instead of add
+      if ((djAnimList.safeSelectedItem?.text ?? "") == djAnimName.text) // update instead of add
       {
         var animData = daPage.djAnims[daPage.currentDJAnimation];
 
@@ -70,6 +70,7 @@ class FreeplayDJAnimsDialog extends DefaultPageDialog
 
         djAnimList.dataSource.add({text: djAnimName.text});
         djAnimList.selectedIndex = daPage.djAnims.length - 1;
+        daPage.changeDJAnimation(djAnimList.selectedIndex - daPage.currentDJAnimation);
       }
     }
   }

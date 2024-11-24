@@ -14,6 +14,7 @@ using StringTools;
 
 @:access(funkin.ui.debug.char.CharCreatorState)
 @:access(funkin.ui.debug.char.pages.CharCreatorSelectPage)
+@:access(funkin.ui.debug.char.pages.CharCreatorFreeplayPage)
 class CharCreatorImportExportHandler
 {
   public static function importCharacter(state:CharCreatorState, charId:String):Void
@@ -112,6 +113,18 @@ class CharCreatorImportExportHandler
     //   zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/icons/${Path.withoutDirectory(file.name)}', file.bytes));
     // }
 
+    var charSelectZipName = Path.withoutDirectory(selectPage.data.charSelectFile.name.replace(".zip", ""));
+    for (file in FileUtil.readZIPFromBytes(selectPage.data.charSelectFile.bytes))
+    {
+      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect/${charSelectZipName}/${Path.withoutDirectory(file.fileName)}', file.data));
+    }
+
+    var freeplayDJZipName = Path.withoutDirectory(freeplayPage.data.freeplayFile.name.replace(".zip", ""));
+    for (file in FileUtil.readZIPFromBytes(freeplayPage.data.freeplayFile.bytes))
+    {
+      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/${freeplayDJZipName}/${Path.withoutDirectory(file.fileName)}', file.data));
+    }
+
     var playerData:PlayerData = new PlayerData();
     playerData.name = "Unknown";
     playerData.ownedChars = selectPage.ownedCharacters;
@@ -121,9 +134,11 @@ class CharCreatorImportExportHandler
     @:privateAccess
     {
       playerData.freeplayDJ = new PlayerFreeplayDJData();
+      playerData.freeplayDJ.assetPath = "freeplay/" + freeplayDJZipName;
       playerData.freeplayDJ.text1 = freeplayPage.bgText1;
       playerData.freeplayDJ.text2 = freeplayPage.bgText2;
       playerData.freeplayDJ.text3 = freeplayPage.bgText3;
+      playerData.freeplayDJ.animations = freeplayPage.djAnims.copy();
     }
 
     playerData.charSelect = new PlayerCharSelectData(selectPage.position);
