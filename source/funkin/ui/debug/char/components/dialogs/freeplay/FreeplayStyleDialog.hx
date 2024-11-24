@@ -10,64 +10,7 @@ import flixel.util.FlxColor;
 import openfl.display.BitmapData;
 
 @:access(funkin.ui.debug.char.pages.CharCreatorFreeplayPage)
-@:xml('
-<?xml version="1.0" encoding="utf-8"?>
-<collapsible-dialog width="400" height="425" title="Freeplay Style Settings" closable="false">
-  <vbox width="100%" height="100%">
-    <hbox width="100%" height="100%">
-
-      <vbox width="65%" height="100%">
-        <optionbox id="optionMakeNew" text="Use Custom" group="freepStypeGroup" selected="true"/>
-        <scrollview width="100%" height="100%" contentWidth="100%">
-            <vbox id="freeplayStyleNew" width="100%">
-
-              <section-header text="Asset Paths"/>
-              <hbox width="100%">
-                <textfield id="fieldBGAsset" placeholder="Background Asset Path" width="75%"/>
-                <button id="buttonBGAsset" text="Load" width="25%"/>
-              </hbox>
-              <hbox width="100%">
-                <textfield id="fieldArrow" placeholder="Arrows Asset Path" width="75%"/>
-                <button id="buttonArrow" text="Load" width="25%"/>
-              </hbox>
-              <hbox width="100%">
-                <textfield id="fieldNumbers" placeholder="Numbers Asset Path" width="75%"/>
-                <button id="buttonNumbers" text="Load" width="25%"/>
-              </hbox>
-              <hbox width="100%">
-                <textfield id="fieldCapsule" placeholder="Capsule Asset Path" width="75%"/>
-                <button id="buttonCapsule" text="Load" width="25%"/>
-              </hbox>
-
-               <section-header text="Capsule Colors"/>
-               <hbox width="100%">
-                  <label text="Select" width="35%" />
-                  <color-picker-popup id="selectPicker" width="65%"/>
-               </hbox>
-               <hbox width="100%">
-                  <label text="Deselect" width="35%" />
-                  <color-picker-popup id="deselectPicker" width="65%"/>
-               </hbox>
-
-                <section-header text="Start Delay"/>
-                <number-stepper id="delayStepper" pos="0" min="0"/>
-            </vbox>
-        </scrollview>
-      </vbox>
-
-      <vbox width="35%" height="100%">
-        <optionbox id="optionUsePreset" text="Use Preset" group="freepStypeGroup"/>
-        <scrollview width="100%" height="75%" contentWidth="100%">
-            <vbox id="freeplayStylePresets" width="100%" disabled="true"/>
-        </scrollview>
-
-        <button id="buttonApplyStyle" text="Apply Style" horizontalAlign="center"/>
-      </vbox>
-
-    </hbox>
-  </vbox>
-</collapsible-dialog>
-')
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/freeplay/style-dialog.xml"))
 class FreeplayStyleDialog extends DefaultPageDialog
 {
   var styleID:String;

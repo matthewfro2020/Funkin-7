@@ -5,7 +5,7 @@ import funkin.data.character.CharacterData.CharacterRenderType;
 import haxe.ui.containers.dialogs.CollapsibleDialog;
 import haxe.ui.data.ArrayDataSource;
 
-@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/anim-dialog.xml"))
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/gameplay/anim-dialog.xml"))
 class AddAnimDialog extends DefaultPageDialog
 {
   public var linkedChar:CharCreatorCharacter = null;

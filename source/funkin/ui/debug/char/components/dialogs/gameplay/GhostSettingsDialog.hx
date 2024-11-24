@@ -9,7 +9,7 @@ import funkin.util.SortUtil;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 
-@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/ghost-dialog.xml"))
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/gameplay/ghost-dialog.xml"))
 class GhostSettingsDialog extends DefaultPageDialog
 {
   public var attachedMenu:GhostCharacterMenu;

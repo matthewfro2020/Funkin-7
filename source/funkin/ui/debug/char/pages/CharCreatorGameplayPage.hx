@@ -126,7 +126,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
       {
         var bop = cast(spr, Bopper);
 
-        if (Conductor.instance.currentBeatTime % bop.danceEvery == 0) bop.dance();
+        if (Conductor.instance.currentBeat % bop.danceEvery == 0) bop.dance();
       }
     }
   }

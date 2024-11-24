@@ -3,6 +3,7 @@ package funkin.ui.debug.char;
 import haxe.io.Path;
 import haxe.ui.core.Screen;
 import haxe.ui.backend.flixel.UIState;
+import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.windows.WindowManager;
 import funkin.audio.FunkinSound;
 import funkin.input.Cursor;
@@ -67,10 +68,12 @@ class CharCreatorState extends UIState
     // I feel like there should be more editor themes
     // I don't dislike Artistic expression or anythin I had simply heard it a million times while making da editors and I'm getting a bit tired of it
     // plus it's called *chart*EditorLoop so CHECKMATE liberals hehe -Kolo
+    Conductor.instance.forceBPM(null);
     FunkinSound.playMusic('chartEditorLoop',
       {
         overrideExisting: true,
-        restartTrack: true
+        restartTrack: true,
+        mapTimeChanges: true
       });
 
     FlxG.sound.music.fadeIn(10, 0, 1);
@@ -103,7 +106,11 @@ class CharCreatorState extends UIState
     menubarOptionCharSelect.onChange = function(_) switchToPage(CharacterSelect);
     menubarOptionFreeplay.onChange = function(_) switchToPage(Freeplay);
     menubarOptionResults.onChange = function(_) switchToPage(ResultScreen);
+
+    menubarItemNewChar.onClick = _ -> this.startWizard(wizardComplete);
     menubarItemExport.onClick = _ -> this.exportAll();
+    menubarItemExit.onClick = _ -> exitEditor();
+    menubarItemAbout.onClick = _ -> new CharCreatorAboutDialog().showDialog();
   }
 
   function handleShortcuts():Void
@@ -149,7 +156,13 @@ class CharCreatorState extends UIState
   {
     Cursor.hide();
     FlxG.switchState(() -> new DebugMenuSubState());
-    FlxG.sound.music.stop();
+    FunkinSound.playMusic('freakyMenu',
+      {
+        overrideExisting: true,
+        restartTrack: false,
+        // Continue playing this music between states, until a different music track gets played.
+        persist: true
+      });
   }
 
   function switchToPage(page:CharCreatorPage):Void
@@ -178,3 +191,6 @@ enum CharCreatorPage
   Freeplay;
   ResultScreen;
 }
+
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/components/about.xml"))
+class CharCreatorAboutDialog extends Dialog {}

@@ -8,7 +8,7 @@ import haxe.ui.data.ArrayDataSource;
 import funkin.data.character.CharacterRegistry;
 import funkin.util.SortUtil;
 
-@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/playable-character-settings-dialog.xml"))
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/select/playable-character-settings-dialog.xml"))
 class PlayableCharacterSettingsDialog extends DefaultPageDialog
 {
   public var ownedCharacters(get, never):Array<String>;

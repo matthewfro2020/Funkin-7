@@ -3,7 +3,7 @@ package funkin.ui.debug.char.components.dialogs.freeplay;
 import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
 import funkin.data.freeplay.player.PlayerRegistry;
 
-@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/freeplay-dj-settings-dialog.xml"))
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/freeplay/dj-settings-dialog.xml"))
 @:access(funkin.ui.debug.char.pages.CharCreatorFreeplayPage)
 class FreeplayDJSettingsDialog extends DefaultPageDialog
 {

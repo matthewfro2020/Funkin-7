@@ -9,7 +9,7 @@ import funkin.play.scoring.Scoring.ScoringRank;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
 
-@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/results-anim-dialog.xml"))
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/results/results-anim-dialog.xml"))
 @:access(funkin.ui.debug.char.pages.CharCreatorResultsPage)
 class ResultsAnimDialog extends DefaultPageDialog
 {

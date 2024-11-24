@@ -7,49 +7,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 
 using StringTools;
 
-@:xml('<?xml version="1.0" encoding="utf-8"?>
-<collapsible-dialog title="Health Icon Data" width="400" height="325">
-  <vbox width="100%" height="100%">
-    <hbox width="100%" height="25" verticalAlign="center" style="border:1px solid $normal-border-color">
-      <textfield id="healthIconLoadField" width="75%" height="100%" placeholder="Put the path to the Health Icon Image here."/>
-      <button id="healthIconLoadBtn" width="25%" height="100%" text="Load File"/>
-    </hbox>
-
-    <hbox width="100%">
-      <vbox width="50%">
-        <checkbox id="healthIconPixelated" text="Pixelated"/>
-        <checkbox id="healthIconFlipX" text="Flip on X-Axis"/>
-        <label text="Scale"/>
-        <number-stepper id="healthIconScale" min="0.05" step="0.05" pos="1" precision="2"/>
-        <label text="Offsets X/Y"/>
-        <hbox width="100%">
-          <number-stepper id="healthIconOffsetX" step="1" pos="0"/>
-          <number-stepper id="healthIconOffsetY" step="1" pos="0"/>
-        </hbox>
-
-      </vbox>
-
-      <vbox width="50%">
-        <image id="healthIconPreviewImg" width="150" height="150" horizontalAlign="center" style="border:1px solid $normal-border-color"/>
-        <button id="healthIconPreviewBtn" width="150" text="Refresh" horizontalAlign="center"/>
-
-        <label text="Current Animation" horizontalAlign="center"/>
-        <option-stepper id="healthIconCurAnim" width="125" horizontalAlign="center">
-          <data>
-              <item text="idle" />
-              <item text="winning" />
-              <item text="losing" />
-              <item text="toWinning" />
-              <item text="toLosing" />
-              <item text="fromWinning" />
-              <item text="fromLosing" />
-          </data>
-      </option-stepper>
-      </vbox>
-
-    </hbox>
-  </vbox>
-</collapsible-dialog>')
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/gameplay/icon-dialog.xml"))
 class HealthIconDialog extends DefaultPageDialog
 {
   var healthIcon:FlxSprite;
