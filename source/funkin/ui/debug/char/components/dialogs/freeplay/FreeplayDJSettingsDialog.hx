@@ -35,7 +35,7 @@ class FreeplayDJSettingsDialog extends DefaultPageDialog
     var data = daPage.data;
 
     var currentChar = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
-    if (currentChar != null)
+    if (currentChar?.getFreeplayDJData() != null)
     {
       bgTextField1.value = currentChar.getFreeplayDJText(1);
       bgTextField2.value = currentChar.getFreeplayDJText(2);
@@ -47,8 +47,15 @@ class FreeplayDJSettingsDialog extends DefaultPageDialog
       loopEndFrame.pos = currentChar.getFreeplayDJData().getFistPumpLoopEndFrame();
       introBadStartFrame.pos = currentChar.getFreeplayDJData().getFistPumpIntroBadStartFrame();
       introBadEndFrame.pos = currentChar.getFreeplayDJData().getFistPumpIntroBadEndFrame();
-      loopBadStartFrame.pos = currentChar.getFreeplayDJData()?.getFistPumpLoopBadStartFrame();
-      loopBadEndFrame.pos = currentChar.getFreeplayDJData()?.getCharSelectTransitionDelay();
+      loopBadStartFrame.pos = currentChar.getFreeplayDJData().getFistPumpLoopBadStartFrame();
+      loopBadEndFrame.pos = currentChar.getFreeplayDJData().getCharSelectTransitionDelay();
+
+      charSelectTransitionDelay.pos = currentChar.getFreeplayDJData().getCharSelectTransitionDelay();
+      soundClickFrame.pos = currentChar.getFreeplayDJData().getCartoonSoundClickFrame();
+      soundCartoonFrame.pos = currentChar.getFreeplayDJData().getCartoonSoundCartoonFrame();
+      loopBlinkFrame.pos = currentChar.getFreeplayDJData().getCartoonLoopBlinkFrame();
+      loopFrame.pos = currentChar.getFreeplayDJData().getCartoonLoopFrame();
+      channelChangeFrame.pos = currentChar.getFreeplayDJData().getCartoonChannelChangeFrame();
     }
 
     bgTextField1.onChange = bgTextField2.onChange = bgTextField3.onChange = _ -> daPage.updateScrollingTexts();

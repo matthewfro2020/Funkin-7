@@ -62,6 +62,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   var dialogMap:Map<FreeplayDialogType, DefaultPageDialog>;
 
   var data:WizardGenerateParams;
+  var loadedSprFreeplayPath:String = ""; // failsafe for when we're importing data instead of creating it
 
   public var useStyle:Null<String> = null;
   public var customStyleData:FreeplayStyleData =
@@ -106,7 +107,10 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     if (playuh != null)
     {
       @:privateAccess
-      djAnims = playuh.getFreeplayDJData().animations.copy();
+      {
+        loadedSprFreeplayPath = playuh.getFreeplayDJData().assetPath;
+        djAnims = playuh.getFreeplayDJData().animations.copy();
+      }
 
       playDJAnimation();
 

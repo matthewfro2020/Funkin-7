@@ -2,6 +2,7 @@ package funkin.ui.debug.char.handlers;
 
 import haxe.io.Path;
 import funkin.data.character.CharacterRegistry;
+import funkin.ui.debug.char.components.dialogs.freeplay.FreeplayDJSettingsDialog;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import funkin.ui.debug.char.pages.CharCreatorSelectPage;
 import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
@@ -62,12 +63,15 @@ class CharCreatorImportExportHandler
     {
       // no check needed there's no zip files in assets folder
 
-      for (file in FileUtil.readZIPFromBytes(gameplayPage.currentCharacter.files[0].bytes))
+      if (gameplayPage.currentCharacter.files.length > 0)
       {
-        var zipName = gameplayPage.currentCharacter.files[0].name.replace(".zip", "");
+        for (file in FileUtil.readZIPFromBytes(gameplayPage.currentCharacter.files[0].bytes))
+        {
+          var zipName = gameplayPage.currentCharacter.files[0].name.replace(".zip", "");
 
-        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(zipName)}/${Path.withoutDirectory(file.fileName)}',
-          file.data));
+          zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(zipName)}/${Path.withoutDirectory(file.fileName)}',
+            file.data));
+        }
       }
     }
 
@@ -113,16 +117,23 @@ class CharCreatorImportExportHandler
     //   zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/icons/${Path.withoutDirectory(file.name)}', file.bytes));
     // }
 
-    var charSelectZipName = Path.withoutDirectory(selectPage.data.charSelectFile.name.replace(".zip", ""));
-    for (file in FileUtil.readZIPFromBytes(selectPage.data.charSelectFile.bytes))
+    if (selectPage.data.charSelectFile != null)
     {
-      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect/${charSelectZipName}/${Path.withoutDirectory(file.fileName)}', file.data));
+      var charSelectZipName = Path.withoutDirectory(selectPage.data.charSelectFile.name.replace(".zip", ""));
+      for (file in FileUtil.readZIPFromBytes(selectPage.data.charSelectFile.bytes))
+      {
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect/${charSelectZipName}/${Path.withoutDirectory(file.fileName)}', file.data));
+      }
     }
 
-    var freeplayDJZipName = Path.withoutDirectory(freeplayPage.data.freeplayFile.name.replace(".zip", ""));
-    for (file in FileUtil.readZIPFromBytes(freeplayPage.data.freeplayFile.bytes))
+    var freeplayDJZipName = Path.withoutDirectory(freeplayPage.loadedSprFreeplayPath);
+    if (freeplayPage.data.freeplayFile != null)
     {
-      zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/${freeplayDJZipName}/${Path.withoutDirectory(file.fileName)}', file.data));
+      freeplayDJZipName = Path.withoutDirectory(freeplayPage.data.freeplayFile.name.replace(".zip", ""));
+      for (file in FileUtil.readZIPFromBytes(freeplayPage.data.freeplayFile.bytes))
+      {
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/${freeplayDJZipName}/${Path.withoutDirectory(file.fileName)}', file.data));
+      }
     }
 
     var playerData:PlayerData = new PlayerData();
@@ -139,6 +150,35 @@ class CharCreatorImportExportHandler
       playerData.freeplayDJ.text2 = freeplayPage.bgText2;
       playerData.freeplayDJ.text3 = freeplayPage.bgText3;
       playerData.freeplayDJ.animations = freeplayPage.djAnims.copy();
+
+      var pageDialog:FreeplayDJSettingsDialog = cast freeplayPage.dialogMap[FreeplayDJSettings];
+
+      // this code gives me an eyesore
+      playerData.freeplayDJ.fistPump =
+        {
+          introStartFrame: Std.int(pageDialog.introStartFrame.pos),
+          introEndFrame: Std.int(pageDialog.introEndFrame.pos),
+          loopStartFrame: Std.int(pageDialog.loopStartFrame.pos),
+          loopEndFrame: Std.int(pageDialog.loopEndFrame.pos),
+          introBadStartFrame: Std.int(pageDialog.introBadStartFrame.pos),
+          introBadEndFrame: Std.int(pageDialog.introBadEndFrame.pos),
+          loopBadStartFrame: Std.int(pageDialog.loopBadStartFrame.pos),
+          loopBadEndFrame: Std.int(pageDialog.loopBadEndFrame.pos)
+        }
+
+      playerData.freeplayDJ.charSelect =
+        {
+          transitionDelay: pageDialog.charSelectTransitionDelay.pos
+        }
+
+      playerData.freeplayDJ.cartoon =
+        {
+          soundClickFrame: Std.int(pageDialog.soundClickFrame.pos),
+          soundCartoonFrame: Std.int(pageDialog.soundCartoonFrame.pos),
+          loopBlinkFrame: Std.int(pageDialog.loopBlinkFrame.pos),
+          loopFrame: Std.int(pageDialog.loopFrame.pos),
+          channelChangeFrame: Std.int(pageDialog.channelChangeFrame.pos)
+        }
     }
 
     playerData.charSelect = new PlayerCharSelectData(selectPage.position);
