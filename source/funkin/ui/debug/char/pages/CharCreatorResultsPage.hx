@@ -146,7 +146,15 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     if (FlxG.keys.justPressed.SPACE)
     {
-      playAnimation();
+      if (FlxG.keys.pressed.SHIFT)
+      {
+        setStatusOfEverything();
+        playAnimation();
+      }
+      else
+      {
+        setStatusOfEverything(!activityStatus);
+      }
     }
   }
 
@@ -308,6 +316,29 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         sprite.sprite.animation.play('idle', true);
       }));
     }
+  }
+
+  var activityStatus:Bool = true;
+
+  function setStatusOfEverything(value:Bool = true)
+  {
+    activityStatus = value;
+    for (timer in animTimers)
+      timer.active = value;
+
+    for (tween in animTweens)
+      tween.active = value;
+
+    var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
+    var rank = animDialog.currentRank;
+
+    for (onething in members)
+    {
+      onething.active = value;
+    }
+
+    // genuine witchcraft
+    (value ? rankMusicMap[rank].resume : rankMusicMap[rank].pause)();
   }
 
   function stopTweensAndTimers():Void
@@ -474,6 +505,18 @@ private class ResultsMusic
   {
     introMusic?.stop();
     music?.stop();
+  }
+
+  public function pause():Void
+  {
+    introMusic?.pause();
+    music?.pause();
+  }
+
+  public function resume():Void
+  {
+    introMusic?.resume();
+    music?.resume();
   }
 }
 
