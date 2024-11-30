@@ -8,6 +8,7 @@ import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.play.scoring.Scoring.ScoringRank;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
+import funkin.ui.debug.char.pages.CharCreatorResultsPage;
 
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/results/results-anim-dialog.xml"))
 @:access(funkin.ui.debug.char.pages.CharCreatorResultsPage)
@@ -31,17 +32,15 @@ class ResultsAnimDialog extends DefaultPageDialog
     {
       var playerAnimations = currentChar?.getResultsAnimationDatas(rank) ?? [];
       rankAnimationDataMap.set(rank, playerAnimations);
-      createAnimations(rank, playerAnimations);
     }
 
-    rankAnimationBox = new AddRankAnimationDataBox();
+    rankAnimationBox = new AddRankAnimationDataBox(daPage);
     rankAnimationView.addComponent(rankAnimationBox);
 
     rankDropdown.selectedIndex = 0;
     rankDropdown.onChange = function(_) {
       if (previousRank == currentRank) return;
 
-      daPage.clearSprites();
       changeRankPreview();
       daPage.playAnimation();
     }
@@ -52,116 +51,11 @@ class ResultsAnimDialog extends DefaultPageDialog
 
   public function changeRankPreview():Void
   {
-    updateRankAnimations(previousRank);
+    var resultsPage:CharCreatorResultsPage = cast page;
+    resultsPage.generateSpritesByData(rankAnimationDataMap[currentRank]);
+
     rankAnimationBox.useAnimationData(rankAnimationDataMap[currentRank]);
     previousRank = currentRank;
-  }
-
-  function updateRankAnimations(rank:ScoringRank):Void
-  {
-    var parentList = rankAnimationBox.parentComponent;
-    if (parentList == null) return;
-
-    var animations = [
-      for (animData in parentList.childComponents)
-        if (Std.isOfType(animData, RankAnimationData)) cast(animData, RankAnimationData).animData
-    ];
-
-    rankAnimationDataMap.set(rank, animations);
-  }
-
-  function createAnimations(rank:ScoringRank, playerAnimations:Array<PlayerResultsAnimationData>):Void
-  {
-    var atlasAnimations = [];
-    var sparrowAnimations = [];
-    for (animData in playerAnimations)
-    {
-      if (animData == null) continue;
-
-      var animPath:String = Paths.stripLibrary(animData.assetPath);
-      var animLibrary:String = Paths.getLibrary(animData.assetPath);
-      var offsets = animData.offsets ?? [0, 0];
-      switch (animData.renderType)
-      {
-        case 'animateatlas':
-          var animation:FlxAtlasSprite = new FlxAtlasSprite(offsets[0], offsets[1], Paths.animateAtlas(animPath, animLibrary));
-          animation.zIndex = animData.zIndex ?? 500;
-
-          animation.scale.set(animData.scale ?? 1.0, animData.scale ?? 1.0);
-
-          if (!(animData.looped ?? true))
-          {
-            // Animation is not looped.
-            animation.onAnimationComplete.add((_name:String) -> {
-              trace("AHAHAH 2");
-              if (animation != null)
-              {
-                animation.anim.pause();
-              }
-            });
-          }
-          else if (animData.loopFrameLabel != null)
-          {
-            animation.onAnimationComplete.add((_name:String) -> {
-              trace("AHAHAH 2");
-              if (animation != null)
-              {
-                animation.playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
-              }
-            });
-          }
-          else if (animData.loopFrame != null)
-          {
-            animation.onAnimationComplete.add((_name:String) -> {
-              if (animation != null)
-              {
-                trace("AHAHAH");
-                animation.anim.curFrame = animData.loopFrame ?? 0;
-                animation.anim.play(); // unpauses this anim, since it's on PlayOnce!
-              }
-            });
-          }
-
-          // Hide until ready to play.
-          animation.visible = false;
-          // Queue to play.
-          atlasAnimations.push(
-            {
-              sprite: animation,
-              delay: animData.delay ?? 0.0,
-              forceLoop: (animData.loopFrame ?? -1) == 0
-            });
-          // Add to the scene.
-          this.page.add(animation);
-        case 'sparrow':
-          var animation:FunkinSprite = FunkinSprite.createSparrow(offsets[0], offsets[1], animPath);
-          animation.animation.addByPrefix('idle', '', 24, false, false, false);
-
-          if (animData.loopFrame != null)
-          {
-            animation.animation.finishCallback = (_name:String) -> {
-              if (animation != null)
-              {
-                animation.animation.play('idle', true, false, animData.loopFrame ?? 0);
-              }
-            }
-          }
-
-          // Hide until ready to play.
-          animation.visible = false;
-          // Queue to play.
-          sparrowAnimations.push(
-            {
-              sprite: animation,
-              delay: animData.delay ?? 0.0
-            });
-          // Add to the scene.
-          this.page.add(animation);
-      }
-    }
-
-    cast(page, CharCreatorResultsPage).characterAtlasAnimationsMap.set(rank, atlasAnimations);
-    cast(page, CharCreatorResultsPage).characterSparrowAnimationsMap.set(rank, sparrowAnimations);
   }
 
   function get_currentRank():ScoringRank
@@ -193,9 +87,12 @@ private class AddRankAnimationDataBox extends HBox
   var addButton:Button;
   var removeButton:Button;
 
-  public function new()
+  var page:CharCreatorResultsPage;
+
+  public function new(daPage:CharCreatorResultsPage)
   {
     super();
+    page = daPage;
 
     styleString = "border:1px solid $normal-border-color";
     percentWidth = 100;
@@ -214,7 +111,7 @@ private class AddRankAnimationDataBox extends HBox
       var parentList = this.parentComponent;
       if (parentList == null) return;
 
-      parentList.addComponentAt(new RankAnimationData(), parentList.childComponents.length - 1); // considering this box is last
+      parentList.addComponentAt(createNewBox(), parentList.childComponents.length - 1); // considering this box is last
       removeButton.disabled = false;
     }
 
@@ -240,7 +137,7 @@ private class AddRankAnimationDataBox extends HBox
 
     for (animData in playerAnimations)
     {
-      parentList.addComponentAt(new RankAnimationData(animData), parentList.childComponents.length - 1);
+      parentList.addComponentAt(createNewBox(animData), parentList.childComponents.length - 1);
     }
 
     removeButton.disabled = parentList.childComponents.length <= 2;
@@ -253,6 +150,29 @@ private class AddRankAnimationDataBox extends HBox
 
     while (parentList.childComponents.length > 1)
       parentList.removeComponentAt(parentList.childComponents.length - 2);
+  }
+
+  function createNewBox(?data:PlayerResultsAnimationData)
+  {
+    var newBox = new RankAnimationData(data);
+
+    var parentList = this.parentComponent;
+    if (parentList == null) return newBox;
+
+    newBox.ID = parentList.childComponents.length - 1;
+
+    newBox.onOffsetsChange = function() {
+      var obj = page.currentAnims[newBox.ID];
+      if (obj == null) return;
+
+      var atlas = (Std.isOfType(obj.sprite, FlxAtlasSprite) ? cast(obj.sprite, FlxAtlasSprite) : null);
+      var sparrow = (Std.isOfType(obj.sprite, FunkinSprite) ? cast(obj.sprite, FunkinSprite) : null);
+
+      if (atlas != null) atlas.setPosition(newBox.animOffsetX.pos, newBox.animOffsetY.pos);
+      if (sparrow != null) sparrow.setPosition(newBox.animOffsetX.pos, newBox.animOffsetY.pos);
+    }
+
+    return newBox;
   }
 }
 
@@ -311,10 +231,10 @@ private class RankAnimationData extends VBox
       zIndex: animZIndex.value,
       delay: animDelay.value,
       scale: animScale.value,
-      startFrameLabel: animStartFrameLabel.text,
+      startFrameLabel: animStartFrameLabelCheck.selected ? animStartFrameLabel.text : null,
       looped: animLooped.selected,
-      loopFrame: animLoopFrame.value,
-      loopFrameLabel: animLoopFrameLabel.text,
+      loopFrame: animLoopFrameCheck.selected ? animLoopFrame.value : null,
+      loopFrameLabel: animLoopFrameLabelCheck.selected ? animLoopFrameLabel.text : null,
     };
   }
 
@@ -374,5 +294,9 @@ private class RankAnimationData extends VBox
         animLoopFrameLabel.text = data.loopFrameLabel;
       }
     }
+
+    animOffsetX.onChange = animOffsetY.onChange = _ -> onOffsetsChange();
   }
+
+  public dynamic function onOffsetsChange() {}
 }

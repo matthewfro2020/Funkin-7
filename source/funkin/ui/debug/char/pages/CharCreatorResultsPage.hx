@@ -12,6 +12,7 @@ import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.components.dialogs.results.*;
 import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
+import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.play.components.TallyCounter;
 import funkin.play.components.ClearPercentCounter;
@@ -44,17 +45,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var rankMusicMap:Map<ScoringRank, ResultsMusic> = [];
 
-  public var characterAtlasAnimationsMap:Map<ScoringRank, Array<
-    {
-      sprite:FlxAtlasSprite,
-      delay:Float,
-      forceLoop:Bool
-    }>> = [];
-  public var characterSparrowAnimationsMap:Map<ScoringRank, Array<
-    {
-      sprite:FunkinSprite,
-      delay:Float
-    }>> = [];
+  public var currentAnims:Array<CharCreatorResultAnim> = [];
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -70,6 +61,8 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
       for (rank in ALL_RANKS)
         rankMusicMap.set(rank, new ResultsMusic(player, rank));
+
+      generateSpritesByData(player.getResultsAnimationDatas(PERFECT_GOLD));
     }
 
     generateUI();
@@ -160,21 +153,103 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   public function clearSprites():Void
   {
-    for (_ => array in characterAtlasAnimationsMap)
+    setStatusOfEverything();
+
+    while (currentAnims.length > 0)
     {
-      for (atlas in array)
+      var data = currentAnims.shift();
+      var atlas = (Std.isOfType(data.sprite, FlxAtlasSprite) ? cast(data.sprite, FlxAtlasSprite) : null);
+      var sparrow = (Std.isOfType(data.sprite, FunkinSprite) ? cast(data.sprite, FunkinSprite) : null);
+
+      if (atlas != null)
       {
-        atlas.sprite.visible = false;
+        atlas.kill();
+        remove(atlas, true);
+        atlas.destroy();
+      }
+      else if (sparrow != null)
+      {
+        sparrow.kill();
+        remove(sparrow, true);
+        sparrow.destroy();
+      }
+    }
+  }
+
+  public function generateSpritesByData(data:Array<PlayerResultsAnimationData>)
+  {
+    clearSprites();
+    for (animData in data)
+    {
+      if (animData == null) continue;
+
+      var animPath:String = Paths.stripLibrary(animData.assetPath);
+      var animLibrary:String = Paths.getLibrary(animData.assetPath);
+      var offsets = animData.offsets ?? [0, 0];
+
+      switch (animData.renderType)
+      {
+        case 'animateatlas':
+          var animation:FlxAtlasSprite = new FlxAtlasSprite(offsets[0], offsets[1], Paths.animateAtlas(animPath, animLibrary));
+          animation.zIndex = animData.zIndex ?? 500;
+
+          animation.scale.set(animData.scale ?? 1.0, animData.scale ?? 1.0);
+
+          if (!(animData.looped ?? true))
+          {
+            // Animation is not looped.
+            animation.onAnimationComplete.add((_name:String) -> {
+              if (animation != null) animation.anim.pause();
+            });
+          }
+          else if (animData.loopFrameLabel != null)
+          {
+            animation.onAnimationComplete.add((_name:String) -> {
+              if (animation != null) animation.playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
+            });
+          }
+          else if (animData.loopFrame != null)
+          {
+            animation.onAnimationComplete.add((_name:String) -> {
+              if (animation != null)
+              {
+                animation.anim.curFrame = animData.loopFrame ?? 0;
+                animation.anim.play(); // unpauses this anim, since it's on PlayOnce!
+              }
+            });
+          }
+
+          currentAnims.push(
+            {
+              sprite: animation,
+              delay: animData.delay ?? 0.0
+            });
+
+          add(animation);
+        case 'sparrow':
+          var animation:FunkinSprite = FunkinSprite.createSparrow(offsets[0], offsets[1], animPath);
+          animation.animation.addByPrefix('idle', '', 24, false, false, false);
+
+          if (animData.loopFrame != null)
+          {
+            animation.animation.finishCallback = (_name:String) -> {
+              if (animation != null)
+              {
+                animation.animation.play('idle', true, false, animData.loopFrame ?? 0);
+              }
+            }
+          }
+
+          currentAnims.push(
+            {
+              sprite: animation,
+              delay: animData.delay ?? 0.0
+            });
+          add(animation);
       }
     }
 
-    for (_ => array in characterSparrowAnimationsMap)
-    {
-      for (sparrow in array)
-      {
-        sparrow.sprite.visible = false;
-      }
-    }
+    refresh();
   }
 
   var animTimers:Array<FlxTimer> = [];
@@ -297,23 +372,23 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       }));
     }));
 
-    for (atlas in characterAtlasAnimationsMap[rank])
+    for (bs in currentAnims)
     {
-      atlas.sprite.visible = false;
-      animTimers.push(new FlxTimer().start(atlas.delay + rank.getBFDelay(), _ -> {
-        if (atlas.sprite == null) return;
-        atlas.sprite.visible = true;
-        atlas.sprite.anim.play('', true);
-      }));
-    }
+      var atlas = (Std.isOfType(bs.sprite, FlxAtlasSprite) ? cast(bs.sprite, FlxAtlasSprite) : null);
+      var sparrow = (Std.isOfType(bs.sprite, FunkinSprite) ? cast(bs.sprite, FunkinSprite) : null);
+      if (atlas == null && sparrow == null) continue;
 
-    for (sprite in characterSparrowAnimationsMap[rank])
-    {
-      sprite.sprite.visible = false;
-      animTimers.push(new FlxTimer().start(sprite.delay + rank.getBFDelay(), _ -> {
-        if (sprite.sprite == null) return;
-        sprite.sprite.visible = true;
-        sprite.sprite.animation.play('idle', true);
+      if (sparrow != null) sparrow.visible = false;
+      if (atlas != null) atlas.visible = false;
+
+      animTimers.push(new FlxTimer().start(bs.delay + rank.getBFDelay(), _ -> {
+        if (atlas == null && sparrow == null) return;
+
+        if (sparrow != null) sparrow.visible = true;
+        if (atlas != null) atlas.visible = true;
+
+        if (atlas != null) atlas.anim.play("", true);
+        else if (sparrow != null) sparrow.animation.play("idle", true);
       }));
     }
   }
@@ -518,6 +593,12 @@ private class ResultsMusic
     introMusic?.resume();
     music?.resume();
   }
+}
+
+typedef CharCreatorResultAnim =
+{
+  var sprite:flixel.util.typeLimit.OneOfTwo<FlxAtlasSprite, FunkinSprite>;
+  var delay:Float;
 }
 
 enum ResultsDialogType
