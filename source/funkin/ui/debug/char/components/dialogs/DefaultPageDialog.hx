@@ -4,7 +4,7 @@ import haxe.ui.containers.dialogs.CollapsibleDialog;
 
 class DefaultPageDialog extends CollapsibleDialog
 {
-  var page:CharCreatorDefaultPage = null;
+  public var page:CharCreatorDefaultPage = null;
 
   override public function new(page:CharCreatorDefaultPage)
   {

@@ -9,6 +9,7 @@ import haxe.ui.containers.menus.Menu;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.containers.menus.MenuCheckBox;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.components.dialogs.results.*;
 import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
@@ -41,7 +42,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var data:WizardGenerateParams;
 
-  var dialogMap:Map<ResultsDialogType, DefaultPageDialog>;
+  public var dialogMap:Map<ResultsDialogType, DefaultPageDialog>;
 
   var rankMusicMap:Map<ScoringRank, ResultsMusic> = [];
 
@@ -158,7 +159,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     while (currentAnims.length > 0)
     {
       var data = currentAnims.shift();
-      var atlas = (Std.isOfType(data.sprite, FlxAtlasSprite) ? cast(data.sprite, FlxAtlasSprite) : null);
+      var atlas = (Std.isOfType(data.sprite, CharSelectAtlasSprite) ? cast(data.sprite, CharSelectAtlasSprite) : null);
       var sparrow = (Std.isOfType(data.sprite, FunkinSprite) ? cast(data.sprite, FunkinSprite) : null);
 
       if (atlas != null)
@@ -190,7 +191,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       switch (animData.renderType)
       {
         case 'animateatlas':
-          var animation:FlxAtlasSprite = new FlxAtlasSprite(offsets[0], offsets[1], Paths.animateAtlas(animPath, animLibrary));
+          var animation:CharSelectAtlasSprite = new CharSelectAtlasSprite(offsets[0], offsets[1], Paths.animateAtlas(animPath, animLibrary));
           animation.zIndex = animData.zIndex ?? 500;
 
           animation.scale.set(animData.scale ?? 1.0, animData.scale ?? 1.0);
@@ -374,7 +375,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     for (bs in currentAnims)
     {
-      var atlas = (Std.isOfType(bs.sprite, FlxAtlasSprite) ? cast(bs.sprite, FlxAtlasSprite) : null);
+      var atlas = (Std.isOfType(bs.sprite, CharSelectAtlasSprite) ? cast(bs.sprite, CharSelectAtlasSprite) : null);
       var sparrow = (Std.isOfType(bs.sprite, FunkinSprite) ? cast(bs.sprite, FunkinSprite) : null);
       if (atlas == null && sparrow == null) continue;
 
@@ -542,7 +543,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     add(score);
   }
 
-  function refresh():Void
+  public function refresh():Void
   {
     sort(SortUtil.byZIndex, FlxSort.ASCENDING);
   }
@@ -597,7 +598,7 @@ private class ResultsMusic
 
 typedef CharCreatorResultAnim =
 {
-  var sprite:flixel.util.typeLimit.OneOfTwo<FlxAtlasSprite, FunkinSprite>;
+  var ?sprite:flixel.util.typeLimit.OneOfTwo<CharSelectAtlasSprite, FunkinSprite>;
   var delay:Float;
 }
 

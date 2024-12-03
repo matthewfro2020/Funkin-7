@@ -7,8 +7,10 @@ import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.play.scoring.Scoring.ScoringRank;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.pages.CharCreatorResultsPage;
+import flixel.FlxSprite;
 
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/results/results-anim-dialog.xml"))
 @:access(funkin.ui.debug.char.pages.CharCreatorResultsPage)
@@ -16,11 +18,10 @@ class ResultsAnimDialog extends DefaultPageDialog
 {
   public var currentRank(get, never):ScoringRank;
 
-  var rankAnimationDataMap:Map<ScoringRank, Array<PlayerResultsAnimationData>> = [];
+  public var rankAnimationDataMap:Map<ScoringRank, Array<PlayerResultsAnimationData>> = [];
+  public var previousRank:ScoringRank;
 
   var rankAnimationBox:AddRankAnimationDataBox;
-
-  var previousRank:ScoringRank;
 
   override public function new(daPage:CharCreatorResultsPage)
   {
@@ -34,7 +35,7 @@ class ResultsAnimDialog extends DefaultPageDialog
       rankAnimationDataMap.set(rank, playerAnimations);
     }
 
-    rankAnimationBox = new AddRankAnimationDataBox(daPage);
+    rankAnimationBox = new AddRankAnimationDataBox(this);
     rankAnimationView.addComponent(rankAnimationBox);
 
     rankDropdown.selectedIndex = 0;
@@ -89,10 +90,10 @@ private class AddRankAnimationDataBox extends HBox
 
   var page:CharCreatorResultsPage;
 
-  public function new(daPage:CharCreatorResultsPage)
+  public function new(daDialog:ResultsAnimDialog)
   {
     super();
-    page = daPage;
+    page = cast (daDialog.page, CharCreatorResultsPage);
 
     styleString = "border:1px solid $normal-border-color";
     percentWidth = 100;
@@ -111,7 +112,10 @@ private class AddRankAnimationDataBox extends HBox
       var parentList = this.parentComponent;
       if (parentList == null) return;
 
-      parentList.addComponentAt(createNewBox(), parentList.childComponents.length - 1); // considering this box is last
+      var newBox = createNewBox();
+      daDialog.rankAnimationDataMap[daDialog.previousRank].push(newBox.animData);
+
+      parentList.addComponentAt(newBox, parentList.childComponents.length - 1); // considering this box is last
       removeButton.disabled = false;
     }
 
@@ -121,7 +125,17 @@ private class AddRankAnimationDataBox extends HBox
       if (parentList == null) return;
 
       parentList.removeComponentAt(parentList.childComponents.length - 2);
-      if (parentList.childComponents.length <= 2) removeButton.disabled = true;
+
+      var daData = page.currentAnims.pop();
+      var daDataSprite = cast (daData.sprite, FlxSprite);
+
+      daDataSprite.kill();
+      page.remove(daDataSprite, true);
+      daDataSprite.destroy();
+
+      daDialog.rankAnimationDataMap[daDialog.previousRank].pop();
+
+      if (parentList.childComponents.length < 2) removeButton.disabled = true;
     }
 
     addComponent(addButton);
@@ -140,7 +154,7 @@ private class AddRankAnimationDataBox extends HBox
       parentList.addComponentAt(createNewBox(animData), parentList.childComponents.length - 1);
     }
 
-    removeButton.disabled = parentList.childComponents.length <= 2;
+    removeButton.disabled = parentList.childComponents.length < 2;
   }
 
   function clearAnimationData():Void
@@ -160,19 +174,107 @@ private class AddRankAnimationDataBox extends HBox
     if (parentList == null) return newBox;
 
     newBox.ID = parentList.childComponents.length - 1;
+     if (page.currentAnims.length <= newBox.ID)
+    {
+      page.currentAnims.push(
+      {
+        sprite: null,
+        delay: newBox.animData.delay
+      });
+    }
 
     newBox.onOffsetsChange = function() {
       var obj = page.currentAnims[newBox.ID];
-      if (obj == null) return;
+      if (obj?.sprite == null) return;
+      cast(obj.sprite, FlxSprite).setPosition(newBox.animOffsetX.pos, newBox.animOffsetY.pos);
+      copyData(data, newBox.animData);
+    }
 
-      var atlas = (Std.isOfType(obj.sprite, FlxAtlasSprite) ? cast(obj.sprite, FlxAtlasSprite) : null);
+    newBox.animZIndex.onChange = function(_) {
+      var obj = page.currentAnims[newBox.ID];
+      if (obj?.sprite == null) return;
+
+      cast(obj.sprite, FlxSprite).zIndex = Std.int(newBox.animZIndex.pos);
+      page.refresh();
+      copyData(data, newBox.animData);
+    }
+
+    newBox.animScale.onChange = function(_) {
+      var obj = page.currentAnims[newBox.ID];
+      if (obj?.sprite == null) return;
+      cast(obj.sprite, FlxSprite).scale.set(newBox.animScale.pos, newBox.animScale.pos);
+      copyData(data, newBox.animData);
+    }
+
+    newBox.onLoopDataChange = function()
+    {
+      var obj = page.currentAnims[newBox.ID];
+      if (obj?.sprite == null) return;
+
+      var atlas = (Std.isOfType(obj.sprite, CharSelectAtlasSprite) ? cast(obj.sprite, CharSelectAtlasSprite) : null);
       var sparrow = (Std.isOfType(obj.sprite, FunkinSprite) ? cast(obj.sprite, FunkinSprite) : null);
 
-      if (atlas != null) atlas.setPosition(newBox.animOffsetX.pos, newBox.animOffsetY.pos);
-      if (sparrow != null) sparrow.setPosition(newBox.animOffsetX.pos, newBox.animOffsetY.pos);
+      if (sparrow != null)
+      {
+        sparrow.animation.finishCallback = (_name:String) -> {
+          if (animation != null)
+          {
+            sparrow.animation.play('idle', true, false, newBox.animData.loopFrame ?? 0);
+          }
+        }
+      }
+      else if (atlas != null)
+      {
+        atlas.onAnimationFrame.removeAll();
+        atlas.onAnimationComplete.removeAll();
+
+        if (!(newBox.animData.looped ?? true))
+        {
+          atlas.onAnimationComplete.add((_name:String) -> {
+            if (atlas != null) atlas.anim.pause();
+          });
+        }
+        else if (newBox.animData.loopFrameLabel != null)
+        {
+          atlas.onAnimationComplete.add((_name:String) -> {
+            if (atlas != null) atlas.playAnimation(newBox.animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
+          });
+        }
+        else if (newBox.animData.loopFrame != null)
+        {
+          atlas.onAnimationComplete.add((_name:String) -> {
+            if (atlas != null)
+            {
+              atlas.anim.curFrame = newBox.animData.loopFrame ?? 0;
+              atlas.anim.play(); // unpauses this anim, since it's on PlayOnce!
+            }
+          });
+        }
+      }
+
+      copyData(data, newBox.animData);
     }
 
     return newBox;
+  }
+
+  function copyData(?oldData:PlayerResultsAnimationData, newData:PlayerResultsAnimationData) //this is how we update data
+  {
+    if (oldData != null)
+    {
+      oldData.renderType = newData.renderType;
+      oldData.assetPath = newData.assetPath;
+      oldData.offsets = newData.offsets.copy();
+      oldData.zIndex = newData.zIndex;
+      oldData.delay = newData.delay;
+      oldData.scale = newData.scale;
+      oldData.looped = newData.looped;
+      oldData.loopFrame = newData.loopFrame;
+      oldData.loopFrameLabel = newData.loopFrameLabel;
+    }
+
+    if (oldData == null) oldData = newData;
+
   }
 }
 
@@ -296,7 +398,10 @@ private class RankAnimationData extends VBox
     }
 
     animOffsetX.onChange = animOffsetY.onChange = _ -> onOffsetsChange();
+    animLooped.onChange = animLoopFrame.onChange = animLoopFrameLabel.onChange = _ -> onLoopDataChange();
   }
 
   public dynamic function onOffsetsChange() {}
+
+  public dynamic function onLoopDataChange() {}
 }

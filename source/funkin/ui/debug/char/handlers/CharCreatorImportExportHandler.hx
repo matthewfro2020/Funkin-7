@@ -3,12 +3,15 @@ package funkin.ui.debug.char.handlers;
 import haxe.io.Path;
 import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.components.dialogs.freeplay.FreeplayDJSettingsDialog;
+import funkin.ui.debug.char.components.dialogs.results.ResultsAnimDialog;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import funkin.ui.debug.char.pages.CharCreatorSelectPage;
 import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
+import funkin.ui.debug.char.pages.CharCreatorResultsPage;
 import funkin.ui.debug.char.CharCreatorState;
 import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.style.FreeplayStyleData;
+import funkin.play.scoring.Scoring.ScoringRank;
 import funkin.util.FileUtil;
 
 using StringTools;
@@ -102,20 +105,10 @@ class CharCreatorImportExportHandler
   public static function exportPlayableCharacter(state:CharCreatorState, zipEntries:Array<haxe.zip.Entry>):Void
   {
     var selectPage:CharCreatorSelectPage = cast state.pages[CharacterSelect];
-    var charID = selectPage.data.importedCharacter ?? selectPage.data.characterID;
-
     var freeplayPage:CharCreatorFreeplayPage = cast state.pages[Freeplay];
+    var resultPage:CharCreatorResultsPage = cast state.pages[ResultScreen];
 
-    // for (file in selectPage.iconFiles)
-    // {
-    //   // skip if the file is in a character path
-    //   if (CharCreatorUtil.isPathProvided(file.name, "images/freeplay/icons"))
-    //   {
-    //     continue;
-    //   }
-
-    //   zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/freeplay/icons/${Path.withoutDirectory(file.name)}', file.bytes));
-    // }
+    var charID = selectPage.data.importedCharacter ?? selectPage.data.characterID;
 
     if (selectPage.data.charSelectFile != null)
     {
@@ -181,8 +174,20 @@ class CharCreatorImportExportHandler
         }
     }
 
+    var resultPageDialog:ResultsAnimDialog = cast resultPage.dialogMap[RankAnims];
+
     playerData.charSelect = new PlayerCharSelectData(selectPage.position);
-    playerData.results = null;
+    playerData.results =
+    {
+      music: null,
+      perfectGold: resultPageDialog.rankAnimationDataMap[PERFECT_GOLD],
+      perfect: resultPageDialog.rankAnimationDataMap[PERFECT],
+      excellent: resultPageDialog.rankAnimationDataMap[EXCELLENT],
+      great: resultPageDialog.rankAnimationDataMap[GREAT],
+      good: resultPageDialog.rankAnimationDataMap[GOOD],
+      loss: resultPageDialog.rankAnimationDataMap[SHIT],
+    };
+
     playerData.unlocked = true;
 
     zipEntries.push(FileUtil.makeZIPEntry('data/players/${charID}.json', playerData.serialize()));
