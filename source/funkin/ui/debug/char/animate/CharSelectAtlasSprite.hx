@@ -83,7 +83,7 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   var symbolsInitialized:Bool = false;
 
-  function initSymbols()
+  public function initSymbols()
   {
     if (symbolsInitialized) return;
 

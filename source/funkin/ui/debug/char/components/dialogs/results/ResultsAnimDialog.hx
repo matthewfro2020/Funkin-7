@@ -11,6 +11,7 @@ import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.pages.CharCreatorResultsPage;
 import flixel.FlxSprite;
+import haxe.io.Path;
 
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/results/results-anim-dialog.xml"))
 @:access(funkin.ui.debug.char.pages.CharCreatorResultsPage)
@@ -89,11 +90,13 @@ private class AddRankAnimationDataBox extends HBox
   var removeButton:Button;
 
   var page:CharCreatorResultsPage;
+  var dialog:ResultsAnimDialog;
 
   public function new(daDialog:ResultsAnimDialog)
   {
     super();
-    page = cast (daDialog.page, CharCreatorResultsPage);
+    page = cast(daDialog.page, CharCreatorResultsPage);
+    dialog = daDialog;
 
     styleString = "border:1px solid $normal-border-color";
     percentWidth = 100;
@@ -127,7 +130,7 @@ private class AddRankAnimationDataBox extends HBox
       parentList.removeComponentAt(parentList.childComponents.length - 2);
 
       var daData = page.currentAnims.pop();
-      var daDataSprite = cast (daData.sprite, FlxSprite);
+      var daDataSprite = cast(daData.sprite, FlxSprite);
 
       daDataSprite.kill();
       page.remove(daDataSprite, true);
@@ -174,13 +177,13 @@ private class AddRankAnimationDataBox extends HBox
     if (parentList == null) return newBox;
 
     newBox.ID = parentList.childComponents.length - 1;
-     if (page.currentAnims.length <= newBox.ID)
+    if (page.currentAnims.length <= newBox.ID)
     {
       page.currentAnims.push(
-      {
-        sprite: null,
-        delay: newBox.animData.delay
-      });
+        {
+          sprite: null,
+          delay: newBox.animData.delay
+        });
     }
 
     newBox.onOffsetsChange = function() {
@@ -206,8 +209,9 @@ private class AddRankAnimationDataBox extends HBox
       copyData(data, newBox.animData);
     }
 
-    newBox.onLoopDataChange = function()
-    {
+    newBox.onAssetChange = function() reloadSpriteFromBox(newBox);
+
+    newBox.onLoopDataChange = function() {
       var obj = page.currentAnims[newBox.ID];
       if (obj?.sprite == null) return;
 
@@ -258,7 +262,54 @@ private class AddRankAnimationDataBox extends HBox
     return newBox;
   }
 
-  function copyData(?oldData:PlayerResultsAnimationData, newData:PlayerResultsAnimationData) //this is how we update data
+  function reloadSpriteFromBox(box:RankAnimationData)
+  {
+    var obj = page.currentAnims[box.ID];
+    if (obj?.sprite == null) return;
+
+    var animPath:String = Paths.stripLibrary(box.animData.assetPath);
+    var animLibrary:String = Paths.getLibrary(box.animData.assetPath);
+
+    var isAbsolute:Bool = Path.isAbsolute(box.animData.assetPath);
+
+    if (box.animData.renderType == "animateatlas")
+    {
+      var newObj = new CharSelectAtlasSprite(0, 0, null, null);
+
+      if (isAbsolute)
+      {
+        if (Path.extension(box.animData.assetPath) != "zip") return;
+        newObj.loadFromZip(funkin.util.FileUtil.readBytesFromPath(box.animData.assetPath));
+      }
+      else
+      {
+        newObj.loadAtlas(Paths.animateAtlas(animPath, animLibrary));
+      }
+
+      if (newObj.anim == null || newObj.frames == null) return;
+
+      newObj.initSymbols();
+
+      var spr:FlxSprite = cast obj.sprite;
+      spr.kill();
+      page.remove(spr);
+      spr.destroy();
+
+      obj.sprite = newObj;
+      box.onOffsetsChange();
+      box.onLoopDataChange();
+      newObj.zIndex = box.animData.zIndex;
+      newObj.scale.set(box.animData.scale, box.animData.scale);
+
+      page.add(newObj);
+      page.refresh();
+    }
+    else {} // will do
+
+    copyData(dialog.rankAnimationDataMap[dialog.currentRank][box.ID], box.animData);
+  }
+
+  function copyData(?oldData:PlayerResultsAnimationData, newData:PlayerResultsAnimationData) // this is how we update data
   {
     if (oldData != null)
     {
@@ -272,9 +323,7 @@ private class AddRankAnimationDataBox extends HBox
       oldData.loopFrame = newData.loopFrame;
       oldData.loopFrameLabel = newData.loopFrameLabel;
     }
-
-    if (oldData == null) oldData = newData;
-
+    else if (oldData == null) oldData = newData;
   }
 }
 
@@ -327,7 +376,7 @@ private class RankAnimationData extends VBox
   function get_animData():PlayerResultsAnimationData
   {
     return {
-      renderType: animRenderType.safeSelectedItem,
+      renderType: animRenderType.safeSelectedItem.value,
       assetPath: animAssetPath.text,
       offsets: [animOffsetX.value, animOffsetY.value],
       zIndex: animZIndex.value,
@@ -399,9 +448,12 @@ private class RankAnimationData extends VBox
 
     animOffsetX.onChange = animOffsetY.onChange = _ -> onOffsetsChange();
     animLooped.onChange = animLoopFrame.onChange = animLoopFrameLabel.onChange = _ -> onLoopDataChange();
+    animRenderType.onChange = animAssetPath.onChange = _ -> onAssetChange();
   }
 
   public dynamic function onOffsetsChange() {}
 
   public dynamic function onLoopDataChange() {}
+
+  public dynamic function onAssetChange() {}
 }

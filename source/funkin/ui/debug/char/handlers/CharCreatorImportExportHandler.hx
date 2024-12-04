@@ -178,15 +178,15 @@ class CharCreatorImportExportHandler
 
     playerData.charSelect = new PlayerCharSelectData(selectPage.position);
     playerData.results =
-    {
-      music: null,
-      perfectGold: resultPageDialog.rankAnimationDataMap[PERFECT_GOLD],
-      perfect: resultPageDialog.rankAnimationDataMap[PERFECT],
-      excellent: resultPageDialog.rankAnimationDataMap[EXCELLENT],
-      great: resultPageDialog.rankAnimationDataMap[GREAT],
-      good: resultPageDialog.rankAnimationDataMap[GOOD],
-      loss: resultPageDialog.rankAnimationDataMap[SHIT],
-    };
+      {
+        music: null,
+        perfectGold: resultPageDialog.rankAnimationDataMap[PERFECT_GOLD],
+        perfect: resultPageDialog.rankAnimationDataMap[PERFECT],
+        excellent: resultPageDialog.rankAnimationDataMap[EXCELLENT],
+        great: resultPageDialog.rankAnimationDataMap[GREAT],
+        good: resultPageDialog.rankAnimationDataMap[GOOD],
+        loss: resultPageDialog.rankAnimationDataMap[SHIT],
+      };
 
     playerData.unlocked = true;
 
