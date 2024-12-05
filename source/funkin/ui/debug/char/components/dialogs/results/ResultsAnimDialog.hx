@@ -10,6 +10,7 @@ import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.ui.debug.char.animate.CharSelectAtlasSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.ui.debug.char.pages.CharCreatorResultsPage;
+import funkin.util.FileUtil;
 import flixel.FlxSprite;
 import haxe.io.Path;
 
@@ -267,19 +268,22 @@ private class AddRankAnimationDataBox extends HBox
     var obj = page.currentAnims[box.ID];
     if (obj?.sprite == null) return;
 
+    page.setStatusOfEverything(false);
+
     var animPath:String = Paths.stripLibrary(box.animData.assetPath);
     var animLibrary:String = Paths.getLibrary(box.animData.assetPath);
 
     var isAbsolute:Bool = Path.isAbsolute(box.animData.assetPath);
+    var newObj:Dynamic = null;
 
     if (box.animData.renderType == "animateatlas")
     {
-      var newObj = new CharSelectAtlasSprite(0, 0, null, null);
+      newObj = new CharSelectAtlasSprite(0, 0, null, null);
 
       if (isAbsolute)
       {
         if (Path.extension(box.animData.assetPath) != "zip") return;
-        newObj.loadFromZip(funkin.util.FileUtil.readBytesFromPath(box.animData.assetPath));
+        newObj.loadFromZip(FileUtil.readBytesFromPath(box.animData.assetPath));
       }
       else
       {
@@ -289,22 +293,41 @@ private class AddRankAnimationDataBox extends HBox
       if (newObj.anim == null || newObj.frames == null) return;
 
       newObj.initSymbols();
-
-      var spr:FlxSprite = cast obj.sprite;
-      spr.kill();
-      page.remove(spr);
-      spr.destroy();
-
-      obj.sprite = newObj;
-      box.onOffsetsChange();
-      box.onLoopDataChange();
-      newObj.zIndex = box.animData.zIndex;
-      newObj.scale.set(box.animData.scale, box.animData.scale);
-
-      page.add(newObj);
-      page.refresh();
     }
-    else {} // will do
+    else
+    {
+      newObj = new FunkinSprite(0, 0);
+
+      if (isAbsolute)
+      {
+        if (Path.extension(box.animData.assetPath) != "png") return;
+
+        var bitmap = openfl.display.BitmapData.fromBytes(FileUtil.readBytesFromPath(box.animData.assetPath));
+        newObj.frames = flixel.graphics.frames.FlxAtlasFrames.fromSparrow(bitmap, FileUtil.readStringFromPath(box.animData.assetPath.replace(".png", ".xml")));
+      }
+      else
+      {
+        newObj.loadSparrow(animPath);
+      }
+
+      if (newObj.frames == null) return;
+      newObj.animation.addByPrefix('idle', '', 24, false, false, false);
+    }
+
+    var spr:FlxSprite = cast obj.sprite;
+    spr.kill();
+    page.remove(spr);
+    spr.destroy();
+
+    obj.sprite = newObj;
+    box.onOffsetsChange();
+    box.onLoopDataChange();
+    newObj.zIndex = box.animData.zIndex;
+    newObj.scale.set(box.animData.scale, box.animData.scale);
+
+    page.add(newObj);
+    page.makeMarkers();
+    page.refresh();
 
     copyData(dialog.rankAnimationDataMap[dialog.currentRank][box.ID], box.animData);
   }

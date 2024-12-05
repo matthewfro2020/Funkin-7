@@ -33,6 +33,8 @@ import flixel.util.FlxSort;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import lime.media.AudioBuffer;
+import flixel.util.FlxColor;
+import flixel.addons.display.shapes.FlxShapeCircle;
 
 using StringTools;
 
@@ -47,6 +49,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
   var rankMusicMap:Map<ScoringRank, ResultsMusic> = [];
 
   public var currentAnims:Array<CharCreatorResultAnim> = [];
+  public var currentMarkers:Array<FlxShapeCircle> = [];
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -67,9 +70,8 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
 
     generateUI();
-
     initFunkinUI();
-
+    makeMarkers();
     refresh();
   }
 
@@ -138,6 +140,33 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
   {
     super.update(elapsed);
 
+    for (marker in currentMarkers)
+    {
+      if (currentAnims[marker.ID].sprite == null) continue;
+
+      switch (marker.fillColor)
+      {
+        case 0xffff00ff:
+          var atlas:CharSelectAtlasSprite = cast currentAnims[marker.ID].sprite;
+          var pivotPos = atlas.getPivotPosition();
+          marker.visible = (daState.menubarCheckViewPivot.selected);
+
+          if (pivotPos != null) marker.setPosition(pivotPos.x - marker.width / 2, pivotPos.y - marker.height / 2);
+
+        case 0xff00ffff:
+          var atlas:CharSelectAtlasSprite = cast currentAnims[marker.ID].sprite;
+          var basePos = atlas.getBasePosition();
+          marker.visible = (daState.menubarCheckViewBase.selected);
+
+          if (basePos != null) marker.setPosition(basePos.x - marker.width / 2, basePos.y - marker.height / 2);
+
+        case 0xffffff00:
+          var sparrow:FunkinSprite = cast currentAnims[marker.ID].sprite;
+          marker.visible = (daState.menubarCheckViewMidpoint.selected);
+          marker.setPosition(sparrow.getMidpoint().x - marker.width / 2, sparrow.getMidpoint().y - marker.height / 2);
+      }
+    }
+
     if (FlxG.keys.justPressed.SPACE)
     {
       if (FlxG.keys.pressed.SHIFT)
@@ -173,6 +202,47 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         sparrow.kill();
         remove(sparrow, true);
         sparrow.destroy();
+      }
+    }
+  }
+
+  public function makeMarkers()
+  {
+    while (currentMarkers.length > 0)
+    {
+      var circ = currentMarkers.shift();
+
+      circ.kill();
+      remove(circ, true);
+      circ.destroy();
+    }
+
+    for (i in 0...currentAnims.length)
+    {
+      var isAtlas:Bool = Std.isOfType(currentAnims[i].sprite, CharSelectAtlasSprite);
+
+      if (isAtlas)
+      {
+        var pivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
+        var basePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
+
+        pivotPointer.ID = basePointer.ID = i;
+        pivotPointer.visible = basePointer.visible = false;
+        pivotPointer.zIndex = basePointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+
+        add(pivotPointer);
+        add(basePointer);
+        currentMarkers.push(pivotPointer);
+        currentMarkers.push(basePointer);
+      }
+      else
+      {
+        var midPointPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffffff00}, 0xffffff00);
+        midPointPointer.ID = i;
+        midPointPointer.visible = false;
+        midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+        add(midPointPointer);
+        currentMarkers.push(midPointPointer);
       }
     }
   }
@@ -251,6 +321,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
 
     refresh();
+    makeMarkers();
   }
 
   var animTimers:Array<FlxTimer> = [];
@@ -396,7 +467,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   var activityStatus:Bool = true;
 
-  function setStatusOfEverything(value:Bool = true)
+  public function setStatusOfEverything(value:Bool = true)
   {
     activityStatus = value;
     for (timer in animTimers)
