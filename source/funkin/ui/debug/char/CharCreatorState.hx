@@ -19,7 +19,7 @@ import flixel.FlxG;
 /**
  * also made by kolo
  * in collaboration with lemz!
- * my second slightly more disappointing son
+ * most of the functionality is moved to pages so go check them out!
  */
 @:build(haxe.ui.ComponentBuilder.build("assets/exclude/data/ui/char-creator/main-view.xml"))
 class CharCreatorState extends UIState
@@ -57,16 +57,13 @@ class CharCreatorState extends UIState
 
     root.scrollFactor.set();
     root.cameras = [camHUD];
-    root.width = FlxG.width;
-    root.height = FlxG.height;
 
-    WindowManager.instance.container = root;
     // Screen.instance.addComponent(root);
 
     Cursor.show();
 
     // I feel like there should be more editor themes
-    // I don't dislike Artistic expression or anythin I had simply heard it a million times while making da editors and I'm getting a bit tired of it
+    // I don't dislike Artistic Expression or anythin I had simply heard it a million times while making da editors and I'm getting a bit tired of it
     // plus it's called *chart*EditorLoop so CHECKMATE liberals hehe -Kolo
     Conductor.instance.forceBPM(null);
     FunkinSound.playMusic('chartEditorLoop',
@@ -123,7 +120,6 @@ class CharCreatorState extends UIState
   function wizardComplete(params:WizardGenerateParams):Void
   {
     // clear da pages sorry chat
-    remove(selectedPage);
     selectedPage = null;
     this.params = params;
 
@@ -133,6 +129,7 @@ class CharCreatorState extends UIState
       var page = allPages.pop();
       page.performCleanup();
       page.kill();
+      remove(page, true);
       page.destroy();
     }
 
@@ -146,8 +143,9 @@ class CharCreatorState extends UIState
     menubarOptionGameplay.disabled = !params.generateCharacter;
     menubarOptionCharSelect.disabled = menubarOptionFreeplay.disabled = menubarOptionResults.disabled = !params.generatePlayerData;
 
-    menubarOptionGameplay.selected = menubarOptionCharSelect.selected = menubarOptionFreeplay.selected = menubarOptionResults.selected = false;
-    (params.generateCharacter ? menubarOptionGameplay : menubarOptionCharSelect).selected = true;
+    menubarOptionGameplay.selected = (params.generateCharacter);
+    menubarOptionCharSelect.selected = !menubarOptionGameplay.selected;
+    menubarOptionFreeplay.selected = menubarOptionResults.selected = false;
 
     switchToPage(params.generateCharacter ? Gameplay : CharacterSelect);
   }
@@ -175,7 +173,7 @@ class CharCreatorState extends UIState
         box.removeComponent(box.childComponents[0], false);
     }
 
-    remove(selectedPage);
+    remove(selectedPage, true);
     selectedPage = pages[page];
     add(selectedPage);
 

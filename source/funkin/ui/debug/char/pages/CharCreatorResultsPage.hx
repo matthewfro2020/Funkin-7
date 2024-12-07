@@ -134,6 +134,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     var animDialog:ResultsAnimDialog = cast dialogMap[RankAnims];
     rankMusicMap[animDialog.currentRank].stop();
     FlxG.sound.music.volume = 1;
+    setStatusOfEverything(false);
   }
 
   override public function update(elapsed:Float):Void
@@ -228,6 +229,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
         pivotPointer.ID = basePointer.ID = i;
         pivotPointer.visible = basePointer.visible = false;
+        pivotPointer.alpha = basePointer.alpha = 0.5;
         pivotPointer.zIndex = basePointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
 
         add(pivotPointer);
@@ -241,6 +243,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         midPointPointer.ID = i;
         midPointPointer.visible = false;
         midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+        midPointPointer.alpha = 0.5;
         add(midPointPointer);
         currentMarkers.push(midPointPointer);
       }

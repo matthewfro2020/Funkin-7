@@ -10,6 +10,7 @@ class CharCreatorUtil
 {
   public static var isCursorOverHaxeUI(get, never):Bool;
   public static var isHaxeUIFocused(get, never):Bool;
+  public static var isHaxeUIDialogOpen(get, never):Bool;
 
   static function get_isCursorOverHaxeUI():Bool
   {
@@ -19,6 +20,15 @@ class CharCreatorUtil
   static function get_isHaxeUIFocused()
   {
     return FocusManager.instance.focus == null;
+  }
+
+  static function get_isHaxeUIDialogOpen()
+  {
+    for (comp in Screen.instance.rootComponents)
+    {
+      if (Std.isOfType(comp, haxe.ui.containers.dialogs.Dialog)) return true;
+    }
+    return false;
   }
 
   // accounting for both relative and absolute asset paths yuh

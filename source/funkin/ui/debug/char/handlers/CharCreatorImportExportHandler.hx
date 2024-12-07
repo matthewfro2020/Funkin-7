@@ -135,6 +135,19 @@ class CharCreatorImportExportHandler
     playerData.showUnownedChars = false;
     playerData.freeplayStyle = freeplayPage.useStyle ?? charID;
 
+    playerData.charSelect = new PlayerCharSelectData(selectPage.position,
+      {
+        assetPath: "charSelect/" + charID + "-gf",
+        animInfoPath: "charSelect/gfAnimInfo", // somewhat cheap way of preventing a crash, considering this feature is unused
+        visualizer: selectPage.gfUsesVis
+      });
+
+    if (selectPage.gfFile != null)
+    {
+      for (file in FileUtil.readZIPFromBytes(selectPage.gfFile.bytes))
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/${playerData.charSelect.gf.assetPath}/${Path.withoutDirectory(file.fileName)}', file.data));
+    }
+
     @:privateAccess
     {
       playerData.freeplayDJ = new PlayerFreeplayDJData();
@@ -176,7 +189,6 @@ class CharCreatorImportExportHandler
 
     var resultPageDialog:ResultsAnimDialog = cast resultPage.dialogMap[RankAnims];
 
-    playerData.charSelect = new PlayerCharSelectData(selectPage.position);
     playerData.results =
       {
         music: null,

@@ -14,6 +14,7 @@ import funkin.ui.freeplay.FreeplayState.DifficultySprite;
 import funkin.ui.debug.char.components.dialogs.freeplay.*;
 import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import funkin.graphics.FunkinSprite;
+import funkin.ui.freeplay.FreeplayScore;
 import funkin.ui.freeplay.FreeplayStyle;
 import funkin.data.animation.AnimationData;
 import funkin.data.freeplay.style.FreeplayStyleData;
@@ -128,6 +129,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     pivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
     basePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
     pivotPointer.visible = basePointer.visible = false;
+    pivotPointer.alpha = basePointer.alpha = 0.5;
 
     add(pivotPointer);
     add(basePointer);
@@ -147,15 +149,18 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     basePointer.visible = (daState.menubarCheckViewBase.selected && basePos != null);
 
     // no need for handleKeybinds function since these are the only functions in update methinks
-    if (FlxG.keys.justPressed.SPACE) playDJAnimation();
+    if (!CharCreatorUtil.isHaxeUIDialogOpen)
+    {
+      if (FlxG.keys.justPressed.SPACE) playDJAnimation();
 
-    if (FlxG.keys.justPressed.W) changeDJAnimation(-1);
-    if (FlxG.keys.justPressed.S) changeDJAnimation(1);
+      if (FlxG.keys.justPressed.W) changeDJAnimation(-1);
+      if (FlxG.keys.justPressed.S) changeDJAnimation(1);
 
-    if (FlxG.keys.justPressed.UP) changeDJAnimationOffsets(0, 5);
-    if (FlxG.keys.justPressed.DOWN) changeDJAnimationOffsets(0, -5);
-    if (FlxG.keys.justPressed.LEFT) changeDJAnimationOffsets(5);
-    if (FlxG.keys.justPressed.RIGHT) changeDJAnimationOffsets(-5);
+      if (FlxG.keys.justPressed.UP) changeDJAnimationOffsets(0, 5);
+      if (FlxG.keys.justPressed.DOWN) changeDJAnimationOffsets(0, -5);
+      if (FlxG.keys.justPressed.LEFT) changeDJAnimationOffsets(5);
+      if (FlxG.keys.justPressed.RIGHT) changeDJAnimationOffsets(-5);
+    }
   }
 
   public function changeDJAnimation(change:Int = 0)
@@ -397,6 +402,9 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
   var arrowLeft:FlxSprite;
   var arrowRight:FlxSprite;
   var randomCapsule:RandomCapsule;
+  var scoreNumbers:FreeplayScore;
+
+  var dumbassTimerThatIGottaClearLater:FlxTimer;
 
   function initBackground()
   {
@@ -439,6 +447,8 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     fnfHighscoreSpr.setGraphicSize(0, Std.int(fnfHighscoreSpr.height * 1));
     fnfHighscoreSpr.updateHitbox();
 
+    scoreNumbers = new FreeplayScore(460, 60, 7, 100, stylishSunglasses);
+
     arrowLeft = new FlxSprite(20, diffSprite.y - 10);
     arrowRight = new FlxSprite(325, diffSprite.y - 10);
     arrowRight.flipX = true;
@@ -454,6 +464,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     add(randomCapsule);
     add(diffSprite);
     add(fnfHighscoreSpr);
+    add(scoreNumbers);
 
     add(new FlxSprite(1165, 65).loadGraphic(Paths.image('freeplay/clearBox')));
     add(new AtlasText(1185, 87, '69', AtlasFont.FREEPLAY_CLEAR));
@@ -466,10 +477,15 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     add(fnfFreeplay);
     add(ostName);
 
-    new FlxTimer().start(FlxG.random.float(12, 50), function(tmr) {
+    dumbassTimerThatIGottaClearLater = new FlxTimer().start(FlxG.random.float(12, 50), function(tmr) {
       fnfHighscoreSpr.animation.play('highscore');
       tmr.time = FlxG.random.float(20, 60);
     }, 0);
+  }
+
+  override public function performCleanup()
+  {
+    dumbassTimerThatIGottaClearLater.cancel();
   }
 }
 

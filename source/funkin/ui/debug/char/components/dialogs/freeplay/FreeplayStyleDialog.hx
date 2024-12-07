@@ -4,6 +4,7 @@ import funkin.data.freeplay.style.FreeplayStyleRegistry;
 import funkin.data.freeplay.player.PlayerRegistry;
 import haxe.ui.components.OptionBox;
 import haxe.ui.util.Color;
+import funkin.ui.freeplay.FreeplayScore;
 import funkin.util.FileUtil;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxColor;
@@ -48,6 +49,20 @@ class FreeplayStyleDialog extends DefaultPageDialog
     buttonNumbers.onClick = _ -> buttonCallbackForField(fieldNumbers);
     buttonCapsule.onClick = _ -> buttonCallbackForField(fieldCapsule);
 
+    var reloadNums = function(num:ScoreNum) {
+      var numToString = [];
+      @:privateAccess
+      numToString = num.numToString;
+
+      for (i in 0...10)
+        num.animation.addByPrefix(numToString[i], '${numToString[i]} DIGITAL', 24, false);
+
+      num.animation.play(numToString[num.digit], true);
+
+      num.setGraphicSize(Std.int(num.width * 0.4));
+      num.updateHitbox();
+    }
+
     buttonApplyStyle.onClick = function(_) {
       if (optionUsePreset.selected)
       {
@@ -62,15 +77,23 @@ class FreeplayStyleDialog extends DefaultPageDialog
         daPage.arrowRight.animation.play('shine');
 
         daPage.randomCapsule.applyStyle(daStyle);
+
+        daPage.scoreNumbers.forEach(function(num:ScoreNum) {
+          num.frames = Paths.getSparrowAtlas(daStyle?.getNumbersAssetKey() ?? "digital_numbers");
+          reloadNums(num);
+        });
+
         daPage.useStyle = styleID;
       }
       else if (optionMakeNew.selected)
       {
         var dadBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldBGAsset.text?.length > 0 ? fieldBGAsset.text : Paths.image('freeplay/freeplayBGdad')));
         var arrowBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldArrow.text?.length > 0 ? fieldArrow.text : Paths.image('freeplay/freeplaySelector')));
+        var numbersBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldNumbers.text?.length > 0 ? fieldNumbers.text : Paths.image('digital_numbers')));
         var capsuleBitmap = BitmapData.fromBytes(CharCreatorUtil.gimmeTheBytes(fieldCapsule.text?.length > 0 ? fieldCapsule.text : Paths.image('freeplay/freeplayCapsule/capsule/freeplayCapsule')));
 
         var arrowXML = CharCreatorUtil.gimmeTheBytes(fieldArrow.text.replace(".png", ".xml"));
+        var numbersXML = CharCreatorUtil.gimmeTheBytes(fieldNumbers.text.replace(".png", ".xml"));
         var capsuleXML = CharCreatorUtil.gimmeTheBytes(fieldCapsule.text.replace(".png", ".xml"));
 
         daPage.bgDad.loadGraphic(dadBitmap);
@@ -82,6 +105,11 @@ class FreeplayStyleDialog extends DefaultPageDialog
         daPage.arrowRight.animation.addByPrefix('shine', 'arrow pointer loop', 24);
         daPage.arrowLeft.animation.play('shine');
         daPage.arrowRight.animation.play('shine');
+
+        daPage.scoreNumbers.forEach(function(num:ScoreNum) {
+          num.frames = FlxAtlasFrames.fromSparrow(numbersBitmap, numbersXML?.toString() ?? Paths.file("images/digital_numbers.xml"));
+          reloadNums(num);
+        });
 
         // overcomplicating capsule stuff
         daPage.randomCapsule.capsule.frames = FlxAtlasFrames.fromSparrow(capsuleBitmap,
@@ -106,6 +134,7 @@ class FreeplayStyleDialog extends DefaultPageDialog
 
         daPage.customStyleData.bgAsset = 'freeplay/freeplayBGdad' + (fieldBGAsset.text?.length > 0 ? '_${daPage.data.characterID}' : "");
         daPage.customStyleData.selectorAsset = 'freeplay/freeplaySelector' + (fieldArrow.text?.length > 0 ? '_${daPage.data.characterID}' : "");
+        daPage.customStyleData.numbersAsset = 'digital_numbers' + (fieldNumbers.text?.length > 0 ? '_${daPage.data.characterID}' : "");
         daPage.customStyleData.capsuleAsset = 'freeplay/freeplayCapsule/capsule/freeplayCapsule'
           + (fieldCapsule.text?.length > 0 ? '_${daPage.data.characterID}' : "");
         daPage.customStyleData.capsuleTextColors = [deselectColor.toHex(), selectColor.toHex()];
@@ -121,6 +150,11 @@ class FreeplayStyleDialog extends DefaultPageDialog
             });
         }
         if (daPage.customStyleData.selectorAsset != 'freeplay/freeplaySelector')
+        {
+          daPage.styleFiles.push({name: '${daPage.customStyleData.selectorAsset}.png', bytes: numbersBitmap.image.encode(PNG)});
+          daPage.styleFiles.push({name: '${daPage.customStyleData.selectorAsset}.xml', bytes: numbersXML});
+        }
+        if (daPage.customStyleData.selectorAsset != 'digital_numbers')
         {
           daPage.styleFiles.push({name: '${daPage.customStyleData.selectorAsset}.png', bytes: arrowBitmap.image.encode(PNG)});
           daPage.styleFiles.push({name: '${daPage.customStyleData.selectorAsset}.xml', bytes: arrowXML});

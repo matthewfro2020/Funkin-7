@@ -18,6 +18,7 @@ import funkin.ui.debug.char.components.dialogs.gameplay.*;
 import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import flixel.util.FlxColor;
 import flixel.addons.display.shapes.FlxShapeCircle;
+import flixel.FlxSprite;
 
 using StringTools;
 
@@ -43,6 +44,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   var atlasCharPivotPointer:FlxShapeCircle;
   var atlasCharBasePointer:FlxShapeCircle;
   var midPointPointer:FlxShapeCircle;
+  var camMarker:FlxSprite;
 
   override public function new(daState:CharCreatorState, wizardParams:WizardGenerateParams)
   {
@@ -75,19 +77,26 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
       animDialog.updateDropdown();
 
       animDialog.charAnimDropdown.selectedIndex = 0;
-      currentCharacter.playAnimation(currentCharacter.animations[0].name);
+      currentCharacter.playAnimation(currentCharacter.animations[0].name, true);
     }
 
     atlasCharPivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
     atlasCharBasePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
     midPointPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffffff00}, 0xffffff00);
 
-    atlasCharPivotPointer.zIndex = atlasCharBasePointer.zIndex = midPointPointer.zIndex = 10000;
+    atlasCharPivotPointer.zIndex = atlasCharBasePointer.zIndex = midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 2;
     atlasCharPivotPointer.visible = atlasCharBasePointer.visible = midPointPointer.visible = false;
+    atlasCharPivotPointer.alpha = atlasCharBasePointer.alpha = midPointPointer.alpha = 0.5;
 
     add(atlasCharPivotPointer);
     add(atlasCharBasePointer);
     add(midPointPointer);
+
+    camMarker = new FlxSprite().loadGraphic(Paths.image("cursor/cursor-crosshair"));
+    camMarker.setGraphicSize(80, 80);
+    camMarker.updateHitbox();
+    camMarker.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+    add(camMarker);
 
     sortAssets();
   }
@@ -113,6 +122,26 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     {
       midPointPointer.setPosition(currentCharacter.getMidpoint().x - midPointPointer.width / 2, currentCharacter.getMidpoint().y - midPointPointer.height / 2);
       midPointPointer.visible = daState.menubarCheckViewMidpoint.selected;
+    }
+
+    var type = currentCharacter.characterType;
+    camMarker.x = currentCharacter.getMidpoint().x + currentCharacter.characterCameraOffsets[0] + charStageDatas[type].cameraOffsets[0] - camMarker.width / 2;
+    camMarker.y = currentCharacter.getMidpoint().y + currentCharacter.characterCameraOffsets[1] + charStageDatas[type].cameraOffsets[1] - camMarker.height / 2;
+
+    if (!CharCreatorUtil.isHaxeUIDialogOpen)
+    {
+      if (FlxG.keys.justPressed.SPACE && currentCharacter.getCurrentAnimation() != null)
+      {
+        currentCharacter.playAnimation(currentCharacter.getCurrentAnimation(), true);
+      }
+
+      if (FlxG.keys.justPressed.W) changeAnim(-1);
+      if (FlxG.keys.justPressed.S) changeAnim(1);
+
+      if (FlxG.keys.justPressed.UP) changeCharAnimOffset(0, 5);
+      if (FlxG.keys.justPressed.DOWN) changeCharAnimOffset(0, -5);
+      if (FlxG.keys.justPressed.LEFT) changeCharAnimOffset(5);
+      if (FlxG.keys.justPressed.RIGHT) changeCharAnimOffset(-5);
     }
 
     super.update(elapsed);
@@ -174,7 +203,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     var newOffsets = [animOffsets[0] + changeX, animOffsets[1] + changeY];
 
     currentCharacter.setAnimationOffsets(currentCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]);
-    currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
+    currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name, true);
 
     // GhostUtil.copyFromCharacter(ghostCharacter, currentCharacter); very costly for memory! we're just gonna update the offsets
     if (ghostId == "") ghostCharacter.setAnimationOffsets(ghostCharacter.animations[drop.selectedIndex].name, newOffsets[0], newOffsets[1]);
@@ -182,6 +211,19 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     // might as well update the text
     labelAnimOffsetX.text = "" + newOffsets[0];
     labelAnimOffsetY.text = "" + newOffsets[1];
+  }
+
+  function changeAnim(change:Int = 0)
+  {
+    var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
+    if (drop.selectedIndex == -1) return;
+
+    var id = drop.selectedIndex + change;
+    if (id >= drop.dataSource.size) id = 0;
+    else if (id < 0) id = drop.dataSource.size - 1;
+
+    drop.selectedIndex = id;
+    currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name, true);
   }
 
   var checkAnim:MenuCheckBox = new MenuCheckBox();
@@ -292,25 +334,8 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
     // ==================callback bs==================
 
-    labelAnimName.onClick = function(_) {
-      var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
-      if (drop.selectedIndex == -1) return;
-
-      var id = drop.selectedIndex + 1;
-      if (id >= drop.dataSource.size) id = 0;
-      drop.selectedIndex = id;
-      currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
-    }
-
-    labelAnimName.onRightClick = function(_) {
-      var drop = cast(dialogMap[Animation], AddAnimDialog).charAnimDropdown;
-      if (drop.selectedIndex == -1) return;
-
-      var id = drop.selectedIndex - 1;
-      if (id < 0) id = drop.dataSource.size - 1;
-      drop.selectedIndex = id;
-      currentCharacter.playAnimation(currentCharacter.animations[drop.selectedIndex].name);
-    }
+    labelAnimName.onClick = _ -> changeAnim(1);
+    labelAnimName.onRightClick = _ -> changeAnim(-1);
 
     labelAnimOffsetX.onClick = _ -> changeCharAnimOffset(5);
     labelAnimOffsetX.onRightClick = _ -> changeCharAnimOffset(-5);

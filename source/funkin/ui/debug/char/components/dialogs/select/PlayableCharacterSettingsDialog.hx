@@ -7,6 +7,7 @@ import haxe.ui.components.VerticalScroll;
 import haxe.ui.data.ArrayDataSource;
 import funkin.data.character.CharacterRegistry;
 import funkin.util.SortUtil;
+import funkin.data.freeplay.player.PlayerRegistry;
 
 @:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/dialogs/select/playable-character-settings-dialog.xml"))
 class PlayableCharacterSettingsDialog extends DefaultPageDialog
@@ -20,32 +21,35 @@ class PlayableCharacterSettingsDialog extends DefaultPageDialog
 
   var ownedCharBox:AddOwnedCharBox;
 
-  override public function new(daPage:CharCreatorDefaultPage)
+  override public function new(daPage:CharCreatorSelectPage)
   {
     super(daPage);
 
-    ownedCharBox = new AddOwnedCharBox();
-
+    ownedCharBox = new AddOwnedCharBox(daPage);
     ownedCharsView.addComponent(ownedCharBox);
+    ownedCharBox.addPlayerDropdowns();
   }
 }
 
 private class AddOwnedCharBox extends HBox
 {
   var dropDowns:Array<DropDown> = [];
+  var daPage:CharCreatorSelectPage;
 
-  override public function new()
+  var addButton:Button = new Button();
+  var removeButton:Button = new Button();
+
+  override public function new(page:CharCreatorSelectPage)
   {
     super();
+    daPage = page;
 
     styleString = "border:1px solid $normal-border-color";
     percentWidth = 100;
     height = 25;
     verticalAlign = "center";
 
-    var addButton = new Button();
     addButton.text = "Add New Box";
-    var removeButton = new Button();
     removeButton.text = "Remove Last Box";
 
     addButton.percentWidth = removeButton.percentWidth = 50;
@@ -55,19 +59,7 @@ private class AddOwnedCharBox extends HBox
       var parentList = this.parentComponent;
       if (parentList == null) return;
 
-      var newDropDown = new DropDown();
-      newDropDown.dataSource = new ArrayDataSource();
-      newDropDown.height = 25;
-      newDropDown.dropdownHeight = 100;
-      newDropDown.percentWidth = 100;
-      newDropDown.verticalAlign = "center";
-      newDropDown.searchable = true;
-      var ids = CharacterRegistry.listCharacterIds();
-      ids.sort(SortUtil.alphabetically);
-      for (id in ids)
-      {
-        newDropDown.dataSource.add({text: id, id: id});
-      }
+      var newDropDown = createDropdown();
       dropDowns.push(newDropDown);
 
       parentList.addComponentAt(newDropDown, parentList.childComponents.length - 1); // considering this box is last
@@ -89,11 +81,50 @@ private class AddOwnedCharBox extends HBox
     addComponent(removeButton);
   }
 
+  public function addPlayerDropdowns()
+  {
+    var playuh = PlayerRegistry.instance.fetchEntry(daPage.data.importedPlayerData ?? "");
+    if (playuh != null && this.parentComponent != null)
+    {
+      for (thing in playuh.getOwnedCharacterIds())
+      {
+        var newDropDown = createDropdown(thing);
+        dropDowns.push(newDropDown);
+
+        this.parentComponent.addComponentAt(newDropDown, this.parentComponent.childComponents.length - 1); // considering this box is last
+      }
+    }
+  }
+
+  function createDropdown(?selectSumth:String = "")
+  {
+    var newDropDown = new DropDown();
+    newDropDown.dataSource = new ArrayDataSource();
+    newDropDown.height = 25;
+    newDropDown.dropdownHeight = 100;
+    newDropDown.percentWidth = 100;
+    newDropDown.verticalAlign = "center";
+    newDropDown.searchable = true;
+
+    var ids = CharacterRegistry.listCharacterIds();
+    if (daPage.data.generateCharacter && !ids.contains(daPage.data.characterID)) ids.push(daPage.data.characterID);
+    ids.sort(SortUtil.alphabetically);
+
+    for (id in ids)
+    {
+      newDropDown.dataSource.add({text: id, id: id});
+    }
+
+    if (selectSumth != null && ids.contains(selectSumth)) newDropDown.selectedIndex = ids.indexOf(selectSumth);
+
+    return newDropDown;
+  }
+
   public function listOwnedCharacters():Array<String>
   {
     return [
       for (dropDown in dropDowns)
-        dropDown.selectedItem.id
+        dropDown.safeSelectedItem.id
     ];
   }
 }

@@ -29,6 +29,7 @@ import funkin.util.MathUtil;
 import flixel.math.FlxPoint;
 import flixel.math.FlxMath;
 import flixel.FlxG;
+import funkin.vis.dsp.SpectralAnalyzer;
 
 using StringTools;
 
@@ -49,7 +50,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     return selectedIndexData;
   }
 
-  var data:WizardGenerateParams;
+  public var data:WizardGenerateParams;
 
   var nametag:FlxSprite;
   var nametagShader:MosaicEffect = new MosaicEffect();
@@ -61,11 +62,14 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var transitionGradient:FlxSprite;
   var autoFollow:Bool = false;
   var availableChars:Map<Int, String> = new Map<Int, String>();
-  var fadeShader:funkin.graphics.shaders.BlueFade = new funkin.graphics.shaders.BlueFade();
 
   // used for `PlayableCharacter` generation
   var selectedIndexData:Int = 0;
   var pixelIconFiles:Array<WizardFile> = [];
+
+  var gfFile:WizardFile = null;
+  var gfUsesVis:Bool = false;
+  var gfAnalyzer:SpectralAnalyzer;
 
   var dialogMap:Map<PlayCharDialogType, DefaultPageDialog>;
   var subPages:Map<CharCreatorSelectSubPage, FlxSpriteGroup>;
@@ -85,7 +89,21 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     this.data = data;
 
     var playuh = PlayerRegistry.instance.fetchEntry(data.importedPlayerData ?? "");
-    if (playuh != null) selectedIndexData = playuh.getCharSelectData()?.position ?? 0;
+    if (playuh != null)
+    {
+      gfUsesVis = true;
+      selectedIndexData = playuh.getCharSelectData()?.position ?? 0;
+    }
+
+    @:privateAccess
+    gfAnalyzer = new SpectralAnalyzer(FlxG.sound.music._channel.__audioSource, 7, 0.1);
+
+    #if desktop
+    // On desktop it uses FFT stuff that isn't as optimized as the direct browser stuff we use on HTML5
+    // So we want to manually change it!
+    @:privateAccess
+    gfAnalyzer.fftN = 512;
+    #end
 
     // copied sum code LOL
     initBackground();
@@ -138,6 +156,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     gfPivotPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffff00ff}, 0xffff00ff);
     gfBasePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
     playerPivotPointer.visible = playerBasePointer.visible = gfPivotPointer.visible = gfBasePointer.visible = false;
+    playerPivotPointer.alpha = playerBasePointer.alpha = gfPivotPointer.alpha = gfBasePointer.alpha = 0.5;
 
     add(playerPivotPointer);
     add(playerBasePointer);
@@ -216,6 +235,15 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     var openFile = new MenuItem();
     openFile.text = "Load from File";
 
+    var gfStuff = new Menu();
+    gfStuff.text = "Girlfriend";
+
+    var gfFile = new MenuItem();
+    gfFile.text = "Load from File";
+
+    var gfVis = new MenuCheckBox();
+    gfVis.text = "Update Visualizer";
+
     var openNametag = new MenuItem();
     openNametag.text = "Load Nametag Image";
 
@@ -223,6 +251,10 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     menu.addComponent(pixelStuff);
     pixelStuff.addComponent(openFile);
     pixelStuff.addComponent(openPos);
+
+    menu.addComponent(gfStuff);
+    gfStuff.addComponent(gfFile);
+    gfStuff.addComponent(gfVis);
 
     menu.addComponent(openNametag);
 
@@ -252,6 +284,28 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
         cast(subPages[IndexSubPage], CharSelectIndexSubPage).resetIconTexture();
       });
     }
+
+    gfFile.onClick = function(_) {
+      FileUtil.browseForBinaryFile("Load Girlfriend Atlas File", [FileUtil.FILE_EXTENSION_INFO_ZIP], function(_) {
+        if (_?.fullPath == null) return;
+
+        var daZipBytes = FileUtil.readBytesFromPath(_.fullPath);
+
+        gf.loadFromZip(daZipBytes);
+
+        if (gf.anim == null || gf.frames == null)
+        {
+          return;
+        }
+
+        this.gfFile = {name: data.characterID + "-gf.zip", bytes: daZipBytes};
+
+        changeCharAnim(0, true);
+      });
+    }
+
+    gfVis.onChange = function(_) gfUsesVis = gfVis.selected;
+    gfVis.selected = gfUsesVis;
 
     openNametag.onClick = function(_) {
       FileUtil.browseForBinaryFile("Load Nametag Image", [FileUtil.FILE_EXTENSION_INFO_PNG], function(_) {
@@ -394,7 +448,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   {
     super.update(elapsed);
 
-    if (handleInput)
+    if (!CharCreatorUtil.isHaxeUIDialogOpen && handleInput)
     {
       if (FlxG.keys.justPressed.SPACE)
       {
@@ -427,6 +481,28 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     playerBasePointer.visible = (daState.menubarCheckViewBase.selected && playerBasePos != null);
     gfPivotPointer.visible = (daState.menubarCheckViewPivot.selected && gfPlayerPos != null);
     gfBasePointer.visible = (daState.menubarCheckViewBase.selected && gfBasePos != null);
+
+    if (gfUsesVis && gf.anim != null && gf.frames != null)
+    {
+      var levels = gfAnalyzer.getLevels();
+      var frame = gf.anim.curSymbol?.timeline?.get("VIZ_bars")?.get(gf.anim.curFrame);
+
+      if (frame == null) return;
+
+      var elements = frame.getList();
+      var len:Int = cast Math.min(elements.length, 7);
+
+      for (i in 0...len)
+      {
+        var animFrame:Int = Math.round(levels[i].value * 12);
+
+        animFrame = Math.floor(Math.min(12, animFrame));
+        animFrame = Math.floor(Math.max(0, animFrame));
+        animFrame = Std.int(Math.abs(animFrame - 12)); // shitty dumbass flip, cuz dave got da shit backwards lol!
+
+        elements[i].symbol.firstFrame = animFrame;
+      }
+    }
   }
 }
 

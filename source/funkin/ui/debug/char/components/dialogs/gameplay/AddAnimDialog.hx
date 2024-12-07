@@ -41,11 +41,10 @@ class AddAnimDialog extends DefaultPageDialog
         charAnimFramerate.pos = 24;
         charAnimOffsetX.pos = charAnimOffsetY.pos = 0;
 
-        page.onDialogUpdate(this);
         return;
       }
 
-      var animData = char.getAnimationData(charAnimDropdown.selectedItem.text);
+      var animData = char.getAnimationData(charAnimDropdown.safeSelectedItem.text);
       if (animData == null) return;
 
       charAnimName.text = animData.name;
@@ -61,14 +60,33 @@ class AddAnimDialog extends DefaultPageDialog
       charAnimOffsetY.pos = (animData.offsets != null && animData.offsets.length == 2 ? animData.offsets[1] : 0);
 
       char.playAnimation(charAnimName.text);
-      page.onDialogUpdate(this);
     }
 
     charAnimSave.onClick = function(_) {
-      if ((charAnimName.text ?? "") == "") return;
-      if ((charAnimPrefix.text ?? "") == "") return;
+      if ((charAnimName.text ?? "") == "")
+      {
+        CharCreatorUtil.error("Add Animation", "Error: Missing name!");
+        return;
+      }
+      if ((charAnimPrefix.text ?? "") == "")
+      {
+        CharCreatorUtil.error("Add Animation", "Error: Missing prefix!");
+        return;
+      }
 
-      if (char.atlasCharacter != null && !char.atlasCharacter.hasAnimation(charAnimPrefix.text)) return;
+      if (char.atlasCharacter != null && !char.atlasCharacter.hasAnimation(charAnimPrefix.text))
+      {
+        CharCreatorUtil.error("Add Animation", "Error: Missing prefix!");
+        return;
+      }
+
+      if (char.atlasCharacter == null)
+      {
+        char.animation.pause();
+        char.animation.stop();
+      }
+      else
+        char.atlasCharacter.stopAnimation();
 
       var indices = [];
       if (charAnimFrames.text != null && charAnimFrames.text != "")
@@ -82,9 +100,13 @@ class AddAnimDialog extends DefaultPageDialog
       var animAdded:Bool = char.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
         (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
 
-      if (!animAdded) return;
+      if (!animAdded)
+      {
+        CharCreatorUtil.error("Add Animation", "Error: Problem adding the animation.");
+        return;
+      }
 
-      if (linkedChar.generatedParams.importedCharacter == null)
+      if (daPage.ghostId == "")
       {
         daPage.ghostCharacter.addAnimation(charAnimName.text, charAnimPrefix.text, [charAnimOffsetX.pos, charAnimOffsetY.pos],
           (shouldDoIndices ? indices : []), Std.int(charAnimFramerate.pos), charAnimLooped.selected, charAnimFlipX.selected, charAnimFlipY.selected);
@@ -92,13 +114,16 @@ class AddAnimDialog extends DefaultPageDialog
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
+      char.playAnimation(charAnimName.text);
     }
 
     charAnimDelete.onClick = function(_) {
-      if ((charAnimName.text ?? "") == "") return;
-
-      if (!char.removeAnimation(charAnimName.text)) return;
-      if (linkedChar.generatedParams.importedCharacter == null) daPage.ghostCharacter.removeAnimation(charAnimName.text);
+      if (!char.removeAnimation(charAnimName.text))
+      {
+        CharCreatorUtil.error("Remove Animation", "Error: Problem removing the animation.");
+        return;
+      }
+      if (daPage.ghostId == "") daPage.ghostCharacter.removeAnimation(charAnimName.text);
 
       updateDropdown();
       charAnimDropdown.selectedIndex = charAnimDropdown.dataSource.size - 1;
