@@ -57,6 +57,12 @@ class FileUtil
       label: 'PNG Image',
     };
 
+  public static final FILE_EXTENSION_INFO_SND:FileDialogExtensionInfo =
+    {
+      extension: Constants.EXT_SOUND,
+      label: 'Sound File',
+    };
+
   public static final FILE_EXTENSION_INFO_FNFS:FileDialogExtensionInfo =
     {
       extension: 'fnfs',

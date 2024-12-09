@@ -3,6 +3,7 @@ package funkin.ui.debug.char.components.dialogs.results;
 import haxe.ui.containers.VBox;
 import haxe.ui.containers.HBox;
 import haxe.ui.components.Button;
+import haxe.ui.events.UIEvent;
 import funkin.data.freeplay.player.PlayerData;
 import funkin.data.freeplay.player.PlayerRegistry;
 import funkin.play.scoring.Scoring.ScoringRank;
@@ -187,6 +188,8 @@ private class AddRankAnimationDataBox extends HBox
         });
     }
 
+    newBox.pauseEvent(UIEvent.CHANGE, true);
+
     newBox.onOffsetsChange = function() {
       var obj = page.currentAnims[newBox.ID];
       if (obj?.sprite == null) return;
@@ -259,6 +262,8 @@ private class AddRankAnimationDataBox extends HBox
 
       copyData(data, newBox.animData);
     }
+
+    newBox.resumeEvent(UIEvent.CHANGE, true, true);
 
     return newBox;
   }

@@ -4,6 +4,7 @@ import haxe.io.Path;
 import funkin.data.character.CharacterRegistry;
 import funkin.ui.debug.char.components.dialogs.freeplay.FreeplayDJSettingsDialog;
 import funkin.ui.debug.char.components.dialogs.results.ResultsAnimDialog;
+import funkin.ui.debug.char.components.dialogs.results.ResultsMusicDialog;
 import funkin.ui.debug.char.pages.CharCreatorGameplayPage;
 import funkin.ui.debug.char.pages.CharCreatorSelectPage;
 import funkin.ui.debug.char.pages.CharCreatorFreeplayPage;
@@ -129,11 +130,14 @@ class CharCreatorImportExportHandler
       }
     }
 
+    var charSelectDialog:funkin.ui.debug.char.components.dialogs.select.PlayableCharacterSettingsDialog = cast selectPage.dialogMap[SettingsDialog];
+
     var playerData:PlayerData = new PlayerData();
-    playerData.name = "Unknown";
+    playerData.name = charSelectDialog.playerDataName.text;
     playerData.ownedChars = selectPage.ownedCharacters;
-    playerData.showUnownedChars = false;
+    playerData.showUnownedChars = charSelectDialog.playerDataShowUnowned.selected;
     playerData.freeplayStyle = freeplayPage.useStyle ?? charID;
+    playerData.unlocked = charSelectDialog.playerDataUnlocked.selected;
 
     playerData.charSelect = new PlayerCharSelectData(selectPage.position,
       {
@@ -191,7 +195,7 @@ class CharCreatorImportExportHandler
 
     playerData.results =
       {
-        music: null,
+        music: {},
         perfectGold: resultPageDialog.rankAnimationDataMap[PERFECT_GOLD],
         perfect: resultPageDialog.rankAnimationDataMap[PERFECT],
         excellent: resultPageDialog.rankAnimationDataMap[EXCELLENT],
@@ -200,7 +204,27 @@ class CharCreatorImportExportHandler
         loss: resultPageDialog.rankAnimationDataMap[SHIT],
       };
 
-    playerData.unlocked = true;
+    var musDialog:ResultsMusicDialog = cast resultPage.dialogMap[Music];
+    for (rank => data in musDialog.musicStuff)
+    {
+      if (!Path.isAbsolute(data.song.name))
+      {
+        Reflect.setField(playerData.results.music, Std.string(rank).toUpperCase(), data.song.name.length > 0 ? data.song.name : "resultsNORMAL");
+      }
+      else
+      {
+        var rankStr = Std.string(rank).toUpperCase();
+
+        if (data.intro.bytes != null)
+          zipEntries.push(FileUtil.makeZIPEntryFromBytes('music/results$rankStr-$charID/results$rankStr-$charID-intro.${Constants.EXT_SOUND}',
+            data.intro.bytes));
+
+        if (data.song.bytes != null)
+          zipEntries.push(FileUtil.makeZIPEntryFromBytes('music/results$rankStr-$charID/results$rankStr-$charID.${Constants.EXT_SOUND}', data.song.bytes));
+
+        Reflect.setField(playerData.results.music, rankStr, rankStr + "-" + charID);
+      }
+    }
 
     zipEntries.push(FileUtil.makeZIPEntry('data/players/${charID}.json', playerData.serialize()));
     if (selectPage.nametagFile != null) zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/charSelect${charID}Nametag.png', selectPage.nametagFile.bytes));

@@ -58,16 +58,14 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
     dialogMap = new Map<ResultsDialogType, DefaultPageDialog>();
     dialogMap.set(RankAnims, new ResultsAnimDialog(this));
+    dialogMap.set(Music, new ResultsMusicDialog(this));
 
-    if (data.importedPlayerData != null)
-    {
-      var player = PlayerRegistry.instance.fetchEntry(data.importedPlayerData);
+    var player = PlayerRegistry.instance.fetchEntry(data.importedPlayerData ?? "");
 
-      for (rank in ALL_RANKS)
-        rankMusicMap.set(rank, new ResultsMusic(player, rank));
+    for (rank in ALL_RANKS)
+      rankMusicMap.set(rank, new ResultsMusic(player, rank));
 
-      generateSpritesByData(player.getResultsAnimationDatas(PERFECT_GOLD));
-    }
+    if (player != null) generateSpritesByData(player.getResultsAnimationDatas(PERFECT_GOLD));
 
     generateUI();
     initFunkinUI();
@@ -86,6 +84,13 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       dialogMap[RankAnims].hidden = !animDialog.selected;
     }
     menu.addComponent(animDialog);
+
+    var musicDialog = new MenuCheckBox();
+    musicDialog.text = "Rank Music";
+    musicDialog.onClick = function(_) {
+      dialogMap[Music].hidden = !musicDialog.selected;
+    }
+    menu.addComponent(musicDialog);
   }
 
   override public function fillUpBottomBar(left:Box, middle:Box, right:Box):Void
@@ -508,6 +513,24 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
     }
   }
 
+  public function getRankFromString(str:String)
+  {
+    return switch (str.toLowerCase())
+    {
+      case "perfect":
+        PERFECT;
+      case "excellent":
+        EXCELLENT;
+      case "great":
+        GREAT;
+      case "good":
+        GOOD;
+      case "shit":
+        SHIT;
+      default: PERFECT_GOLD;
+    }
+  }
+
   var difficulty:FlxSprite;
   var songName:FlxBitmapText;
   var clearPercentCounter:ClearPercentCounter;
@@ -633,7 +656,7 @@ private class ResultsMusic
     var path = player?.getResultsMusicPath(rank) ?? "";
 
     var musicPath = Paths.music('$path/$path');
-    music = FunkinSound.load(musicPath, 1.0);
+    music = FunkinSound.load(musicPath, 1.0, true);
 
     var introMusicPath = Paths.music('$path/$path-intro');
     if (openfl.utils.Assets.exists(introMusicPath))
@@ -642,6 +665,15 @@ private class ResultsMusic
         music?.play();
       });
     }
+  }
+
+  public function reloadSoundsFromBytes(?musicBytes:haxe.io.Bytes, ?introBytes:haxe.io.Bytes)
+  {
+    music = funkin.util.assets.SoundUtil.buildSoundFromBytes(musicBytes);
+    introMusic = funkin.util.assets.SoundUtil.buildSoundFromBytes(introBytes);
+
+    if (introMusic != null) introMusic.onComplete = function() music?.play();
+    if (music != null) music.looped = true;
   }
 
   public function play():Void
@@ -668,6 +700,13 @@ private class ResultsMusic
     introMusic?.resume();
     music?.resume();
   }
+
+  public function destroy():Void
+  {
+    stop();
+    introMusic?.destroy();
+    music?.destroy();
+  }
 }
 
 typedef CharCreatorResultAnim =
@@ -679,4 +718,5 @@ typedef CharCreatorResultAnim =
 enum ResultsDialogType
 {
   RankAnims;
+  Music;
 }

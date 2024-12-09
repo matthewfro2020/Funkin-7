@@ -28,6 +28,14 @@ class PlayableCharacterSettingsDialog extends DefaultPageDialog
     ownedCharBox = new AddOwnedCharBox(daPage);
     ownedCharsView.addComponent(ownedCharBox);
     ownedCharBox.addPlayerDropdowns();
+
+    var playuh = PlayerRegistry.instance.fetchEntry(daPage.data.importedPlayerData ?? "");
+    if (playuh != null)
+    {
+      playerDataName.text = playuh.getName();
+      playerDataShowUnowned.selected = playuh.shouldShowUnownedChars();
+      playerDataUnlocked.selected = playuh.isUnlocked();
+    }
   }
 }
 
