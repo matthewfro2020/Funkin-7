@@ -25,15 +25,14 @@ import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.text.FlxBitmapText;
 import flixel.tweens.FlxTween;
-import flixel.sound.FlxSound;
 import funkin.audio.FunkinSound;
 import flixel.util.FlxGradient;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSort;
 import flixel.FlxSprite;
 import flixel.FlxG;
-import lime.media.AudioBuffer;
 import flixel.util.FlxColor;
+import flixel.text.FlxText;
 import flixel.addons.display.shapes.FlxShapeCircle;
 
 using StringTools;
@@ -50,6 +49,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
   public var currentAnims:Array<CharCreatorResultAnim> = [];
   public var currentMarkers:Array<FlxShapeCircle> = [];
+  public var frameTxts:Array<FlxText> = [];
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -155,34 +155,60 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         case 0xffff00ff:
           var atlas:CharSelectAtlasSprite = cast currentAnims[marker.ID].sprite;
           var pivotPos = atlas.getPivotPosition();
-          marker.visible = (daState.menubarCheckViewPivot.selected);
+          marker.visible = (daState.menubarCheckToolsPivot.selected);
 
           if (pivotPos != null) marker.setPosition(pivotPos.x - marker.width / 2, pivotPos.y - marker.height / 2);
 
         case 0xff00ffff:
           var atlas:CharSelectAtlasSprite = cast currentAnims[marker.ID].sprite;
           var basePos = atlas.getBasePosition();
-          marker.visible = (daState.menubarCheckViewBase.selected);
+          marker.visible = (daState.menubarCheckToolsBase.selected);
 
           if (basePos != null) marker.setPosition(basePos.x - marker.width / 2, basePos.y - marker.height / 2);
 
         case 0xffffff00:
           var sparrow:FunkinSprite = cast currentAnims[marker.ID].sprite;
-          marker.visible = (daState.menubarCheckViewMidpoint.selected);
+          marker.visible = (daState.menubarCheckToolsMidpoint.selected);
           marker.setPosition(sparrow.getMidpoint().x - marker.width / 2, sparrow.getMidpoint().y - marker.height / 2);
       }
     }
 
-    if (FlxG.keys.justPressed.SPACE)
+    for (txt in frameTxts) // gonna put the anim speed shiz here too lol!
     {
-      if (FlxG.keys.pressed.SHIFT)
+      txt.visible = daState.menubarCheckToolsFrames.selected;
+      if (currentAnims[txt.ID].sprite == null) continue;
+
+      var atlas = (Std.isOfType(currentAnims[txt.ID].sprite, CharSelectAtlasSprite) ? cast(currentAnims[txt.ID].sprite, CharSelectAtlasSprite) : null);
+      var sparrow = (Std.isOfType(currentAnims[txt.ID].sprite, FunkinSprite) ? cast(currentAnims[txt.ID].sprite, FunkinSprite) : null);
+
+      if (atlas != null && sparrow == null)
       {
-        setStatusOfEverything();
-        playAnimation();
+        var pivotPos = atlas.getPivotPosition();
+
+        txt.text = "Frame: " + atlas.curFrame + "/" + (atlas.totalFrames - 1);
+        if (pivotPos != null) txt.setPosition(pivotPos.x - txt.width / 2, pivotPos.y - txt.height / 2);
+
+        atlas.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
+      }
+      else if (atlas == null && sparrow != null)
+      {
+        txt.text = "Frame: " + (sparrow.animation.curAnim?.curFrame ?? 0) + "/" + ((sparrow.animation.curAnim?.numFrames ?? 0) - 1);
+        txt.setPosition(sparrow.getMidpoint().x - txt.width / 2, sparrow.getMidpoint().y - txt.height / 2);
+
+        sparrow.animation.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
+      }
+    }
+
+    if (!CharCreatorUtil.isHaxeUIDialogOpen && FlxG.keys.justPressed.SPACE)
+    {
+      if (!FlxG.keys.pressed.SHIFT && daState.menubarCheckToolsPause.selected)
+      {
+        setStatusOfEverything(!activityStatus);
       }
       else
       {
-        setStatusOfEverything(!activityStatus);
+        setStatusOfEverything();
+        playAnimation();
       }
     }
   }
@@ -223,6 +249,15 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
       circ.destroy();
     }
 
+    while (frameTxts.length > 0)
+    {
+      var txt = frameTxts.shift();
+
+      txt.kill();
+      remove(txt, true);
+      txt.destroy();
+    }
+
     for (i in 0...currentAnims.length)
     {
       var isAtlas:Bool = Std.isOfType(currentAnims[i].sprite, CharSelectAtlasSprite);
@@ -235,7 +270,7 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         pivotPointer.ID = basePointer.ID = i;
         pivotPointer.visible = basePointer.visible = false;
         pivotPointer.alpha = basePointer.alpha = 0.5;
-        pivotPointer.zIndex = basePointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+        pivotPointer.zIndex = basePointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 2;
 
         add(pivotPointer);
         add(basePointer);
@@ -247,11 +282,20 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
         var midPointPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffffff00}, 0xffffff00);
         midPointPointer.ID = i;
         midPointPointer.visible = false;
-        midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+        midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 2;
         midPointPointer.alpha = 0.5;
         add(midPointPointer);
         currentMarkers.push(midPointPointer);
       }
+
+      var frameTxt = new FlxText(0, 0, 0, "", 48);
+      frameTxt.setFormat(Paths.font("vcr.ttf"), 48, FlxColor.WHITE, LEFT);
+      frameTxt.setBorderStyle(OUTLINE, FlxColor.BLACK, 3);
+      frameTxt.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+      frameTxt.ID = i;
+      add(frameTxt);
+
+      frameTxts.push(frameTxt);
     }
   }
 

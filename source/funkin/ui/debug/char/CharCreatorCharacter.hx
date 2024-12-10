@@ -47,6 +47,8 @@ class CharCreatorCharacter extends Bopper
   public var atlasCharacter:CharSelectAtlasSprite = null;
   public var currentAtlasAnimation:Null<String> = null;
 
+  public var ignoreLoop:Bool = false;
+
   override public function new(wizardParams:WizardGenerateParams)
   {
     super(CharacterRegistry.DEFAULT_DANCEEVERY);
@@ -105,6 +107,8 @@ class CharCreatorCharacter extends Bopper
 
     if (atlasCharacter != null) // easier than transform LOL
     {
+      if (ignoreLoop) atlasCharacter.looping = false;
+
       atlasCharacter.x = this.x;
       atlasCharacter.y = this.y;
       atlasCharacter.alpha = this.alpha;
@@ -206,26 +210,30 @@ class CharCreatorCharacter extends Bopper
 
   public override function playAnimation(name:String, restart:Bool = false, ignoreOther:Bool = false, reverse:Bool = false):Void
   {
-    if (atlasCharacter == null)
-    {
-      super.playAnimation(name, restart, ignoreOther, reverse);
-      return;
-    }
+    if (!active) active = true;
 
     if ((!canPlayOtherAnims && !ignoreOther)) return;
 
     var correctName = correctAnimationName(name);
     if (correctName == null)
     {
-      trace('Could not find Atlas animation: ' + name);
+      trace('Could not find Character animation: ' + name);
       return;
     }
 
     var animData = getAnimationData(correctName);
+    var loop:Bool = ignoreLoop ? false : animData.looped;
+
+    if (atlasCharacter == null)
+    {
+      super.playAnimation(name, restart, ignoreOther, reverse);
+      animation.curAnim.looped = loop;
+      return;
+    }
+
     currentAtlasAnimation = correctName;
     var prefix:String = animData.prefix;
     if (prefix == null) prefix = correctName;
-    var loop:Bool = animData.looped;
 
     atlasCharacter.playAnimation(prefix, restart, ignoreOther, loop);
     applyAnimationOffsets(correctName);

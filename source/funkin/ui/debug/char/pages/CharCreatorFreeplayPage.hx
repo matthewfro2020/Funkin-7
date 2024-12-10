@@ -84,6 +84,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
   var pivotPointer:FlxShapeCircle;
   var basePointer:FlxShapeCircle;
+  var frameTxt:FlxText;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -133,6 +134,11 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
 
     add(pivotPointer);
     add(basePointer);
+
+    frameTxt = new FlxText(0, 0, 0, "", 48);
+    frameTxt.setFormat(Paths.font("vcr.ttf"), 48, FlxColor.WHITE, LEFT);
+    frameTxt.setBorderStyle(OUTLINE, FlxColor.BLACK, 3);
+    add(frameTxt);
   }
 
   override public function update(elapsed:Float)
@@ -145,13 +151,29 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     if (pivotPos != null) pivotPointer.setPosition(pivotPos.x - pivotPointer.width / 2, pivotPos.y - pivotPointer.height / 2);
     if (basePos != null) basePointer.setPosition(basePos.x - basePointer.width / 2, basePos.y - basePointer.height / 2);
 
-    pivotPointer.visible = (daState.menubarCheckViewPivot.selected && pivotPos != null);
-    basePointer.visible = (daState.menubarCheckViewBase.selected && basePos != null);
+    pivotPointer.visible = (daState.menubarCheckToolsPivot.selected && pivotPos != null);
+    basePointer.visible = (daState.menubarCheckToolsBase.selected && basePos != null);
+
+    frameTxt.visible = daState.menubarCheckToolsFrames.selected;
+    frameTxt.text = 'Frame: ${dj.curFrame}/${(dj.totalFrames) - 1}';
+    if (pivotPos != null) frameTxt.setPosition(pivotPos.x - frameTxt.width / 2, pivotPos.y - frameTxt.height / 2);
+
+    dj.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
 
     // no need for handleKeybinds function since these are the only functions in update methinks
     if (!CharCreatorUtil.isHaxeUIDialogOpen)
     {
-      if (FlxG.keys.justPressed.SPACE) playDJAnimation();
+      if (FlxG.keys.justPressed.SPACE)
+      {
+        if (!FlxG.keys.pressed.SHIFT && daState.menubarCheckToolsPause.selected && !dj.isAnimationFinished())
+        {
+          dj.active = !dj.active;
+        }
+        else
+        {
+          playDJAnimation();
+        }
+      }
 
       if (FlxG.keys.justPressed.W) changeDJAnimation(-1);
       if (FlxG.keys.justPressed.S) changeDJAnimation(1);
@@ -189,6 +211,7 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     labelAnimOffsetX.text = "" + (djAnims[currentDJAnimation]?.offsets[0] ?? 0.0);
     labelAnimOffsetY.text = "" + (djAnims[currentDJAnimation]?.offsets[1] ?? 0.0);
 
+    dj.active = true;
     dj.playAnimation(djAnims[currentDJAnimation]?.prefix ?? "", true);
     dj.offset.set(djAnims[currentDJAnimation]?.offsets[0] ?? 0.0, djAnims[currentDJAnimation]?.offsets[1] ?? 0.0);
   }

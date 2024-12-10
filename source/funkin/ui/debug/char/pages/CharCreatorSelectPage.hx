@@ -29,7 +29,9 @@ import funkin.util.MathUtil;
 import flixel.math.FlxPoint;
 import flixel.math.FlxMath;
 import flixel.FlxG;
+import flixel.text.FlxText;
 import funkin.vis.dsp.SpectralAnalyzer;
+import flixel.util.FlxColor;
 
 using StringTools;
 
@@ -80,6 +82,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
   var playerBasePointer:FlxShapeCircle;
   var gfPivotPointer:FlxShapeCircle;
   var gfBasePointer:FlxShapeCircle;
+  var playerFrameTxt:FlxText;
+  var gfFrameTxt:FlxText;
 
   override public function new(state:CharCreatorState, data:WizardGenerateParams)
   {
@@ -127,7 +131,7 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
 
     nametag = new FlxSprite();
     if (data.importedPlayerData != null) nametag.loadGraphic(Paths.image('charSelect/'
-      + (data.importedPlayerData == "bf" ? "boyfriend" : data.importedPlayerData)
+      + (data.importedPlayerData == "bf" ? "boyfriend" : data.importedPlayerData) // not too fond of hardcode
       + "Nametag"));
     nametag.updateHitbox();
 
@@ -162,6 +166,16 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     add(playerBasePointer);
     add(gfPivotPointer);
     add(gfPivotPointer);
+
+    playerFrameTxt = new FlxText(0, 0, 0, "", 48);
+    playerFrameTxt.setFormat(Paths.font("vcr.ttf"), 48, FlxColor.WHITE, LEFT);
+    playerFrameTxt.setBorderStyle(OUTLINE, FlxColor.BLACK, 3);
+    add(playerFrameTxt);
+
+    gfFrameTxt = new FlxText(0, 0, 0, "", 48);
+    gfFrameTxt.setFormat(Paths.font("vcr.ttf"), 48, FlxColor.WHITE, LEFT);
+    gfFrameTxt.setBorderStyle(OUTLINE, FlxColor.BLACK, 3);
+    add(gfFrameTxt);
   }
 
   // i am unsure whether or not there are more animations than these
@@ -219,9 +233,8 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     if (idx >= array.length) idx = 0;
     else if (idx < 0) idx = array.length - 1;
 
-      (useGF ? gf : bf).stopAnimation();
-    (useGF ? gf : bf).playAnimation(array[idx]);
-    (useGF ? gfAnimLabel : bfAnimLabel).text = (useGF ? "GF" : "Player") + " Anim: " + array[idx];
+      (useGF ? gfAnimLabel : bfAnimLabel).text = (useGF ? "GF" : "Player") + " Anim: " + array[idx];
+    playAnimations();
   }
 
   override public function fillUpPageSettings(menu:Menu)
@@ -444,6 +457,13 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     }
   }
 
+  function playAnimations()
+  {
+    gf.active = bf.active = true;
+    gf.playAnimation(gfAnimLabel.text.split(" Anim: ")[1], true);
+    bf.playAnimation(bfAnimLabel.text.split(" Anim: ")[1], true);
+  }
+
   override function update(elapsed:Float):Void
   {
     super.update(elapsed);
@@ -452,11 +472,18 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     {
       if (FlxG.keys.justPressed.SPACE)
       {
-        gf.stopAnimation();
-        gf.playAnimation(gfAnimLabel.text.split(" Anim: ")[1], true, true);
-
-        bf.stopAnimation();
-        bf.playAnimation(bfAnimLabel.text.split(" Anim: ")[1], true, true);
+        if (!FlxG.keys.pressed.SHIFT
+          && daState.menubarCheckToolsPause.selected
+          && !bf.isAnimationFinished()
+          && !gf.isAnimationFinished())
+        {
+          bf.active = !bf.active;
+          gf.active = !gf.active;
+        }
+        else
+        {
+          playAnimations();
+        }
       }
 
       // perhaps gonan find a better keybind for this idk
@@ -471,16 +498,25 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
       playerPivotPos.y - playerPivotPointer.height / 2);
     if (playerBasePos != null) playerBasePointer.setPosition(playerBasePos.x - playerBasePointer.width / 2, playerBasePos.y - playerBasePointer.height / 2);
 
-    var gfPlayerPos = gf.getPivotPosition();
+    var gfPivotPos = gf.getPivotPosition();
     var gfBasePos = gf.getBasePosition();
 
-    if (gfPlayerPos != null) gfPivotPointer.setPosition(gfPlayerPos.x - gfPivotPointer.width / 2, gfPlayerPos.y - gfPivotPointer.height / 2);
+    if (gfPivotPos != null) gfPivotPointer.setPosition(gfPivotPos.x - gfPivotPointer.width / 2, gfPivotPos.y - gfPivotPointer.height / 2);
     if (gfBasePos != null) gfBasePointer.setPosition(gfBasePos.x - gfBasePointer.width / 2, gfBasePos.y - gfBasePointer.height / 2);
 
-    playerPivotPointer.visible = (daState.menubarCheckViewPivot.selected && playerPivotPos != null);
-    playerBasePointer.visible = (daState.menubarCheckViewBase.selected && playerBasePos != null);
-    gfPivotPointer.visible = (daState.menubarCheckViewPivot.selected && gfPlayerPos != null);
-    gfBasePointer.visible = (daState.menubarCheckViewBase.selected && gfBasePos != null);
+    playerPivotPointer.visible = (daState.menubarCheckToolsPivot.selected && playerPivotPos != null);
+    playerBasePointer.visible = (daState.menubarCheckToolsBase.selected && playerBasePos != null);
+    gfPivotPointer.visible = (daState.menubarCheckToolsPivot.selected && gfPivotPos != null);
+    gfBasePointer.visible = (daState.menubarCheckToolsBase.selected && gfBasePos != null);
+
+    playerFrameTxt.visible = gfFrameTxt.visible = daState.menubarCheckToolsFrames.selected;
+    playerFrameTxt.text = 'Frame: ${bf.curFrame}/${(bf.totalFrames) - 1}';
+    gfFrameTxt.text = 'Frame: ${gf.curFrame}/${(gf.totalFrames) - 1}';
+
+    if (playerPivotPos != null) playerFrameTxt.setPosition(playerPivotPos.x - playerFrameTxt.width / 2, playerPivotPos.y - playerFrameTxt.height / 2);
+    if (gfPivotPos != null) gfFrameTxt.setPosition(gfPivotPos.x - gfFrameTxt.width / 2, gfPivotPos.y - gfFrameTxt.height / 2);
+
+    bf.anim.timeScale = gf.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
 
     if (gfUsesVis && gf.anim != null && gf.frames != null)
     {

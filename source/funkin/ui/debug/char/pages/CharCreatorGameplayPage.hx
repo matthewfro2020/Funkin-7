@@ -19,6 +19,7 @@ import funkin.ui.debug.char.components.dialogs.DefaultPageDialog;
 import flixel.util.FlxColor;
 import flixel.addons.display.shapes.FlxShapeCircle;
 import flixel.FlxSprite;
+import flixel.text.FlxText;
 
 using StringTools;
 
@@ -45,6 +46,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   var atlasCharBasePointer:FlxShapeCircle;
   var midPointPointer:FlxShapeCircle;
   var camMarker:FlxSprite;
+  var frameTxt:FlxText;
 
   override public function new(daState:CharCreatorState, wizardParams:WizardGenerateParams)
   {
@@ -84,7 +86,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     atlasCharBasePointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xff00ffff}, 0xff00ffff);
     midPointPointer = new FlxShapeCircle(0, 0, 16, cast {thickness: 2, color: 0xffffff00}, 0xffffff00);
 
-    atlasCharPivotPointer.zIndex = atlasCharBasePointer.zIndex = midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 2;
+    atlasCharPivotPointer.zIndex = atlasCharBasePointer.zIndex = midPointPointer.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 1;
     atlasCharPivotPointer.visible = atlasCharBasePointer.visible = midPointPointer.visible = false;
     atlasCharPivotPointer.alpha = atlasCharBasePointer.alpha = midPointPointer.alpha = 0.5;
 
@@ -95,8 +97,14 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     camMarker = new FlxSprite().loadGraphic(Paths.image("cursor/cursor-crosshair"));
     camMarker.setGraphicSize(80, 80);
     camMarker.updateHitbox();
-    camMarker.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+    camMarker.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 2;
     add(camMarker);
+
+    frameTxt = new FlxText(0, 0, 0, "", 48);
+    frameTxt.setFormat(Paths.font("vcr.ttf"), 48, FlxColor.WHITE, LEFT);
+    frameTxt.setBorderStyle(OUTLINE, FlxColor.BLACK, 3);
+    frameTxt.zIndex = flixel.math.FlxMath.MAX_VALUE_INT;
+    add(frameTxt);
 
     sortAssets();
   }
@@ -107,6 +115,9 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     labelAnimOffsetX.text = "" + (currentCharacter.getAnimationData(currentCharacter.getCurrentAnimation())?.offsets[0] ?? 0);
     labelAnimOffsetY.text = "" + (currentCharacter.getAnimationData(currentCharacter.getCurrentAnimation())?.offsets[1] ?? 0);
 
+    frameTxt.visible = daState.menubarCheckToolsFrames.selected;
+    currentCharacter.ignoreLoop = daState.menubarCheckToolsLoop.selected;
+
     if (currentCharacter.atlasCharacter != null)
     {
       var pivotPos = currentCharacter.atlasCharacter.getPivotPosition();
@@ -115,13 +126,23 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
       if (pivotPos != null) atlasCharPivotPointer.setPosition(pivotPos.x - atlasCharPivotPointer.width / 2, pivotPos.y - atlasCharPivotPointer.height / 2);
       if (basePos != null) atlasCharBasePointer.setPosition(basePos.x - atlasCharBasePointer.width / 2, basePos.y - atlasCharBasePointer.height / 2);
 
-      atlasCharPivotPointer.visible = (daState.menubarCheckViewPivot.selected && pivotPos != null);
-      atlasCharBasePointer.visible = (daState.menubarCheckViewBase.selected && basePos != null);
+      atlasCharPivotPointer.visible = (daState.menubarCheckToolsPivot.selected && pivotPos != null);
+      atlasCharBasePointer.visible = (daState.menubarCheckToolsBase.selected && basePos != null);
+
+      frameTxt.text = 'Frame: ${currentCharacter.atlasCharacter.curFrame}/${(currentCharacter.atlasCharacter.totalFrames) - 1}';
+      if (pivotPos != null) frameTxt.setPosition(pivotPos.x - frameTxt.width / 2, pivotPos.y - frameTxt.height / 2);
+
+      currentCharacter.atlasCharacter.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
     }
     else
     {
       midPointPointer.setPosition(currentCharacter.getMidpoint().x - midPointPointer.width / 2, currentCharacter.getMidpoint().y - midPointPointer.height / 2);
-      midPointPointer.visible = daState.menubarCheckViewMidpoint.selected;
+      midPointPointer.visible = daState.menubarCheckToolsMidpoint.selected;
+
+      frameTxt.text = 'Frame: ${currentCharacter.animation.curAnim?.curFrame ?? 0}/${(currentCharacter.animation.curAnim?.numFrames ?? 0) - 1}';
+      frameTxt.setPosition(currentCharacter.getMidpoint().x - frameTxt.width / 2, currentCharacter.getMidpoint().y - frameTxt.height / 2);
+
+      currentCharacter.animation.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
     }
 
     var type = currentCharacter.characterType;
@@ -132,7 +153,14 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     {
       if (FlxG.keys.justPressed.SPACE && currentCharacter.getCurrentAnimation() != null)
       {
-        currentCharacter.playAnimation(currentCharacter.getCurrentAnimation(), true);
+        if (!FlxG.keys.pressed.SHIFT && daState.menubarCheckToolsPause.selected && !currentCharacter.isAnimationFinished())
+        {
+          currentCharacter.active = !currentCharacter.active;
+        }
+        else
+        {
+          currentCharacter.playAnimation(currentCharacter.getCurrentAnimation(), true);
+        }
       }
 
       if (FlxG.keys.justPressed.W) changeAnim(-1);

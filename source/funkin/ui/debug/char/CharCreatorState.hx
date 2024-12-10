@@ -108,6 +108,8 @@ class CharCreatorState extends UIState
     menubarItemExport.onClick = _ -> this.exportAll();
     menubarItemExit.onClick = _ -> exitEditor();
     menubarItemAbout.onClick = _ -> new CharCreatorAboutDialog().showDialog();
+
+    menubarSliderAnimSpeed.onChange = function(_) menubarLabelAnimSpeed.text = 'Animation Speed: ${menubarSliderAnimSpeed.pos}%';
   }
 
   function handleShortcuts():Void

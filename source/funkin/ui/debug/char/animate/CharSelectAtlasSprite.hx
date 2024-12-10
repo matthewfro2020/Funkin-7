@@ -138,8 +138,10 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   var fr:FlxKeyFrame = null;
 
-  var looping:Bool = false;
+  public var curFrame(get, never):Int;
+  public var totalFrames(get, never):Int;
 
+  public var looping:Bool = false;
   public var ignoreExclusionPref:Array<String> = [];
 
   /**
@@ -230,6 +232,16 @@ class CharSelectAtlasSprite extends FlxAnimate
       fr = anim.getFrameLabel(id);
       anim.curFrame += startFrame;
     }
+  }
+
+  function get_curFrame()
+  {
+    return (frames != null ? (anim?.curFrame ?? 0) : 0) - (fr?.index ?? 0);
+  }
+
+  function get_totalFrames()
+  {
+    return fr?.duration ?? (frames != null ? anim?.length ?? 0 : 0);
   }
 
   override public function update(elapsed:Float)
@@ -402,8 +414,8 @@ class CharSelectAtlasSprite extends FlxAnimate
   public function getBasePosition():Null<FlxPoint>
   {
     // var stagePos = new FlxPoint(anim.stageInstance.matrix.tx, anim.stageInstance.matrix.ty);
-    var instancePos = new FlxPoint(anim.curInstance.matrix.tx, anim.curInstance.matrix.ty);
-    var firstElement = anim.curSymbol.timeline?.get(0)?.get(0)?.get(0);
+    var instancePos = new FlxPoint(anim?.curInstance?.matrix?.tx ?? 0, anim?.curInstance?.matrix?.ty ?? 0);
+    var firstElement = anim?.curSymbol?.timeline?.get(0)?.get(0)?.get(0);
     if (firstElement == null) return instancePos;
     var firstElementPos = new FlxPoint(firstElement.matrix.tx, firstElement.matrix.ty);
 
@@ -413,7 +425,7 @@ class CharSelectAtlasSprite extends FlxAnimate
   public function getPivotPosition():Null<FlxPoint>
   {
     if (!symbolsInitialized) return null;
-    return anim.curInstance.symbol.transformationPoint;
+    return anim?.curInstance?.symbol?.transformationPoint;
   }
 
   public override function destroy():Void
