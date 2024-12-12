@@ -109,7 +109,10 @@ class CharCreatorState extends UIState
     menubarItemExit.onClick = _ -> exitEditor();
     menubarItemAbout.onClick = _ -> new CharCreatorAboutDialog().showDialog();
 
-    menubarSliderAnimSpeed.onChange = function(_) menubarLabelAnimSpeed.text = 'Animation Speed: ${menubarSliderAnimSpeed.pos}%';
+    menubarSliderAnimSpeed.onChange = function(_) {
+      FlxG.animationTimeScale = (menubarSliderAnimSpeed.pos / 100);
+      menubarLabelAnimSpeed.text = 'Animation Speed: ${menubarSliderAnimSpeed.pos}%';
+    }
   }
 
   function handleShortcuts():Void
@@ -146,7 +149,7 @@ class CharCreatorState extends UIState
     menubarOptionCharSelect.disabled = menubarOptionFreeplay.disabled = menubarOptionResults.disabled = !params.generatePlayerData;
 
     menubarOptionGameplay.selected = (params.generateCharacter);
-    menubarOptionCharSelect.selected = !menubarOptionGameplay.selected;
+    menubarOptionCharSelect.selected = !(params.generateCharacter);
     menubarOptionFreeplay.selected = menubarOptionResults.selected = false;
 
     switchToPage(params.generateCharacter ? Gameplay : CharacterSelect);
@@ -154,6 +157,7 @@ class CharCreatorState extends UIState
 
   function exitEditor():Void
   {
+    menubarSliderAnimSpeed.pos = 100;
     Cursor.hide();
     FlxG.switchState(() -> new DebugMenuSubState());
     FunkinSound.playMusic('freakyMenu',

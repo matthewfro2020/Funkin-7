@@ -55,7 +55,8 @@ class AddPlayerFilesDialog extends DefaultWizardDialog
       var box:UploadAssetsBox = cast unsafeBox;
       if (box.daField.text == null || box.daField.text.length == 0)
       {
-        continue;
+        CharCreatorUtil.error("Add Files", "Please fill out all the required Fields.");
+        return false;
       }
       uploadBoxes.push(box);
     }

@@ -60,7 +60,7 @@ class CharCreatorImportExportHandler
           continue;
         }
 
-        zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(file.name)}', file.bytes));
+        zipEntries.push(FileUtil.makeZIPEntryFromBytes('shared/images/characters/${Path.withoutDirectory(file.name)}', file.bytes));
       }
     }
     else
@@ -73,7 +73,7 @@ class CharCreatorImportExportHandler
         {
           var zipName = gameplayPage.currentCharacter.files[0].name.replace(".zip", "");
 
-          zipEntries.push(FileUtil.makeZIPEntryFromBytes('images/characters/${Path.withoutDirectory(zipName)}/${Path.withoutDirectory(file.fileName)}',
+          zipEntries.push(FileUtil.makeZIPEntryFromBytes('shared/images/characters/${Path.withoutDirectory(zipName)}/${Path.withoutDirectory(file.fileName)}',
             file.data));
         }
       }
@@ -193,6 +193,34 @@ class CharCreatorImportExportHandler
 
     var resultPageDialog:ResultsAnimDialog = cast resultPage.dialogMap[RankAnims];
 
+    // these are structured like this
+    // [good => [[{name:"a", bytes: smth}], [], []]]
+    for (rank => files in resultPageDialog.rankAnimationFiles)
+    {
+      if (files.length == 0) continue;
+
+      for (i in 0...files.length)
+      {
+        if (files[i].length == 0) continue;
+
+        var endPath = "images/resultScreen/results-" + charID + "/" + Std.string(rank).toUpperCase() + "/" + new Path(files[i][0].name).file;
+        for (realFile in files[i])
+        {
+          if (realFile.name.endsWith(".zip"))
+          {
+            for (zipFile in FileUtil.readZIPFromBytes(realFile.bytes))
+              zipEntries.push(FileUtil.makeZIPEntryFromBytes("shared/" + endPath + "/" + Path.withoutDirectory(zipFile.fileName), zipFile.data));
+          }
+          else
+          {
+            zipEntries.push(FileUtil.makeZIPEntryFromBytes("shared/" + endPath + Path.extension(realFile.name), realFile.bytes));
+          }
+        }
+
+        resultPageDialog.rankAnimationDataMap[rank][i].assetPath = endPath.replace("images/", "shared:");
+      }
+    }
+
     playerData.results =
       {
         music: {},
@@ -216,11 +244,12 @@ class CharCreatorImportExportHandler
         var rankStr = Std.string(rank).toUpperCase();
 
         if (data.intro.bytes != null)
-          zipEntries.push(FileUtil.makeZIPEntryFromBytes('music/results$rankStr-$charID/results$rankStr-$charID-intro.${Constants.EXT_SOUND}',
+          zipEntries.push(FileUtil.makeZIPEntryFromBytes('shared/music/results$rankStr-$charID/results$rankStr-$charID-intro.${Constants.EXT_SOUND}',
             data.intro.bytes));
 
         if (data.song.bytes != null)
-          zipEntries.push(FileUtil.makeZIPEntryFromBytes('music/results$rankStr-$charID/results$rankStr-$charID.${Constants.EXT_SOUND}', data.song.bytes));
+          zipEntries.push(FileUtil.makeZIPEntryFromBytes('shared/music/results$rankStr-$charID/results$rankStr-$charID.${Constants.EXT_SOUND}',
+            data.song.bytes));
 
         Reflect.setField(playerData.results.music, rankStr, rankStr + "-" + charID);
       }

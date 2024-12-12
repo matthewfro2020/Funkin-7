@@ -61,6 +61,8 @@ class AddCharFilesDialog extends DefaultWizardDialog
 
   override public function isNextStepAvailable():Bool
   {
+    params.files = [];
+
     // we skippin if we aint even doin these
     if (addAssetsBox.disabled) return true;
 
@@ -77,6 +79,12 @@ class AddCharFilesDialog extends DefaultWizardDialog
         continue;
       }
       uploadBoxes.push(box);
+    }
+
+    if (uploadBoxes.length == 0)
+    {
+      CharCreatorUtil.error("Add Files", "Please fill out at least one field.");
+      return false;
     }
 
     // check if the files even exist
@@ -125,6 +133,8 @@ class AddCharFilesDialog extends DefaultWizardDialog
           {
             var bitmap = BitmapData.fromBytes(imgBytes);
             tempSprite.frames = FlxAtlasFrames.fromSparrow(bitmap, xmlBytes.toString());
+
+            if (tempSprite.frames == null) throw "";
           }
           catch (e)
           {
@@ -174,6 +184,8 @@ class AddCharFilesDialog extends DefaultWizardDialog
         {
           var bitmap = BitmapData.fromBytes(imgBytes);
           tempSprite.frames = FlxAtlasFrames.fromSpriteSheetPacker(bitmap, txtBytes.toString());
+
+          if (tempSprite.frames == null) throw "";
         }
         catch (e)
         {

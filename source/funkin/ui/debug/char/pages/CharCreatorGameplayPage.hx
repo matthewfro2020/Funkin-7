@@ -131,8 +131,6 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
       frameTxt.text = 'Frame: ${currentCharacter.atlasCharacter.curFrame}/${(currentCharacter.atlasCharacter.totalFrames) - 1}';
       if (pivotPos != null) frameTxt.setPosition(pivotPos.x - frameTxt.width / 2, pivotPos.y - frameTxt.height / 2);
-
-      currentCharacter.atlasCharacter.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
     }
     else
     {
@@ -141,8 +139,6 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
       frameTxt.text = 'Frame: ${currentCharacter.animation.curAnim?.curFrame ?? 0}/${(currentCharacter.animation.curAnim?.numFrames ?? 0) - 1}';
       frameTxt.setPosition(currentCharacter.getMidpoint().x - frameTxt.width / 2, currentCharacter.getMidpoint().y - frameTxt.height / 2);
-
-      currentCharacter.animation.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
     }
 
     var type = currentCharacter.characterType;

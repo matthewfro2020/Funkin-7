@@ -16,17 +16,23 @@ class HealthIconDialog extends DefaultPageDialog
   {
     super(daPage);
 
-    if (char.healthIcon != null && char.healthIconFiles.length >= 1) // set the data considering we have all the stuff we need
+    if (char.healthIcon != null) // set the data considering we have all the stuff we need
     {
       healthIcon = new FlxSprite();
-      var bitmap = openfl.display.BitmapData.fromBytes(char.healthIconFiles[0].bytes);
 
-      if (char.healthIconFiles.length == 1) // legacy
+      if (!Assets.exists(Paths.image('icons/icon-${char.healthIcon.id}')))
       {
-        var iconSize = HealthIcon.HEALTH_ICON_SIZE;
+        return;
+      }
+
+      var isRetro = !Assets.exists(Paths.file('images/icons/icon-${char.healthIcon.id}'));
+      healthIconLoadField.text = char.healthIcon.id;
+      if (isRetro)
+      {
+        var iconSize:Int = HealthIcon.HEALTH_ICON_SIZE;
         @:privateAccess if (char.healthIcon.isPixel) iconSize = HealthIcon.PIXEL_ICON_SIZE;
 
-        healthIcon.loadGraphic(bitmap, true, iconSize, iconSize);
+        healthIcon.loadGraphic(Paths.image('icons/icon-${char.healthIcon.id}'), true, iconSize, iconSize);
         healthIcon.animation.add("idle", [0], 0, false, false);
         healthIcon.animation.add("losing", [1], 0, false, false);
         if (healthIcon.animation.numFrames >= 3)
@@ -36,9 +42,7 @@ class HealthIconDialog extends DefaultPageDialog
       }
       else
       {
-        healthIcon.frames = FlxAtlasFrames.fromSparrow(bitmap, char.healthIconFiles[1].bytes.toString());
-        if (healthIcon.frames.frames.length == 0) return;
-
+        healthIcon.frames = Paths.getSparrowAtlas('icons/icon-${char.healthIcon.id}');
         healthIcon.animation.addByPrefix("idle", "idle", 24, true);
         healthIcon.animation.addByPrefix("winning", "winning", 24, true);
         healthIcon.animation.addByPrefix("losing", "losing", 24, true);
@@ -46,8 +50,6 @@ class HealthIconDialog extends DefaultPageDialog
         healthIcon.animation.addByPrefix("toLosing", "toLosing", 24, false);
         healthIcon.animation.addByPrefix("fromWinning", "fromWinning", 24, false);
         healthIcon.animation.addByPrefix("fromLosing", "fromLosing", 24, false);
-
-        if (healthIcon.animation.getNameList().length == 0) return;
       }
 
       // some cosmetic stuff
@@ -71,12 +73,25 @@ class HealthIconDialog extends DefaultPageDialog
     }
 
     healthIconPreviewBtn.onClick = function(_) {
-      if (healthIconLoadField.text == null || !healthIconLoadField.text.endsWith(".png")) return;
-      if (CharCreatorUtil.gimmeTheBytes(healthIconLoadField.text) == null) return;
+      if (healthIconLoadField.text.length == 0)
+      {
+        return;
+      }
+
+      if (haxe.io.Path.isAbsolute(healthIconLoadField.text) && haxe.io.Path.extension(healthIconLoadField.text) != "png")
+      {
+        return;
+      }
+
+      var endPath = haxe.io.Path.isAbsolute(healthIconLoadField.text) ? healthIconLoadField.text : Paths.image("icons/icon-" + healthIconLoadField.text);
+      if (CharCreatorUtil.gimmeTheBytes(endPath) == null)
+      {
+        return;
+      }
 
       // getting bitmap
-      var imgBytes = CharCreatorUtil.gimmeTheBytes(healthIconLoadField.text);
-      var xmlBytes = CharCreatorUtil.gimmeTheBytes(healthIconLoadField.text.replace(".png", ".xml"));
+      var imgBytes = CharCreatorUtil.gimmeTheBytes(endPath);
+      var xmlBytes = CharCreatorUtil.gimmeTheBytes(endPath.replace(".png", ".xml"));
 
       var bitmap = openfl.display.BitmapData.fromBytes(imgBytes);
       if (bitmap == null) return;
@@ -131,12 +146,12 @@ class HealthIconDialog extends DefaultPageDialog
       healthIcon.animation.play("idle");
 
       char.healthIconFiles = [
-        {name: healthIconLoadField.text, bytes: imgBytes}];
-      if (xmlBytes != null) char.healthIconFiles.push({name: healthIconLoadField.text.replace(".png", ".xml"), bytes: xmlBytes});
+        {name: endPath, bytes: imgBytes}];
+      if (xmlBytes != null) char.healthIconFiles.push({name: endPath.replace(".png", ".xml"), bytes: xmlBytes});
       char.healthIcon =
         {
           scale: healthIconScale.pos,
-          id: char.characterId,
+          id: haxe.io.Path.isAbsolute(endPath) ? char.characterId : healthIconLoadField.text,
           offsets: [healthIconOffsetX.pos, healthIconOffsetY.pos],
           flipX: healthIconFlipX.selected,
           isPixel: healthIconPixelated.selected

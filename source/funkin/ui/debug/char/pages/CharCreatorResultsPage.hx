@@ -187,15 +187,11 @@ class CharCreatorResultsPage extends CharCreatorDefaultPage
 
         txt.text = "Frame: " + atlas.curFrame + "/" + (atlas.totalFrames - 1);
         if (pivotPos != null) txt.setPosition(pivotPos.x - txt.width / 2, pivotPos.y - txt.height / 2);
-
-        atlas.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
       }
       else if (atlas == null && sparrow != null)
       {
         txt.text = "Frame: " + (sparrow.animation.curAnim?.curFrame ?? 0) + "/" + ((sparrow.animation.curAnim?.numFrames ?? 0) - 1);
         txt.setPosition(sparrow.getMidpoint().x - txt.width / 2, sparrow.getMidpoint().y - txt.height / 2);
-
-        sparrow.animation.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
       }
     }
 

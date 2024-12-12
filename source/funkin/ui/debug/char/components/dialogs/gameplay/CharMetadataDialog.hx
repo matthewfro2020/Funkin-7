@@ -17,6 +17,7 @@ class CharMetadataDialog extends DefaultPageDialog
     charIsPixel.selected = char.isPixel;
     charHasDeathData.selected = (char.deathData != null);
     charDeathBox.disabled = !charHasDeathData.selected;
+    charName.text = char.characterName;
 
     charDeathCamOffsetX.pos = char.deathData?.cameraOffsets[0] ?? 0;
     charDeathCamOffsetY.pos = char.deathData?.cameraOffsets[1] ?? 0;
@@ -24,6 +25,8 @@ class CharMetadataDialog extends DefaultPageDialog
     charDeathTransDelay.pos = char.deathData?.preTransitionDelay ?? 0;
 
     // callbaccd
+    charName.onChange = function(_) char.characterName = charName.text;
+
     charOffsetsX.onChange = charOffsetsY.onChange = function(_) {
       char.globalOffsets = [charOffsetsX.pos, charOffsetsY.pos];
       daPage.updateCharPerStageData(char.characterType);

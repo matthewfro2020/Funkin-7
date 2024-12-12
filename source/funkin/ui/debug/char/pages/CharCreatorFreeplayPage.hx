@@ -158,8 +158,6 @@ class CharCreatorFreeplayPage extends CharCreatorDefaultPage
     frameTxt.text = 'Frame: ${dj.curFrame}/${(dj.totalFrames) - 1}';
     if (pivotPos != null) frameTxt.setPosition(pivotPos.x - frameTxt.width / 2, pivotPos.y - frameTxt.height / 2);
 
-    dj.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
-
     // no need for handleKeybinds function since these are the only functions in update methinks
     if (!CharCreatorUtil.isHaxeUIDialogOpen)
     {

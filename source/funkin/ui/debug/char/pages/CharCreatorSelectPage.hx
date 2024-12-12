@@ -516,8 +516,6 @@ class CharCreatorSelectPage extends CharCreatorDefaultPage
     if (playerPivotPos != null) playerFrameTxt.setPosition(playerPivotPos.x - playerFrameTxt.width / 2, playerPivotPos.y - playerFrameTxt.height / 2);
     if (gfPivotPos != null) gfFrameTxt.setPosition(gfPivotPos.x - gfFrameTxt.width / 2, gfPivotPos.y - gfFrameTxt.height / 2);
 
-    bf.anim.timeScale = gf.anim.timeScale = daState.menubarSliderAnimSpeed.pos / 100;
-
     if (gfUsesVis && gf.anim != null && gf.frames != null)
     {
       var levels = gfAnalyzer.getLevels();

@@ -31,7 +31,7 @@ class ConfirmDialog extends DefaultWizardDialog
     for (file in allFiles)
     {
       var fname = new Label();
-      fname.text = file.name;
+      fname.text = "- " + file.name;
       fname.percentWidth = 100;
       viewAllAssets.addComponent(fname);
     }
@@ -43,14 +43,16 @@ class ConfirmDialog extends DefaultWizardDialog
     if (params.importedCharacter != null)
     {
       var charImport = new Label();
-      charImport.text = "Character: " + params.importedCharacter;
+      charImport.text = "- Character: " + params.importedCharacter;
+      charImport.percentWidth = 100;
       viewAllAssets.addComponent(charImport);
     }
 
     if (params.importedPlayerData != null)
     {
       var playerImport = new Label();
-      playerImport.text = "Player Data: " + params.importedPlayerData;
+      playerImport.text = "- Player Data: " + params.importedPlayerData;
+      playerImport.percentWidth = 100;
       viewAllAssets.addComponent(playerImport);
     }
   }

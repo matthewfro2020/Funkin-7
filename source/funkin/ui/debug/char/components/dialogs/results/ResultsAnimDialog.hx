@@ -22,6 +22,7 @@ class ResultsAnimDialog extends DefaultPageDialog
   public var currentRank(get, never):ScoringRank;
 
   public var rankAnimationDataMap:Map<ScoringRank, Array<PlayerResultsAnimationData>> = [];
+  public var rankAnimationFiles:Map<ScoringRank, Array<Array<WizardFile>>> = [];
   public var previousRank:ScoringRank;
 
   var rankAnimationBox:AddRankAnimationDataBox;
@@ -36,6 +37,7 @@ class ResultsAnimDialog extends DefaultPageDialog
     {
       var playerAnimations = currentChar?.getResultsAnimationDatas(rank) ?? [];
       rankAnimationDataMap.set(rank, playerAnimations);
+      rankAnimationFiles.set(rank, [for (bs in playerAnimations) []]);
     }
 
     rankAnimationBox = new AddRankAnimationDataBox(this);
@@ -119,6 +121,7 @@ private class AddRankAnimationDataBox extends HBox
 
       var newBox = createNewBox();
       daDialog.rankAnimationDataMap[daDialog.previousRank].push(newBox.animData);
+      daDialog.rankAnimationFiles[daDialog.previousRank].push([]);
 
       parentList.addComponentAt(newBox, parentList.childComponents.length - 1); // considering this box is last
       removeButton.disabled = false;
@@ -139,6 +142,7 @@ private class AddRankAnimationDataBox extends HBox
       daDataSprite.destroy();
 
       daDialog.rankAnimationDataMap[daDialog.previousRank].pop();
+      daDialog.rankAnimationFiles[daDialog.previousRank].pop();
 
       if (parentList.childComponents.length < 2) removeButton.disabled = true;
     }
@@ -280,6 +284,7 @@ private class AddRankAnimationDataBox extends HBox
 
     var isAbsolute:Bool = Path.isAbsolute(box.animData.assetPath);
     var newObj:Dynamic = null;
+    var wizFiles:Array<WizardFile> = [];
 
     if (box.animData.renderType == "animateatlas")
     {
@@ -288,7 +293,9 @@ private class AddRankAnimationDataBox extends HBox
       if (isAbsolute)
       {
         if (Path.extension(box.animData.assetPath) != "zip") return;
-        newObj.loadFromZip(FileUtil.readBytesFromPath(box.animData.assetPath));
+
+        wizFiles.push({name: box.animData.assetPath, bytes: FileUtil.readBytesFromPath(box.animData.assetPath)});
+        newObj.loadFromZip(wizFiles[0].bytes);
       }
       else
       {
@@ -307,8 +314,16 @@ private class AddRankAnimationDataBox extends HBox
       {
         if (Path.extension(box.animData.assetPath) != "png") return;
 
-        var bitmap = openfl.display.BitmapData.fromBytes(FileUtil.readBytesFromPath(box.animData.assetPath));
-        newObj.frames = flixel.graphics.frames.FlxAtlasFrames.fromSparrow(bitmap, FileUtil.readStringFromPath(box.animData.assetPath.replace(".png", ".xml")));
+        var bitBytes = FileUtil.readBytesFromPath(box.animData.assetPath);
+        var datBytes = FileUtil.readBytesFromPath(box.animData.assetPath.replace(".png", ".xml"));
+
+        var bitmap = openfl.display.BitmapData.fromBytes(bitBytes);
+        newObj.frames = flixel.graphics.frames.FlxAtlasFrames.fromSparrow(bitmap, datBytes.toString());
+
+        wizFiles = [
+          {name: box.animData.assetPath, bytes: bitBytes},
+          {name: box.animData.assetPath.replace(".png", ".xml"), bytes: datBytes}
+        ];
       }
       else
       {
@@ -334,6 +349,7 @@ private class AddRankAnimationDataBox extends HBox
     page.makeMarkers();
     page.refresh();
 
+    dialog.rankAnimationFiles[dialog.currentRank][box.ID] = wizFiles;
     copyData(dialog.rankAnimationDataMap[dialog.currentRank][box.ID], box.animData);
   }
 
@@ -364,7 +380,10 @@ private class AddRankAnimationDataBox extends HBox
       <item text="Sparrow" value="sparrow"/>
     </data>
   </dropdown>
-  <textfield id="animAssetPath" placeholder="Asset Path" width="100%"/>
+  <hbox width="100%">
+    <textfield id="animAssetPath" placeholder="Asset Path" width="80%"/>
+    <button id="animLoadAsset" text="Load" width="20%"/>
+  </hbox>
   <hbox width="100%" verticalAlign="center">
     <label text="Offsets" verticalAlign="center"/>
     <number-stepper id="animOffsetX" step="1" pos="0" verticalAlign="center"/>
@@ -472,6 +491,15 @@ private class RankAnimationData extends VBox
         animLoopFrameLabel.disabled = false;
         animLoopFrameLabel.text = data.loopFrameLabel;
       }
+    }
+
+    animLoadAsset.onClick = function(_) {
+      var isAtlas:Bool = (animRenderType.safeSelectedItem.value == "animateatlas");
+
+      FileUtil.browseForBinaryFile("Load Animation File", [isAtlas ? FileUtil.FILE_EXTENSION_INFO_ZIP : FileUtil.FILE_EXTENSION_INFO_PNG], function(_) {
+        if (_?.fullPath == null) return;
+        animAssetPath.text = _.fullPath;
+      });
     }
 
     animOffsetX.onChange = animOffsetY.onChange = _ -> onOffsetsChange();

@@ -5,32 +5,7 @@ import funkin.data.character.CharacterRegistry;
 import funkin.data.freeplay.player.PlayerRegistry;
 import haxe.ui.components.OptionBox;
 
-@:xml('
-<?xml version="1.0" encoding="utf-8"?>
-<dialog width="400" height="425" title="Character Creator - Import Data" closable="false">
-  <vbox width="100%" height="100%">
-    <label text="Choose the Optional Data to import." width="100%"/>
-    <hbox width="100%" height="100%">
-
-      <vbox id="importCharData" width="50%" height="100%">
-        <checkbox id="importCharCheck" text="Use Characater Data"/>
-        <scrollview width="100%" height="100%" contentWidth="100%">
-          <vbox id="importCharList" width="100%" disabled="true"/>
-        </scrollview>
-      </vbox>
-
-      <vbox id="importPlayer" width="50%" height="100%">
-        <checkbox id="importPlayerCheck" text="Use Player Data"/>
-        <scrollview width="100%" height="100%" contentWidth="100%">
-          <vbox id="importPlayerList" width="100%" disabled="true"/>
-        </scrollview>
-      </vbox>
-
-    </hbox>
-
-  </vbox>
-</dialog>
-')
+@:build(haxe.ui.macros.ComponentMacros.build("assets/exclude/data/ui/char-creator/wizard/import-data.xml"))
 class ImportDataDialog extends DefaultWizardDialog
 {
   override public function new()

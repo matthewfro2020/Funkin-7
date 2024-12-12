@@ -84,11 +84,11 @@ class FileUtil
     var onComplete = function(button, selectedFiles) {
       if (button == DialogButton.OK && selectedFiles.length > 0)
       {
-        onSelect(selectedFiles[0]);
+        if (onSelect != null) onSelect(selectedFiles[0]);
       }
       else
       {
-        onCancel();
+        if (onCancel != null) onCancel();
       }
     };
 
@@ -117,11 +117,11 @@ class FileUtil
     var onComplete = function(button, selectedFiles) {
       if (button == DialogButton.OK && selectedFiles.length > 0)
       {
-        onSelect(selectedFiles[0]);
+        if (onSelect != null) onSelect(selectedFiles[0]);
       }
       else
       {
-        onCancel();
+        if (onCancel != null) onCancel();
       }
     };
 

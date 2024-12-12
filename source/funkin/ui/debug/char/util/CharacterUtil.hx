@@ -63,6 +63,8 @@ class CharacterUtil
     char.characterFlipX = other.characterFlipX;
     char.characterScale = other.characterScale;
     char.deathData = other.deathData;
+    char.healthIcon = other.healthIcon;
+    char.characterName = other.characterName;
 
     for (anim in other.animations)
     {
@@ -119,6 +121,8 @@ class CharacterUtil
     char.characterScale = data.scale ?? 1;
     char.deathData = data.death;
     char.holdTimer = data.singTime;
+    char.healthIcon = data.healthIcon;
+    char.characterName = data.name;
 
     for (anim in data.animations)
     {

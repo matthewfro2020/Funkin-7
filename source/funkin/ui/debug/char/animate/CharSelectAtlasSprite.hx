@@ -81,13 +81,10 @@ class CharSelectAtlasSprite extends FlxAnimate
     initSymbols();
   }
 
-  var symbolsInitialized:Bool = false;
-
   public function initSymbols()
   {
-    if (symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
 
-    symbolsInitialized = true;
     onAnimationComplete.add(cleanupAnimation);
 
     // This defaults the sprite to play the first animation in the atlas,
@@ -104,7 +101,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function listAnimations():Array<String>
   {
-    if (!symbolsInitialized) return [];
+    if (this.frames == null || this.anim == null) return [];
 
     var mainSymbol = this.anim.symbolDictionary[this.anim.stageInstance.symbol.name];
     if (mainSymbol == null)
@@ -121,7 +118,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function hasAnimation(id:String):Bool
   {
-    if (!symbolsInitialized) return false;
+    if (this.frames == null || this.anim == null) return false;
     return getLabelIndex(id) != -1 || anim.symbolDictionary.exists(id);
   }
 
@@ -130,7 +127,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function getCurrentAnimation():String
   {
-    if (!symbolsInitialized) return "";
+    if (this.frames == null || this.anim == null) return "";
     return this.currentAnimation;
   }
 
@@ -155,7 +152,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function playAnimation(id:String, restart:Bool = false, ignoreOther:Bool = false, loop:Bool = false, startFrame:Int = 0):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
 
     // Skip if not allowed to play animations.
     if ((!canPlayOtherAnims))
@@ -255,7 +252,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function isAnimationFinished():Bool
   {
-    if (!symbolsInitialized) return false;
+    if (this.frames == null || this.anim == null) return false;
     return this.anim.finished;
   }
 
@@ -265,7 +262,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function isLoopComplete():Bool
   {
-    if (!symbolsInitialized) return false;
+    if (this.frames == null || this.anim == null) return false;
     if (this.anim == null) return false;
     if (!this.anim.isPlaying) return false;
 
@@ -279,7 +276,7 @@ class CharSelectAtlasSprite extends FlxAnimate
    */
   public function stopAnimation():Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
     if (this.currentAnimation == null) return;
 
     this.anim.removeAllCallbacksFrom(getNextFrameLabel(this.currentAnimation));
@@ -289,20 +286,20 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   function addFrameCallback(label:String, callback:Void->Void):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
     var frameLabel = this.anim.getFrameLabel(label);
     frameLabel.add(callback);
   }
 
   function goToFrameLabel(label:String):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
     this.anim.goToFrameLabel(label);
   }
 
   function getFrameLabelNames(?layer:haxe.extern.EitherType<Int, String> = null)
   {
-    if (!symbolsInitialized) return [];
+    if (this.frames == null || this.anim == null) return [];
     var labels = this.anim.getFrameLabels(layer);
     var array = [];
     for (label in labels)
@@ -315,25 +312,25 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   function getNextFrameLabel(label:String):String
   {
-    if (!symbolsInitialized) return "";
+    if (this.frames == null || this.anim == null) return "";
     return listAnimations()[(getLabelIndex(label) + 1) % listAnimations().length];
   }
 
   function getLabelIndex(label:String):Int
   {
-    if (!symbolsInitialized) return -1;
+    if (this.frames == null || this.anim == null) return -1;
     return listAnimations().indexOf(label);
   }
 
   function goToFrameIndex(index:Int):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
     this.anim.curFrame = index;
   }
 
   public function cleanupAnimation(_:String):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
 
     canPlayOtherAnims = true;
     // this.currentAnimation = null;
@@ -342,7 +339,7 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   function _onAnimationFrame(frame:Int):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
 
     if (currentAnimation != null)
     {
@@ -368,7 +365,7 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   function _onAnimationComplete():Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
 
     if (currentAnimation != null)
     {
@@ -384,7 +381,7 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   public function replaceFrameGraphic(index:Int, ?graphic:FlxGraphicAsset):Void
   {
-    if (!symbolsInitialized) return;
+    if (this.frames == null || this.anim == null) return;
 
     if (graphic == null || !Assets.exists(graphic))
     {
@@ -424,7 +421,7 @@ class CharSelectAtlasSprite extends FlxAnimate
 
   public function getPivotPosition():Null<FlxPoint>
   {
-    if (!symbolsInitialized) return null;
+    if (this.frames == null || this.anim == null) return null;
     return anim?.curInstance?.symbol?.transformationPoint;
   }
 
