@@ -8,20 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This patch resolves a critical issue which could cause user's save data to become corrupted. It is recommended that users switch to this version immediately and avoid using version 0.5.2.
 ### Fixed
 - Fixed a critical issue in which the Stage Editor theme value could not be parsed by older versions of the game, resulting in all save data being destroyed.
-  - Added a check that prevents save data from being loaded if it is corrupted rather than overriding it.
-- `optionsChartEditor.chartEditorLiveInputStyle` in the save data converted from an Enum to a String to fix save data compatibility issues.
+  - Added a check which prevents save data from being loaded if it is corrupted rather than overriding it.
 - `optionsStageEditor.theme` in the save data converted from an Enum to a String to fix save data compatibility issues.
   - In the future, Enum values should not be used in order to prevent incompatibilities caused by introducing new types to the save data that older versions cannot parse.
-- Fixed an issue where some publicly distributed release builds of the game were not updated to the latest version.
-
+- `optionsChartEditor.theme` in the save data converted from an Enum to a String to fix save data compatibility issues.
+- `optionsChartEditor.chartEditorLiveInputStyle` in the save data converted from an Enum to a String to fix save data compatibility issues.
+- Fixed an issue where some publicly distributed builds of the game were debug builds instead of release builds.
 
 ## [0.5.2] - 2024-10-11
-### Added
-- Added InverseDotsShader that emulates flash selections ([097dbf5](https://github.com/FunkinCrew/Funkin/commit/097dbf5bb4346d431d8ca9f0ec4bc5b5e6f4523f)) - by @ninjamuffin99
-- Added a new reworked Stage Editor ([27a0b44](https://github.com/FunkinCrew/Funkin/pull/3482/commits/27a0b4426f86f04362f97e16e2eff580c9402f34)) - by @JustKolosaki in [#3482](https://github.com/FunkinCrew/Funkin/pull/3482)
-- Added the `color` attribute to stage prop JSON data to allow them to be tinted without code. ([27a0b44](https://github.com/FunkinCrew/Funkin/pull/3482/commits/27a0b4426f86f04362f97e16e2eff580c9402f34)) - by @JustKolosaki 
-- Added the `angle` attribute to stage prop JSON data to allow them to be rotated without code. ([27a0b44](https://github.com/FunkinCrew/Funkin/pull/3482/commits/27a0b4426f86f04362f97e16e2eff580c9402f34)) - by @JustKolosaki 
-- Added the `blend` attribute to the stage prop JSON data to allow blend modes to be applied without code. ([27a0b44](https://github.com/FunkinCrew/Funkin/pull/3482/commits/27a0b4426f86f04362f97e16e2eff580c9402f34)) - by @JustKolosaki
+
 ### Changed
 - (docs) Delete Modding.md since we have a separate modding documentation ([a42240e](https://github.com/FunkinCrew/Funkin/commit/a42240e6a595d33034f2c887bf38a350d1fa0f15)) - by @AbnormalPoof in [#3651](https://github.com/FunkinCrew/Funkin/pull/3651)
 - (docs) Create a git cliff template for easier changelog stuff ([91b4544](https://github.com/FunkinCrew/Funkin/commit/91b4544f7ebc51485e3e28c3d716ba6ee69ad885)) - by @ninjamuffin99 in [#3652](https://github.com/FunkinCrew/Funkin/pull/3652)
@@ -43,16 +38,17 @@ This patch resolves a critical issue which could cause user's save data to becom
 - The dialog now shows up on the animation debugger view ([1fde59f](https://github.com/FunkinCrew/Funkin/commit/1fde59f999eac94eb10fc22094885de2f5310705)) - by @EliteMasterEric in [#3530](https://github.com/FunkinCrew/Funkin/pull/3530)
 - Center preloader 'fnf' and 'dsp' text so it doesn't clip anymore ([165ad60](https://github.com/FunkinCrew/Funkin/commit/165ad6015539a295e9eefdaef291c312e9566b26)) - by @Burgerballs in [#3567](https://github.com/FunkinCrew/Funkin/pull/3567)
 - `Song.getFirstValidVariation()` now properly takes into account multiple variations/difficulty input ([d2e2987](https://github.com/FunkinCrew/Funkin/commit/d2e29879fe2acc6febfe0f335f655b741d630c34)) - by @ninjamuffin99 in [#3506](https://github.com/FunkinCrew/Funkin/pull/3506)
-- (debug) No more fullscreening when typing "F" in the flixel debugger console ([29b6763](https://github.com/FunkinCrew/Funkin/commit/29b6763290df05d42039806f3d142740568c80f0)) - by @ninjamuffin99 
-- Fix crash in LatencyState when exiting / cleaning up state data ([39b1a42](https://github.com/FunkinCrew/Funkin/commit/39b1a42cfeafe2b7be8b66e2fe529e853d9ae197)) - by @lemz1 in [#3493](https://github.com/FunkinCrew/Funkin/pull/3493)
-- Add additional classes to Polymod blacklist for security ([b0b73c8](https://github.com/FunkinCrew/Funkin/commit/b0b73c83994f33118c6a69550da9ec8ec1c07adc)) - by @EliteMasterEric in [#3558](https://github.com/FunkinCrew/Funkin/pull/3558)
-- Stop allowing inputs after selecting a character ([dbf66ac](https://github.com/FunkinCrew/Funkin/commit/dbf66ac250137262866d75f7c1387645b35d88d0)) - by @ACrazyTown in [#3398](https://github.com/FunkinCrew/Funkin/pull/3398)
-- Fix conflict with modded StrumlineNote sprite looping animation ([bc546e8](https://github.com/FunkinCrew/Funkin/commit/bc546e86aa77ffc795b3f079de5f590289a9c583)) - by @DaWaterMalone in [#3577](https://github.com/FunkinCrew/Funkin/pull/3577)
-- Properly format the millisecond counter in the chart editor playbar ([f1b6e6c](https://github.com/FunkinCrew/Funkin/commit/f1b6e6c4e42455e0c2900d738ebc24893f2479a0)) - by @afreetoplaynoob in [#3537](https://github.com/FunkinCrew/Funkin/pull/3537)
-- Fixed an issue where the player and girlfriend would disappear or overlap themselves in Character Select ([community fix by @gamerbross](https://github.com/FunkinCrew/Funkin/pull/3457))
-- Fixed an issue where the game would show the wrong girlfriend in Character Select ([community fix by @gamerbross](https://github.com/FunkinCrew/Funkin/pull/3457))
-- Fixed an issue where the cursor wouldn't update properly in Character Select ([community fix by @gamerbross](https://github.com/FunkinCrew/Funkin/pull/3457))
-- Fixed an issue where the player would display double after entering character select or when spamming buttons ([community fix by @gamerbross](https://github.com/FunkinCrew/Funkin/pull/3457))
+- (freeplay) Proper variation / difficulty loading for Freeplay Menu ([c0314c8](https://github.com/FunkinCrew/Funkin/commit/c0314c85ecd5116641aff3de8e9153f7fe48e79c)) - by @ninjamuffin99
+- Picos songs properly load on freeplay ([1d2bd61](https://github.com/FunkinCrew/Funkin/commit/1d2bd61119e5f418df7f11d7ef2a0fdedee17d3d)) - by @ninjamuffin99
+- (debug) No more fullscreening when typing "F" in the flixel debugger console ([29b6763](https://github.com/FunkinCrew/Funkin/commit/29b6763290df05d42039806f3d142740568c80f0)) - by @ninjamuffin99
+- Fix the user song offsets being applied incorrectly ([410cfe9](https://github.com/FunkinCrew/Funkin/commit/410cfe972d6df9de4d4d128375cf8380c4f06d92)) - by @JustKolosaki
+- Fix crash in LatencyState when exiting / cleaning up state data ([39b1a42](https://github.com/FunkinCrew/Funkin/commit/39b1a42cfeafe2b7be8b66e2fe529e853d9ae197)) - by @lemz1
+- Add additional classes to Polymod Blacklist ([b0b73c8](https://github.com/FunkinCrew/Funkin/commit/b0b73c83994f33118c6a69550da9ec8ec1c07adc)) - by @EliteMasterEric
+- Stop allowing inputs after selecting a character ([dbf66ac](https://github.com/FunkinCrew/Funkin/commit/dbf66ac250137262866d75f7c1387645b35d88d0)) - by @ACrazyTown
+- Fixed an issue where the player and girlfriend would disappear or overlap themselves in Character Select (community fix by gamerbross)
+- Fixed an issue where the game would show the wrong girlfriend in Character Select (community fix by gamerbross)
+- Fixed an issue where the cursor wouldn't update properly in Character Select (community fix by gamerbross)
+- Fixed an issue where the player would display double after entering character select or when spamming buttons (community fix by gamerbross)
 
 ## New Contributors for 0.5.2
 * @JustKolosaki made their first contribution in [#3482](https://github.com/FunkinCrew/Funkin/pull/3482)
@@ -302,19 +298,17 @@ which would remove their rank if they had a lower one.
 - Fixed an issue where Nene's visualizer would not play on Desktop builds
 - Fixed a bug where the game would silently fail to load saves on HTML5
 - Fixed some bugs with the props on the Story Menu not bopping properly
-- Additional fixes to the Loading bar on HTML5 ([thanks lemz1!](https://github.com/FunkinCrew/Funkin/pull/2553))
-- Fixed several bugs with the TitleState, including missing music when returning from the Main Menu ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2539))
-- Fixed a camera bug in the Main Menu ([thanks richTrash21!](https://github.com/FunkinCrew/Funkin/pull/2576))
-- Fixed a bug where changing difficulties in Story mode wouldn't update the score ([thanks sector-a!](https://github.com/FunkinCrew/Funkin/pull/2585))
-- Fixed a crash in Freeplay caused by a level referencing an invalid song ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2457))
-- Fixed a bug where pressing the volume keys would stop the Toy commercial ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2540))
-- Fixed a bug where the Chart Editor Playtest would crash when losing ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2518))
-- Fixed a bug where hold notes would display improperly in the Chart Editor when downscroll was enabled for gameplay ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2565))
-- Fixed a bug where hold notes would be positioned wrong on downscroll ([thanks MaybeMaru!](https://github.com/FunkinCrew/Funkin/pull/2488))
-- Removed a large number of unused imports to optimize builds ([thanks Ethan-makes-music!](https://github.com/FunkinCrew/Funkin/pull/2624))
-- Improved debug logging for unscripted stages ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2603))
-- Fixed a crash on Linux caused by an old version of hxCodec ([thanks Noobz4Life!](https://github.com/FunkinCrew/Funkin/pull/2472))
-- Optimized animation handling for characters ([thanks richTrash21!](https://github.com/FunkinCrew/Funkin/pull/2493))  
+- Additional fixes to the Loading bar on HTML5 (thanks lemz1!)
+- Fixed several bugs with the TitleState, including missing music when returning from the Main Menu (thanks gamerbross!)
+- Fixed a camera bug in the Main Menu (thanks richTrash21!)
+- Fixed a bug where changing difficulties in Story mode wouldn't update the score (thanks sectorA!)
+- Fixed a crash in Freeplay caused by a level referencing an invalid song (thanks gamerbross!)
+- Fixed a bug where pressing the volume keys would stop the Toy commercial (thanks gamerbross!)
+- Fixed a bug where the Chart Editor Playtest would crash when losing (thanks gamerbross!)
+- Fixed a bug where hold notes would display improperly in the Chart Editor when downscroll was enabled for gameplay (thanks gamerbross!)
+- Fixed a bug where hold notes would be positioned wrong on downscroll (thanks MaybeMaru!)
+- Removed a large number of unused imports to optimize builds (thanks Ethan-makes-music!)
+- Improved debug logging for unscripted stages (thanks gamerbross!)
 - Made improvements to compiling documentation (thanks gedehari!)
 - Fixed an issue where the Chart Editor would use an incorrect instrumental on imported Legacy songs ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2604))
 - Fixed a bug where opening the game from the command line would crash the preloader ([thanks NotHyper-474!](https://github.com/FunkinCrew/Funkin/pull/2629))
@@ -429,7 +423,7 @@ which would remove their rank if they had a lower one.
 - Improvements to video cutscenes and dialogue, allowing them to be easily skipped or restarted.
 - Updated Polymod by several major versions, allowing for fully dynamic asset replacement and support for scripted classes.
 - Completely refactored almost every part of the game's code for performance, stability, and extensibility.
-  - This is not the Ludem Dare game held together with sticks and glue you played three years ago.
+  - This is not the Ludum Dare game held together with sticks and glue you played three years ago.
 - Characters, stages, songs, story levels, and dialogue are now built from JSON data registries rather than being hardcoded.
   - All of these also support attaching scripts for custom behavior, more documentation on this soon.
   - You can forcibly reload the game's JSON data and scripts by pressing F5.
