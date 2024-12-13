@@ -33,8 +33,13 @@ class AddAnimDialog extends DefaultPageDialog
       }
     }
 
+    charAnimFrameList.onChange = function(_) {
+      if (charAnimFrameList.selectedIndex == -1) return;
+      charAnimPrefix.text = charAnimFrameList.selectedItem.name;
+    }
+
     charAnimDropdown.onChange = function(_) {
-      if (charAnimDropdown.selectedIndex == -1) // delele this shiz
+      if (charAnimDropdown.selectedIndex == -1) // delete this shiz
       {
         charAnimName.text = charAnimFrames.text = "";
         charAnimLooped.selected = charAnimFlipX.selected = charAnimFlipY.selected = false;
