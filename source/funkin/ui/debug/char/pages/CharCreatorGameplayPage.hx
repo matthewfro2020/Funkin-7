@@ -45,6 +45,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
   var atlasCharPivotPointer:FlxShapeCircle;
   var atlasCharBasePointer:FlxShapeCircle;
   var midPointPointer:FlxShapeCircle;
+  var camField:FlxSprite;
   var camMarker:FlxSprite;
   var frameTxt:FlxText;
 
@@ -100,6 +101,11 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     camMarker.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 2;
     add(camMarker);
 
+    camField = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT);
+    flixel.util.FlxSpriteUtil.drawRect(camField, 0, 0, FlxG.width, FlxG.height, FlxColor.TRANSPARENT, cast {thickness: 10, color: FlxColor.BLACK});
+    camField.zIndex = flixel.math.FlxMath.MAX_VALUE_INT - 1;
+    add(camField);
+
     frameTxt = new FlxText(0, 0, 0, "", 48);
     frameTxt.setFormat(Paths.font("vcr.ttf"), 48, FlxColor.WHITE, LEFT);
     frameTxt.setBorderStyle(OUTLINE, FlxColor.BLACK, 3);
@@ -144,6 +150,11 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     var type = currentCharacter.characterType;
     camMarker.x = currentCharacter.getMidpoint().x + currentCharacter.characterCameraOffsets[0] + charStageDatas[type].cameraOffsets[0] - camMarker.width / 2;
     camMarker.y = currentCharacter.getMidpoint().y + currentCharacter.characterCameraOffsets[1] + charStageDatas[type].cameraOffsets[1] - camMarker.height / 2;
+
+    camField.visible = daState.menubarCheckToolsCam.selected;
+    camField.scale.set(1 / stageZoom, 1 / stageZoom);
+    camField.updateHitbox();
+    camField.setPosition(camMarker.getMidpoint().x - camField.width / 2, camMarker.getMidpoint().y - camField.height / 2);
 
     if (!CharCreatorUtil.isHaxeUIDialogOpen)
     {
