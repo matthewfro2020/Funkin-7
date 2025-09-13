@@ -20,18 +20,24 @@ import funkin.util.VersionUtil;
 import haxe.Json;
 import flixel.graphics.frames.FlxFrame;
 
-:source/funkin/play/character/CharacterData.hx
 @:nullSafety
 class CharacterDataParser
+{
+  public var fileName:String;
+  public var contents:String;
 
-using funkin.data.character.migrator.CharacterDataMigrator;
+  public function new(fileName:String, contents:String)
+  {
+    this.fileName = fileName;
+    this.contents = contents;
+  }
+}
 
 /**
  * NOTE: This doesn't act the same as the other registries.
  * It doesn't implement `BaseRegistry` and fetching produces a new instance rather than reusing them.
  */
 class CharacterRegistry
->>>>>>> merge-char-creator:source/funkin/data/character/CharacterRegistry.hx
 {
   /**
    * The current version string for the character data format.
@@ -384,12 +390,9 @@ class CharacterRegistry
   {
     var rawJson:JsonFile = loadCharacterFile(charId);
 
-:source/funkin/play/character/CharacterData.hx
     var charData:Null<CharacterData> = migrateCharacterData(rawJson, charId);
 
     var version = fetchEntryVersion(rawJson);
->>>>>>> merge-char-creator:source/funkin/data/character/CharacterRegistry.hx
-
     if (version == null)
     {
       return null;

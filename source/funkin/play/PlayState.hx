@@ -35,7 +35,7 @@ import funkin.modding.events.ScriptEvent;
 import funkin.api.newgrounds.Events;
 import funkin.modding.events.ScriptEventDispatcher;
 import funkin.play.character.BaseCharacter;
-import funkin.play.character.CharacterData.CharacterDataParser;
+import funkin.data.character.CharacterData.CharacterDataParser;
 import funkin.data.character.CharacterRegistry;
 import funkin.play.components.ComboMilestone;
 import funkin.play.components.HealthIcon;

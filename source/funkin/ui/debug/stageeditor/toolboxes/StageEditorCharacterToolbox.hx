@@ -2,7 +2,7 @@ package funkin.ui.debug.stageeditor.toolboxes;
 
 import haxe.ui.components.NumberStepper;
 import funkin.play.character.BaseCharacter.CharacterType;
-import funkin.play.character.CharacterData.CharacterDataParser;
+import funkin.data.character.CharacterData.CharacterDataParser;
 import funkin.play.character.CharacterData;
 import funkin.data.character.CharacterRegistry;
 import funkin.util.SortUtil;
