@@ -41,7 +41,12 @@ import funkin.input.TurboKeyHandler;
 import funkin.modding.events.ScriptEvent;
 import funkin.play.notes.notekind.NoteKindManager;
 import funkin.play.character.BaseCharacter.CharacterType;
+<<<<<<< HEAD
 import funkin.play.character.CharacterData.CharacterDataParser;
+=======
+import funkin.data.character.CharacterData;
+import funkin.data.character.CharacterRegistry;
+>>>>>>> merge-char-creator
 import funkin.play.components.HealthIcon;
 import funkin.play.notes.NoteSprite;
 import funkin.play.PlayStatePlaylist;
@@ -5580,8 +5585,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   {
     if (healthIconsDirty)
     {
-      var charDataBF = CharacterDataParser.fetchCharacterData(currentSongMetadata.playData.characters.player);
-      var charDataDad = CharacterDataParser.fetchCharacterData(currentSongMetadata.playData.characters.opponent);
+      var charDataBF = CharacterRegistry.fetchCharacterData(currentSongMetadata.playData.characters.player);
+      var charDataDad = CharacterRegistry.fetchCharacterData(currentSongMetadata.playData.characters.opponent);
       if (healthIconBF != null)
       {
         healthIconBF.configure(charDataBF?.healthIcon);

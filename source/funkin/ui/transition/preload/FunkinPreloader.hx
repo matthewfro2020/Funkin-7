@@ -7,6 +7,11 @@ import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.Lib;
 import flixel.system.FlxBasePreloader;
+<<<<<<< HEAD
+=======
+import funkin.modding.PolymodHandler;
+import funkin.data.character.CharacterRegistry;
+>>>>>>> merge-char-creator
 import funkin.util.MathUtil;
 import openfl.display.Sprite;
 import openfl.text.TextField;
@@ -664,7 +669,7 @@ class FunkinPreloader extends FlxBasePreloader
 
           /*
             // TODO: Reimplement this.
-            var future:Future<Array<String>> = []; // CharacterDataParser.loadCharacterCacheAsync();
+            var future:Future<Array<String>> = []; // CharacterRegistry.loadCharacterCacheAsync();
 
             future.onProgress((loaded:Int, total:Int) -> {
               parsingCharactersPercent = loaded / total;

@@ -4,6 +4,7 @@ All notable changes will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<<<<<<< HEAD
 ## [0.7.4] - 2025-09-01
 
 ### Added
@@ -20,6 +21,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a Song ID field to the Chart Editor metadata toolbox. ([55f9d24](https://github.com/FunkinCrew/funkin.assets/commit/55f9d24e9dc475b981e4cc087101425e85d3c1e2)) - by @cyn0x8 in [funkin.assets#229](https://github.com/FunkinCrew/funkin.assets/pull/229)
 - Added a confirmation prompt when exiting the Chart Editor with an unsaved chart. ([e6d7371](https://github.com/FunkinCrew/Funkin/commit/e6d737125e0031d1efabc73266dfbde6d6c758de)) - by @anysad in [#5091](https://github.com/FunkinCrew/Funkin/pull/5091)
 - [ANDROID] Added support for monochrome icons on Android 12 and above. ([5de4e76](https://github.com/FunkinCrew/Funkin/commit/5de4e766b7317c50d3ae40b9525b7c391984d52c)) - by @ThatOneCalculator in [#5507](https://github.com/FunkinCrew/Funkin/pull/5507)
+=======
+## [0.5.3] - 2024-10-18
+This patch resolves a critical issue which could cause user's save data to become corrupted. It is recommended that users switch to this version immediately and avoid using version 0.5.2.
+### Fixed
+- Fixed a critical issue in which the Stage Editor theme value could not be parsed by older versions of the game, resulting in all save data being destroyed.
+  - Added a check which prevents save data from being loaded if it is corrupted rather than overriding it.
+- `optionsStageEditor.theme` in the save data converted from an Enum to a String to fix save data compatibility issues.
+  - In the future, Enum values should not be used in order to prevent incompatibilities caused by introducing new types to the save data that older versions cannot parse.
+- `optionsChartEditor.theme` in the save data converted from an Enum to a String to fix save data compatibility issues.
+- `optionsChartEditor.chartEditorLiveInputStyle` in the save data converted from an Enum to a String to fix save data compatibility issues.
+- Fixed an issue where some publicly distributed builds of the game were debug builds instead of release builds.
+
+## [0.5.2] - 2024-10-11
+>>>>>>> merge-char-creator
 
 ### Changed
 
@@ -69,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image assets for gradients are now smaller and stretched in-game for better optimization. ([fab646c](https://github.com/FunkinCrew/funkin.assets/commit/fab646ce4a3045dcd6aa2ab86c403a40ee89bfa3)) - by @MaybeMaru in [funkin.assets#227](https://github.com/FunkinCrew/funkin.assets/pull/227)
 
 ### Fixed
+<<<<<<< HEAD
 
 - The song no longer restarts from an earlier point in the song instead of ending.
 - Perfect ranks no longer occasionally disappear after the rank slam animation.
@@ -761,6 +777,32 @@ This patch resolves a critical issue that could cause user's save data to become
 - The dialog box now shows up in the Animation Editor. ([1fde59f](https://github.com/FunkinCrew/Funkin/commit/1fde59f999eac94eb10fc22094885de2f5310705)) - by @EliteMasterEric in [#3530](https://github.com/FunkinCrew/Funkin/pull/3530)
 - (debug) No more fullscreening when typing "F" in the flixel debugger console. ([29b6763](https://github.com/FunkinCrew/Funkin/commit/29b6763290df05d42039806f3d142740568c80f0)) - by @ninjamuffin99
 - Added additional classes to Polymod blacklist for security. ([b0b73c8](https://github.com/FunkinCrew/Funkin/commit/b0b73c83994f33118c6a69550da9ec8ec1c07adc)) - by @EliteMasterEric in [#3558](https://github.com/FunkinCrew/Funkin/pull/3558)
+=======
+- Fix the user song offsets being applied incorrectly, causing stuttering or skipping ([410cfe9](https://github.com/FunkinCrew/Funkin/commit/410cfe972d6df9de4d4d128375cf8380c4f06d92)) - by @JustKolosaki in [#3546](https://github.com/FunkinCrew/Funkin/pull/3546) in [#3506](https://github.com/FunkinCrew/Funkin/pull/3506)
+- Fixed issues with variation / difficulty loading for Freeplay Menu which caused some songs to disappear ([c0314c8](https://github.com/FunkinCrew/Funkin/commit/c0314c85ecd5116641aff3de8e9153f7fe48e79c)) - by @ninjamuffin99
+- Pico's songs now display properly on the Freeplay Menu ([1d2bd61](https://github.com/FunkinCrew/Funkin/commit/1d2bd61119e5f418df7f11d7ef2a0fdedee17d3d)) - by @ninjamuffin99 in [#3506](https://github.com/FunkinCrew/Funkin/pull/3506)
+- Exiting the chart editor doesn't crash the game anymore ([f52472a](https://github.com/FunkinCrew/Funkin/commit/f52472a4767388b22cfbab0f5f7860f6e6762856)) - by @EliteMasterEric and @ianharrigan in [#3519](https://github.com/FunkinCrew/Funkin/pull/3519)
+- Disable flickering when attempting to select FPS in the options menu ([b2647fe](https://github.com/FunkinCrew/Funkin/commit/b2647fe09f5281ce7074b26d47bc1524764168ee)) - by @lemz1 in [#3629](https://github.com/FunkinCrew/Funkin/pull/3629)
+- Anti-alias / smooth the volume sound tray ([e66290c](https://github.com/FunkinCrew/Funkin/commit/e66290c55f7141402223644f06ec8a69edeee089)) - by @Kn1ghtNight in [#2853](https://github.com/FunkinCrew/Funkin/pull/2853)
+- Don't restart the FreeplayState song preview when changing the difficulty within the same variation ([903b3fc](https://github.com/FunkinCrew/Funkin/commit/903b3fc59905a70802618a1cd67407722ea956ed)) - by @JustKolosaki in [#3587](https://github.com/FunkinCrew/Funkin/pull/3587)
+- Character Select cursor moves properly at lower framerates ([ab5bda3](https://github.com/FunkinCrew/Funkin/commit/ab5bda3ee573a6e03595ec6941e6de38df851889)) - by @ninjamuffin99 in [#3507](https://github.com/FunkinCrew/Funkin/pull/3507)
+- Stop allowing F1 to create more than one help dialog window in the Charting Editor ([777978f](https://github.com/FunkinCrew/Funkin/commit/777978f5a544e1b7c89b47dcc365f734eb6d0df1)) - by @amyspark-ng in [#3552](https://github.com/FunkinCrew/Funkin/pull/3552)
+- Main menu music doesn't cut out when switching states anymore. ([711e0a6](https://github.com/FunkinCrew/Funkin/commit/711e0a6b7547eb04113e9318dab900f01ad576a5)) - by @EliteMasterEric in [#3530](https://github.com/FunkinCrew/Funkin/pull/3530)
+- The dialog now shows up on the animation debugger view ([1fde59f](https://github.com/FunkinCrew/Funkin/commit/1fde59f999eac94eb10fc22094885de2f5310705)) - by @EliteMasterEric in [#3530](https://github.com/FunkinCrew/Funkin/pull/3530)
+- Center preloader 'fnf' and 'dsp' text so it doesn't clip anymore ([165ad60](https://github.com/FunkinCrew/Funkin/commit/165ad6015539a295e9eefdaef291c312e9566b26)) - by @Burgerballs in [#3567](https://github.com/FunkinCrew/Funkin/pull/3567)
+- `Song.getFirstValidVariation()` now properly takes into account multiple variations/difficulty input ([d2e2987](https://github.com/FunkinCrew/Funkin/commit/d2e29879fe2acc6febfe0f335f655b741d630c34)) - by @ninjamuffin99 in [#3506](https://github.com/FunkinCrew/Funkin/pull/3506)
+- (freeplay) Proper variation / difficulty loading for Freeplay Menu ([c0314c8](https://github.com/FunkinCrew/Funkin/commit/c0314c85ecd5116641aff3de8e9153f7fe48e79c)) - by @ninjamuffin99
+- Picos songs properly load on freeplay ([1d2bd61](https://github.com/FunkinCrew/Funkin/commit/1d2bd61119e5f418df7f11d7ef2a0fdedee17d3d)) - by @ninjamuffin99
+- (debug) No more fullscreening when typing "F" in the flixel debugger console ([29b6763](https://github.com/FunkinCrew/Funkin/commit/29b6763290df05d42039806f3d142740568c80f0)) - by @ninjamuffin99
+- Fix the user song offsets being applied incorrectly ([410cfe9](https://github.com/FunkinCrew/Funkin/commit/410cfe972d6df9de4d4d128375cf8380c4f06d92)) - by @JustKolosaki
+- Fix crash in LatencyState when exiting / cleaning up state data ([39b1a42](https://github.com/FunkinCrew/Funkin/commit/39b1a42cfeafe2b7be8b66e2fe529e853d9ae197)) - by @lemz1
+- Add additional classes to Polymod Blacklist ([b0b73c8](https://github.com/FunkinCrew/Funkin/commit/b0b73c83994f33118c6a69550da9ec8ec1c07adc)) - by @EliteMasterEric
+- Stop allowing inputs after selecting a character ([dbf66ac](https://github.com/FunkinCrew/Funkin/commit/dbf66ac250137262866d75f7c1387645b35d88d0)) - by @ACrazyTown
+- Fixed an issue where the player and girlfriend would disappear or overlap themselves in Character Select (community fix by gamerbross)
+- Fixed an issue where the game would show the wrong girlfriend in Character Select (community fix by gamerbross)
+- Fixed an issue where the cursor wouldn't update properly in Character Select (community fix by gamerbross)
+- Fixed an issue where the player would display double after entering character select or when spamming buttons (community fix by gamerbross)
+>>>>>>> merge-char-creator
 
 ## New Contributors for 0.5.2
 
@@ -1040,6 +1082,7 @@ The Pit Stop 1 update!
 - Improved the Event Toolbox in the Chart Editor; dropdowns are now bigger, include search field, and display elements in alphabetical order rather than a random order.
 
 ### Fixed
+<<<<<<< HEAD
 
 - Nene's visualizer now plays on Desktop builds.
 - The game no longer silently fails to load saves on HTML5.
@@ -1060,6 +1103,26 @@ The Pit Stop 1 update!
 - The Chart Editor no longer uses an incorrect instrumental on imported Legacy songs. ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2604))
 - Opening the game from the command line no longer crashes the preloader. ([thanks NotHyper-474!](https://github.com/FunkinCrew/Funkin/pull/2629))
 - Characters no longer use the wrong scale value sometimes. ([thanks PurSnake!](https://github.com/FunkinCrew/Funkin/pull/2610))
+=======
+- Fixed an issue where Nene's visualizer would not play on Desktop builds
+- Fixed a bug where the game would silently fail to load saves on HTML5
+- Fixed some bugs with the props on the Story Menu not bopping properly
+- Additional fixes to the Loading bar on HTML5 (thanks lemz1!)
+- Fixed several bugs with the TitleState, including missing music when returning from the Main Menu (thanks gamerbross!)
+- Fixed a camera bug in the Main Menu (thanks richTrash21!)
+- Fixed a bug where changing difficulties in Story mode wouldn't update the score (thanks sectorA!)
+- Fixed a crash in Freeplay caused by a level referencing an invalid song (thanks gamerbross!)
+- Fixed a bug where pressing the volume keys would stop the Toy commercial (thanks gamerbross!)
+- Fixed a bug where the Chart Editor Playtest would crash when losing (thanks gamerbross!)
+- Fixed a bug where hold notes would display improperly in the Chart Editor when downscroll was enabled for gameplay (thanks gamerbross!)
+- Fixed a bug where hold notes would be positioned wrong on downscroll (thanks MaybeMaru!)
+- Removed a large number of unused imports to optimize builds (thanks Ethan-makes-music!)
+- Improved debug logging for unscripted stages (thanks gamerbross!)
+- Made improvements to compiling documentation (thanks gedehari!)
+- Fixed an issue where the Chart Editor would use an incorrect instrumental on imported Legacy songs ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2604))
+- Fixed a bug where opening the game from the command line would crash the preloader ([thanks NotHyper-474!](https://github.com/FunkinCrew/Funkin/pull/2629))
+- Fixed a bug where characters would sometimes use the wrong scale value ([thanks PurSnake!](https://github.com/FunkinCrew/Funkin/pull/2610))
+>>>>>>> merge-char-creator
 - Additional bug fixes and optimizations.
 
 ## New Contributors for 0.4.0
