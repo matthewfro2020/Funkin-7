@@ -56,7 +56,6 @@ class MultiSparrowCharacter extends BaseCharacter
 
   function buildSpritesheet():Void
   {
-<<<<<<< HEAD
     trace('Loading assets for Multi-Sparrow character "${characterId}"', flixel.util.FlxColor.fromString("#89CFF0"));
 
     var assetList = [];
@@ -69,9 +68,8 @@ class MultiSparrowCharacter extends BaseCharacter
     }
 
     var texture:FlxAtlasFrames = Paths.getSparrowAtlas(_data.assetPath);
-=======
+
     var texture:FlxAtlasFrames = Paths.getSparrowAtlas(_data.assetPaths[0]);
->>>>>>> merge-char-creator
 
     if (texture == null)
     {
@@ -103,11 +101,9 @@ class MultiSparrowCharacter extends BaseCharacter
       else
       {
         trace('Concatenating multi-sparrow atlas: ${asset}');
-<<<<<<< HEAD
+
         subTexture.parent.destroyOnNoUse = false;
         FunkinMemory.cacheTexture(Paths.image(asset));
-=======
->>>>>>> merge-char-creator
       }
 
       texture.addAtlas(subTexture);

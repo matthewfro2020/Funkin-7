@@ -63,16 +63,16 @@ class DebugMenuSubState extends MusicBeatSubState
     #if FEATURE_STAGE_EDITOR
     createItem("STAGE EDITOR", openStageEditor);
     #end
-<<<<<<< HEAD
+
     #if FEATURE_RESULTS_DEBUG
     createItem("RESULTS SCREEN DEBUG", openTestResultsScreen);
     #end
-=======
+
     createItem("CHARACTER CREATOR", openCharCreator);
     // createItem("Input Offset Testing", openInputOffsetTesting);
     // createItem("CHARACTER SELECT", openCharSelect, true);
     // createItem("TEST STICKERS", testStickers);
->>>>>>> merge-char-creator
+
     #if sys
     createItem("OPEN CRASH LOG FOLDER", openLogFolder);
     #end
@@ -137,28 +137,26 @@ class DebugMenuSubState extends MusicBeatSubState
     FlxG.switchState(() -> new funkin.ui.debug.stageeditor.StageEditorState());
   }
 
-<<<<<<< HEAD
   function openTestResultsScreen():Void
   {
     FlxG.switchState(() -> new funkin.ui.debug.results.ResultsDebugSubState());
-=======
-  function openCharCreator()
-  {
-    trace('Character Creator');
-    FlxG.switchState(() -> new funkin.ui.debug.char.CharCreatorState());
->>>>>>> merge-char-creator
-  }
 
-  #if sys
-  function openLogFolder()
-  {
-    FileUtil.openFolder(CrashHandler.LOG_FOLDER);
-  }
-  #end
+    function openCharCreator()
+    {
+      trace('Character Creator');
+      FlxG.switchState(() -> new funkin.ui.debug.char.CharCreatorState());
+    }
 
-  function exitDebugMenu()
-  {
-    // TODO: Add a transition?
-    this.close();
+    #if sys
+    function openLogFolder()
+    {
+      FileUtil.openFolder(CrashHandler.LOG_FOLDER);
+    }
+    #end
+
+    function exitDebugMenu()
+    {
+      // TODO: Add a transition?
+      this.close();
+    }
   }
-}

@@ -7,11 +7,8 @@ import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.Lib;
 import flixel.system.FlxBasePreloader;
-<<<<<<< HEAD
-=======
 import funkin.modding.PolymodHandler;
 import funkin.data.character.CharacterRegistry;
->>>>>>> merge-char-creator
 import funkin.util.MathUtil;
 import openfl.display.Sprite;
 import openfl.text.TextField;

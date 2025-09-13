@@ -4,7 +4,7 @@ All notable changes will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<<<<<<< HEAD
+
 ## [0.7.4] - 2025-09-01
 
 ### Added
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a Song ID field to the Chart Editor metadata toolbox. ([55f9d24](https://github.com/FunkinCrew/funkin.assets/commit/55f9d24e9dc475b981e4cc087101425e85d3c1e2)) - by @cyn0x8 in [funkin.assets#229](https://github.com/FunkinCrew/funkin.assets/pull/229)
 - Added a confirmation prompt when exiting the Chart Editor with an unsaved chart. ([e6d7371](https://github.com/FunkinCrew/Funkin/commit/e6d737125e0031d1efabc73266dfbde6d6c758de)) - by @anysad in [#5091](https://github.com/FunkinCrew/Funkin/pull/5091)
 - [ANDROID] Added support for monochrome icons on Android 12 and above. ([5de4e76](https://github.com/FunkinCrew/Funkin/commit/5de4e766b7317c50d3ae40b9525b7c391984d52c)) - by @ThatOneCalculator in [#5507](https://github.com/FunkinCrew/Funkin/pull/5507)
-=======
+
 ## [0.5.3] - 2024-10-18
 This patch resolves a critical issue which could cause user's save data to become corrupted. It is recommended that users switch to this version immediately and avoid using version 0.5.2.
 ### Fixed
@@ -84,7 +84,7 @@ This patch resolves a critical issue which could cause user's save data to becom
 - Image assets for gradients are now smaller and stretched in-game for better optimization. ([fab646c](https://github.com/FunkinCrew/funkin.assets/commit/fab646ce4a3045dcd6aa2ab86c403a40ee89bfa3)) - by @MaybeMaru in [funkin.assets#227](https://github.com/FunkinCrew/funkin.assets/pull/227)
 
 ### Fixed
-<<<<<<< HEAD
+
 
 - The song no longer restarts from an earlier point in the song instead of ending.
 - Perfect ranks no longer occasionally disappear after the rank slam animation.
@@ -777,7 +777,7 @@ This patch resolves a critical issue that could cause user's save data to become
 - The dialog box now shows up in the Animation Editor. ([1fde59f](https://github.com/FunkinCrew/Funkin/commit/1fde59f999eac94eb10fc22094885de2f5310705)) - by @EliteMasterEric in [#3530](https://github.com/FunkinCrew/Funkin/pull/3530)
 - (debug) No more fullscreening when typing "F" in the flixel debugger console. ([29b6763](https://github.com/FunkinCrew/Funkin/commit/29b6763290df05d42039806f3d142740568c80f0)) - by @ninjamuffin99
 - Added additional classes to Polymod blacklist for security. ([b0b73c8](https://github.com/FunkinCrew/Funkin/commit/b0b73c83994f33118c6a69550da9ec8ec1c07adc)) - by @EliteMasterEric in [#3558](https://github.com/FunkinCrew/Funkin/pull/3558)
-=======
+
 - Fix the user song offsets being applied incorrectly, causing stuttering or skipping ([410cfe9](https://github.com/FunkinCrew/Funkin/commit/410cfe972d6df9de4d4d128375cf8380c4f06d92)) - by @JustKolosaki in [#3546](https://github.com/FunkinCrew/Funkin/pull/3546) in [#3506](https://github.com/FunkinCrew/Funkin/pull/3506)
 - Fixed issues with variation / difficulty loading for Freeplay Menu which caused some songs to disappear ([c0314c8](https://github.com/FunkinCrew/Funkin/commit/c0314c85ecd5116641aff3de8e9153f7fe48e79c)) - by @ninjamuffin99
 - Pico's songs now display properly on the Freeplay Menu ([1d2bd61](https://github.com/FunkinCrew/Funkin/commit/1d2bd61119e5f418df7f11d7ef2a0fdedee17d3d)) - by @ninjamuffin99 in [#3506](https://github.com/FunkinCrew/Funkin/pull/3506)
@@ -1082,7 +1082,7 @@ The Pit Stop 1 update!
 - Improved the Event Toolbox in the Chart Editor; dropdowns are now bigger, include search field, and display elements in alphabetical order rather than a random order.
 
 ### Fixed
-<<<<<<< HEAD
+
 
 - Nene's visualizer now plays on Desktop builds.
 - The game no longer silently fails to load saves on HTML5.
@@ -1103,7 +1103,7 @@ The Pit Stop 1 update!
 - The Chart Editor no longer uses an incorrect instrumental on imported Legacy songs. ([thanks gamerbross!](https://github.com/FunkinCrew/Funkin/pull/2604))
 - Opening the game from the command line no longer crashes the preloader. ([thanks NotHyper-474!](https://github.com/FunkinCrew/Funkin/pull/2629))
 - Characters no longer use the wrong scale value sometimes. ([thanks PurSnake!](https://github.com/FunkinCrew/Funkin/pull/2610))
-=======
+
 - Fixed an issue where Nene's visualizer would not play on Desktop builds
 - Fixed a bug where the game would silently fail to load saves on HTML5
 - Fixed some bugs with the props on the Story Menu not bopping properly

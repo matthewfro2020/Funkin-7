@@ -5,9 +5,9 @@ import funkin.data.song.SongData;
 
 class SongMetadata_v2_0_0
 {
-  // ==========
+  // ===
   // MODIFIED VALUES
-  // ===========
+  // ====
 
   /**
    * In metadata `v2.1.0`, `SongPlayData` was refactored.
@@ -21,9 +21,9 @@ class SongMetadata_v2_0_0
   @:default('default')
   public var variation:String;
 
-  // ==========
+  // ===
   // UNMODIFIED VALUES
-  // ==========
+  // ===
   @:jcustomparse(funkin.data.DataParse.semverVersion)
   @:jcustomwrite(funkin.data.DataWrite.semverVersion)
   public var version:Version;
@@ -62,9 +62,9 @@ class SongMetadata_v2_0_0
 
 class SongPlayData_v2_0_0
 {
-  // ==========
+  // ===
   // MODIFIED VALUES
-  // ===========
+  // ====
 
   /**
    * In metadata version `v2.1.0`, this was refactored to a single `SongCharacterData` object.
@@ -78,9 +78,9 @@ class SongPlayData_v2_0_0
 
   // In 2.2.0, the ratings value was added.
   // In 2.2.0, the album value was added.
-  // ==========
+  // ===
   // UNMODIFIED VALUES
-  // ==========
+  // ===
   @:default([])
   @:optional
   public var songVariations:Array<String>;

@@ -2,12 +2,9 @@ package funkin.ui.debug.stageeditor.toolboxes;
 
 import haxe.ui.components.NumberStepper;
 import funkin.play.character.BaseCharacter.CharacterType;
-<<<<<<< HEAD
 import funkin.play.character.CharacterData.CharacterDataParser;
 import funkin.play.character.CharacterData;
-=======
 import funkin.data.character.CharacterRegistry;
->>>>>>> merge-char-creator
 import funkin.util.SortUtil;
 import funkin.save.Save;
 import haxe.ui.components.Button;
@@ -17,11 +14,8 @@ import haxe.ui.core.Screen;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import haxe.ui.containers.Grid;
-<<<<<<< HEAD
 import haxe.ui.events.UIEvent;
-=======
 import funkin.data.character.CharacterData;
->>>>>>> merge-char-creator
 
 using StringTools;
 
@@ -123,9 +117,8 @@ class StageEditorCharacterToolbox extends StageEditorDefaultToolbox
     charType.icon = (charData == null ? null : CharacterDataParser.getCharPixelIconAsset(curChar.characterId));
     charType.text = (charData == null ? "None" : charData.name.length > 6 ? '${charData.name.substr(0, 6)}.' : '${charData.name}');
 
-<<<<<<< HEAD
     if (prevText != charType.text) Screen.instance.removeComponent(charMenu);
-=======
+
     if (characterScaleSlider.pos != stageEditorState.selectedChar.scale.x / stageEditorState.selectedChar.getBaseScale())
       characterScaleSlider.pos = stageEditorState.selectedChar.scale.x / stageEditorState.selectedChar.getBaseScale();
 
@@ -139,7 +132,6 @@ class StageEditorCharacterToolbox extends StageEditorDefaultToolbox
     {
       Screen.instance.removeComponent(charMenu);
     }
->>>>>>> merge-char-creator
   }
 
   public function repositionCharacter()
@@ -219,7 +211,6 @@ class StageEditorCharacterMenu extends Menu // copied from chart editor
         // okay i think that was enough cleaning phew you can see how clean this group is now!!!
         // anyways new character!!!!
 
-<<<<<<< HEAD
         var newChar = CharacterDataParser.fetchCharacter(charId, true);
         if (newChar == null)
         {
@@ -227,9 +218,8 @@ class StageEditorCharacterMenu extends Menu // copied from chart editor
           newChar = CharacterDataParser.fetchCharacter(Constants.DEFAULT_CHARACTER, true);
         }
 
-=======
         var newChar = CharacterRegistry.fetchCharacter(charId, true);
->>>>>>> merge-char-creator
+
         newChar.characterType = type;
 
         newChar.resetCharacter(true);

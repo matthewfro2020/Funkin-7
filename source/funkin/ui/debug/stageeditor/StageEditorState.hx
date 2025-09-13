@@ -341,21 +341,20 @@ class StageEditorState extends UIState
     WindowManager.instance.container = root;
     Screen.instance.addComponent(root);
 
-<<<<<<< HEAD
     // Characters setup.
     var gf = CharacterDataParser.fetchCharacter(Save.instance.stageGirlfriendChar, true);
     gf.characterType = CharacterType.GF;
     var dad = CharacterDataParser.fetchCharacter(Save.instance.stageDadChar, true);
     dad.characterType = CharacterType.DAD;
     var bf = CharacterDataParser.fetchCharacter(Save.instance.stageBoyfriendChar, true);
-=======
+
     // group shit + assets
     var gf = CharacterRegistry.fetchCharacter("gf", true);
     gf.characterType = CharacterType.GF;
     var dad = CharacterRegistry.fetchCharacter("dad", true);
     dad.characterType = CharacterType.DAD;
     var bf = CharacterRegistry.fetchCharacter("bf", true);
->>>>>>> merge-char-creator
+
     bf.characterType = CharacterType.BF;
 
     bf.flipX = !bf.getDataFlipX();

@@ -18,7 +18,7 @@ class ChartEditorThemeHandler
 {
   // TODO: There's probably a better system of organization for these colors.
   // An enum of typedefs or something?
-  // ================================
+  // ====
   static final BACKGROUND_COLOR_LIGHT:FlxColor = 0xFF673AB7;
   static final BACKGROUND_COLOR_DARK:FlxColor = 0xFF361E60;
 

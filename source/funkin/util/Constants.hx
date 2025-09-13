@@ -14,7 +14,7 @@ class Constants
   /**
    * ENGINE AND VERSION DATA
    */
-  // ==============================
+  // ==
 
   /**
    * The title of the game, for debug printing purposes.
@@ -64,7 +64,7 @@ class Constants
   /**
    * URL DATA
    */
-  // ==============================
+  // ==
 
   /**
    * Link to buy merch for the game.
@@ -90,7 +90,7 @@ class Constants
   /**
    * REPOSITORY DATA
    */
-  // ==============================
+  // ==
 
   /**
    * The current Git branch.
@@ -112,7 +112,7 @@ class Constants
   /**
    * COLORS
    */
-  // ==============================
+  // ==
 
   /**
    * The color used by the enemy health bar.
@@ -167,7 +167,7 @@ class Constants
   /**
    * GAME DEFAULTS
    */
-  // ==============================
+  // ==
 
   /**
    * Default difficulty for charts.
@@ -305,7 +305,7 @@ class Constants
   /**
    * ANIMATIONS
    */
-  // ==============================
+  // ==
 
   /**
    * A suffix used for animations played when an animation would loop.
@@ -320,7 +320,7 @@ class Constants
   /**
    * TIMING
    */
-  // ==============================
+  // ==
 
   /**
    * A magic number used when calculating scroll speed and note distances.
@@ -408,7 +408,7 @@ class Constants
   /**
    * HEALTH VALUES
    */
-  // ==============================
+  // ==
 
   /**
    * The player's maximum health.
@@ -486,7 +486,7 @@ class Constants
   /**
    * SCORE VALUES
    */
-  // ==============================
+  // ==
 
   /**
    * The amount of score the player gains for every second they hold a hold note.
@@ -520,7 +520,7 @@ class Constants
   /**
    * FILE EXTENSIONS
    */
-  // ==============================
+  // ==
 
   /**
    * The file extension used when exporting chart files.
@@ -558,7 +558,7 @@ class Constants
   /**
    * OTHER
    */
-  // ==============================
+  // ==
   #if FEATURE_GHOST_TAPPING
   // Hey there, Eric here.
   // This feature is currently still in development. You can test it out by creating a special debug build!

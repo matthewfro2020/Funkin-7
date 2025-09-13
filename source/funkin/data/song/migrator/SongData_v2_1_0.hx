@@ -7,9 +7,9 @@ import thx.semver.Version;
 @:nullSafety
 class SongMetadata_v2_1_0
 {
-  // ==========
+  // ===
   // MODIFIED VALUES
-  // ===========
+  // ====
 
   /**
    * In metadata `v2.2.0`, `SongPlayData` was refactored.
@@ -18,9 +18,9 @@ class SongMetadata_v2_1_0
 
   // In metadata `v2.2.1`, `SongOffsets` was added.
   // var offsets:SongOffsets;
-  // ==========
+  // ===
   // UNMODIFIED VALUES
-  // ==========
+  // ===
   @:jcustomparse(funkin.data.DataParse.semverVersion)
   @:jcustomwrite(funkin.data.DataWrite.semverVersion)
   public var version:Version;
@@ -90,9 +90,9 @@ class SongPlayData_v2_1_0
 
   // In 2.2.0, the ratings value was added.
   // In 2.2.0, the album value was added.
-  // ==========
+  // ===
   // UNMODIFIED VALUES
-  // ==========
+  // ===
   @:default([])
   @:optional
   public var songVariations:Array<String>;

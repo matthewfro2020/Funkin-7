@@ -205,7 +205,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
 
   override public function fillUpBottomBar(left:Box, middle:Box, right:Box)
   {
-    // ==================left==================
+    // ====left====
     var leftRule1 = new VerticalRule();
     var leftRule2 = new VerticalRule();
 
@@ -217,9 +217,9 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     left.addComponent(leftRule2);
     left.addComponent(labelAnimOffsetY);
 
-    // ==================middle==================
+    // ====middle====
 
-    // ==================right==================
+    // ====right====
     var rightRule = new VerticalRule();
     rightRule.percentHeight = RULE_HEIGHT;
 
@@ -367,7 +367,7 @@ class CharCreatorGameplayPage extends CharCreatorDefaultPage
     checkHealth.text = "Health Icon Data";
     checkGhost.text = "Ghost Settings";
 
-    // ==================callback bs==================
+    // ====callback bs====
 
     labelAnimName.onClick = _ -> changeAnim(1);
     labelAnimName.onRightClick = _ -> changeAnim(-1);

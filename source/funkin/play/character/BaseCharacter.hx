@@ -148,12 +148,10 @@ class BaseCharacter extends Bopper
 
   public function new(id:String, renderType:CharacterRenderType)
   {
-<<<<<<< HEAD
     super(CharacterDataParser.DEFAULT_DANCEEVERY);
 
-=======
     super(CharacterRegistry.DEFAULT_DANCEEVERY);
->>>>>>> merge-char-creator
+
     this.characterId = id;
 
     ignoreExclusionPref = ["sing"];

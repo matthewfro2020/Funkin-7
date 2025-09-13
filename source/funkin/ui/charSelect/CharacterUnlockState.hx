@@ -8,10 +8,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import funkin.graphics.FunkinSprite;
 import flixel.util.FlxColor;
-<<<<<<< HEAD
 import funkin.play.character.CharacterData.CharacterDataParser;
-=======
->>>>>>> merge-char-creator
 import funkin.play.components.HealthIcon;
 import funkin.ui.freeplay.charselect.PlayableCharacter;
 import funkin.data.freeplay.player.PlayerRegistry;

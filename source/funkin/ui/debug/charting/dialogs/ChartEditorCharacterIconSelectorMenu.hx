@@ -109,13 +109,12 @@ class ChartEditorCharacterIconSelectorMenu extends ChartEditorBaseMenu
       }
 
       var LIMIT = 6;
-<<<<<<< HEAD
+
       charButton.icon = haxe.ui.util.Variant.fromImageData(CharacterDataParser.getCharPixelIconAsset(charId));
       charButton.text = (charId != "") ? (charData.name.length > LIMIT ? '${charData.name.substr(0, LIMIT)}.' : '${charData.name}') : 'None';
-=======
+
       charButton.icon = haxe.ui.util.Variant.fromImageData(CharacterRegistry.getCharPixelIconAsset(charId));
       charButton.text = charData.name.length > LIMIT ? '${charData.name.substr(0, LIMIT)}.' : '${charData.name}';
->>>>>>> merge-char-creator
 
       charButton.onClick = _ -> {
         switch (charType)

@@ -1,16 +1,13 @@
 package funkin.ui.debug.charting.toolboxes;
 
-<<<<<<< HEAD
 import funkin.data.song.SongData.SongChartData;
 import funkin.data.song.SongData.SongMetadata;
 import funkin.data.song.SongRegistry;
-=======
 import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.data.stage.StageData;
 import funkin.data.stage.StageRegistry;
 import funkin.ui.debug.charting.commands.ChangeStartingBPMCommand;
 import funkin.ui.debug.charting.util.ChartEditorDropdowns;
->>>>>>> merge-char-creator
 import haxe.ui.components.Button;
 import haxe.ui.containers.dialogs.Dialogs;
 import haxe.ui.containers.dialogs.Dialog.DialogButton;

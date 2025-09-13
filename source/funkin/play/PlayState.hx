@@ -35,12 +35,9 @@ import funkin.modding.events.ScriptEvent;
 import funkin.api.newgrounds.Events;
 import funkin.modding.events.ScriptEventDispatcher;
 import funkin.play.character.BaseCharacter;
-<<<<<<< HEAD
 import funkin.play.character.CharacterData.CharacterDataParser;
-=======
 import funkin.data.character.CharacterRegistry;
 import funkin.play.components.ComboMilestone;
->>>>>>> merge-char-creator
 import funkin.play.components.HealthIcon;
 import funkin.play.components.PopUpStuff;
 import funkin.play.cutscene.dialogue.Conversation;
@@ -1982,11 +1979,10 @@ class PlayState extends MusicBeatSubState
     //
     // GIRLFRIEND
     //
-<<<<<<< HEAD
+
     var girlfriend:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(currentCharacterData.girlfriend);
-=======
+
     var girlfriend:BaseCharacter = CharacterRegistry.fetchCharacter(currentCharacterData.girlfriend);
->>>>>>> merge-char-creator
 
     if (girlfriend != null)
     {
@@ -2004,11 +2000,10 @@ class PlayState extends MusicBeatSubState
     //
     // DAD
     //
-<<<<<<< HEAD
+
     var dad:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(currentCharacterData.opponent);
-=======
+
     var dad:BaseCharacter = CharacterRegistry.fetchCharacter(currentCharacterData.opponent);
->>>>>>> merge-char-creator
 
     if (dad != null)
     {
@@ -2031,11 +2026,10 @@ class PlayState extends MusicBeatSubState
     //
     // BOYFRIEND
     //
-<<<<<<< HEAD
+
     var boyfriend:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(currentCharacterData.player);
-=======
+
     var boyfriend:BaseCharacter = CharacterRegistry.fetchCharacter(currentCharacterData.player);
->>>>>>> merge-char-creator
 
     if (boyfriend != null)
     {

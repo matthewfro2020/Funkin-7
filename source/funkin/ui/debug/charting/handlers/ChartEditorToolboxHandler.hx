@@ -1,8 +1,6 @@
 package funkin.ui.debug.charting.handlers;
 
-<<<<<<< HEAD
 import funkin.play.character.BaseCharacter.CharacterType;
-=======
 import funkin.data.stage.StageData;
 import haxe.ui.components.HorizontalSlider;
 import haxe.ui.containers.TreeView;
@@ -15,7 +13,6 @@ import funkin.play.character.BaseCharacter.CharacterType;
 import funkin.play.event.SongEvent;
 import funkin.play.song.SongSerializer;
 import funkin.data.stage.StageData;
->>>>>>> merge-char-creator
 import haxe.ui.RuntimeComponentBuilder;
 import funkin.ui.haxeui.components.CharacterPlayer;
 import haxe.ui.components.CheckBox;

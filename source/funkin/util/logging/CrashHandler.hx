@@ -128,9 +128,9 @@ class CrashHandler
 
   static function buildCrashReport(message:String):String
   {
-    var fullContents:String = '=====================\n';
+    var fullContents:String = '\n';
     fullContents += ' Funkin Crash Report\n';
-    fullContents += '=====================\n';
+    fullContents += '\n';
 
     fullContents += '\n';
 
@@ -138,7 +138,7 @@ class CrashHandler
 
     fullContents += '\n\n';
 
-    fullContents += '=====================\n';
+    fullContents += '\n';
 
     fullContents += '\n';
 
@@ -156,7 +156,7 @@ class CrashHandler
 
     fullContents += '\n';
 
-    fullContents += '=====================\n';
+    fullContents += '\n';
 
     fullContents += '\n';
 
@@ -169,7 +169,7 @@ class CrashHandler
 
     fullContents += '\n';
 
-    fullContents += '=====================\n';
+    fullContents += '\n';
 
     fullContents += '\n';
 
@@ -189,7 +189,7 @@ class CrashHandler
 
     fullContents += '\n';
 
-    fullContents += '=====================\n';
+    fullContents += '\n';
 
     fullContents += '\n';
 
@@ -214,7 +214,7 @@ class CrashHandler
 
     fullContents += '\n';
 
-    fullContents += '=====================\n';
+    fullContents += '\n';
 
     fullContents += '\n';
 

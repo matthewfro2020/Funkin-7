@@ -15,12 +15,9 @@ import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import funkin.modding.events.ScriptEvent;
-<<<<<<< HEAD
 import funkin.play.character.CharacterData.CharacterRenderType;
 import flixel.util.FlxDirectionFlags;
-=======
 import funkin.data.character.CharacterData.CharacterRenderType;
->>>>>>> merge-char-creator
 import openfl.display.BitmapData;
 import openfl.display.BlendMode;
 

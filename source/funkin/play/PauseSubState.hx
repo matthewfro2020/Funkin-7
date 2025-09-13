@@ -44,9 +44,9 @@ typedef PauseSubStateParams =
  */
 class PauseSubState extends MusicBeatSubState
 {
-  // ===============
+  // =
   // Constants
-  // ===============
+  // =
 
   /**
    * Pause menu entries for when the game is paused during a song.
@@ -123,9 +123,9 @@ class PauseSubState extends MusicBeatSubState
     musicSuffix = '';
   }
 
-  // ===============
+  // =
   // Status Variables
-  // ===============
+  // =
 
   /**
    * Disallow input until transitions are complete!
@@ -151,9 +151,9 @@ class PauseSubState extends MusicBeatSubState
    */
   var currentMode:PauseMode;
 
-  // ===============
+  // =
   // Graphics Variables
-  // ===============
+  // =
 
   #if mobile
   /**
@@ -218,14 +218,14 @@ class PauseSubState extends MusicBeatSubState
    */
   var onPause:Void->Void;
 
-  // ===============
+  // =
   // Audio Variables
-  // ===============
+  // =
   var pauseMusic:FunkinSound;
 
-  // ===============
+  // =
   // Constructor
-  // ===============
+  // =
 
   public function new(?params:PauseSubStateParams, ?onPause:Void->Void)
   {
@@ -234,9 +234,9 @@ class PauseSubState extends MusicBeatSubState
     this.onPause = onPause;
   }
 
-  // ===============
+  // =
   // Lifecycle Functions
-  // ===============
+  // =
 
   /**
    * Called when the state is first loaded.
@@ -297,9 +297,9 @@ class PauseSubState extends MusicBeatSubState
     onPause = null;
   }
 
-  // ===============
+  // =
   // Initialization Functions
-  // ===============
+  // =
 
   /*#if FEATURE_MOBILE_ADVERTISEMENTS
     function onBannerEvent(event:extension.admob.AdmobEvent):Void
@@ -568,9 +568,9 @@ class PauseSubState extends MusicBeatSubState
     }
   }
 
-  // ===============
+  // =
   // Input Handling
-  // ===============
+  // =
   var fastOffset:Bool = false;
   var lastOffsetPress:Float = 0;
 
@@ -733,9 +733,9 @@ class PauseSubState extends MusicBeatSubState
     }
   }
 
-  // ===============
+  // =
   // Menu Functions
-  // ===============
+  // =
 
   /**
    * Clear the current menu entries and regenerate them based on the current mode.
@@ -869,9 +869,9 @@ class PauseSubState extends MusicBeatSubState
     }
   }
 
-  // ===============
+  // =
   // Metadata Functions
-  // ===============
+  // =
 
   /**
    * Update the values for the metadata text in the top right.
@@ -903,9 +903,9 @@ class PauseSubState extends MusicBeatSubState
     }
   }
 
-  // ===============
+  // =
   // Menu Callbacks
-  // ===============
+  // =
 
   /**
    * Close the pause menu and resume the game.

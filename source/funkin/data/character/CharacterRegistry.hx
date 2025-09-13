@@ -20,10 +20,10 @@ import funkin.util.VersionUtil;
 import haxe.Json;
 import flixel.graphics.frames.FlxFrame;
 
-<<<<<<< HEAD:source/funkin/play/character/CharacterData.hx
+:source/funkin/play/character/CharacterData.hx
 @:nullSafety
 class CharacterDataParser
-=======
+
 using funkin.data.character.migrator.CharacterDataMigrator;
 
 /**
@@ -384,9 +384,9 @@ class CharacterRegistry
   {
     var rawJson:JsonFile = loadCharacterFile(charId);
 
-<<<<<<< HEAD:source/funkin/play/character/CharacterData.hx
+:source/funkin/play/character/CharacterData.hx
     var charData:Null<CharacterData> = migrateCharacterData(rawJson, charId);
-=======
+
     var version = fetchEntryVersion(rawJson);
 >>>>>>> merge-char-creator:source/funkin/data/character/CharacterRegistry.hx
 

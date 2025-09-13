@@ -41,12 +41,9 @@ import funkin.input.TurboKeyHandler;
 import funkin.modding.events.ScriptEvent;
 import funkin.play.notes.notekind.NoteKindManager;
 import funkin.play.character.BaseCharacter.CharacterType;
-<<<<<<< HEAD
 import funkin.play.character.CharacterData.CharacterDataParser;
-=======
 import funkin.data.character.CharacterData;
 import funkin.data.character.CharacterRegistry;
->>>>>>> merge-char-creator
 import funkin.play.components.HealthIcon;
 import funkin.play.notes.NoteSprite;
 import funkin.play.PlayStatePlaylist;
@@ -131,7 +128,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * CONSTANTS
    */
-  // ==============================
+  // ==
   // Layouts
   public static final CHART_EDITOR_TOOLBOX_DIFFICULTY_LAYOUT:String = Paths.ui('chart-editor/toolbox/difficulty');
 
@@ -284,7 +281,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * INSTANCE DATA
    */
-  // ==============================
+  // ==
   // Song Length
 
   /**
@@ -1210,7 +1207,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * AUDIO AND SOUND DATA
    */
-  // ==============================
+  // ==
 
   /**
    * The chill audio track that plays in the chart editor.
@@ -1256,7 +1253,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * CHART DATA
    */
-  // ==============================
+  // ==
 
   /**
    * The song manifest data.
@@ -1753,7 +1750,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * HAXEUI COMPONENTS
    */
-  // ==============================
+  // ==
 
   /**
    * The layout containing the playbar.
@@ -2086,7 +2083,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * RENDER OBJECTS
    */
-  // ==============================
+  // ==
 
   /**
    * The group containing the visulizers! */
@@ -2229,7 +2226,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * LIFE CYCLE FUNCTIONS
    */
-  // ==============================
+  // ==
 
   /**
    * The params which were passed in when the Chart Editor was initialized.
@@ -3530,7 +3527,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * UPDATE HANDLERS
    */
-  // ====================
+  // ======
 
   /**
    * Handle syncronizing the conductor with the music playback.
@@ -6002,7 +5999,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * PLAYTEST FUNCTIONS
    */
-  // ====================
+  // ======
 
   /**
    * Transitions to the Play State to test the song
@@ -6096,7 +6093,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * COMMAND FUNCTIONS
    */
-  // ====================
+  // ======
 
   /**
    * Perform (or redo) a command, then add it to the undo stack.
@@ -6159,7 +6156,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * GRAPHICS FUNCTIONS
    */
-  // ====================
+  // ======
 
   /**
    * This is for the smaller green squares that appear over each note when you select them.
@@ -6190,7 +6187,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * AUDIO FUNCTIONS
    */
-  // ====================
+  // ======
 
   function startAudioPlayback():Void
   {
@@ -6249,7 +6246,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * CHART DATA FUNCTIONS
    */
-  // ====================
+  // ======
 
   function sortChartData():Void
   {
@@ -6425,7 +6422,7 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * SCROLLING FUNCTIONS
    */
-  // ====================
+  // ======
 
   /**
    * When setting the scroll position, except when automatically scrolling during song playback,
@@ -6528,12 +6525,12 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
   /**
    * HAXEUI FUNCTIONS
    */
-  // ==================
+  // ====
 
   /**
    * STATIC FUNCTIONS
    */
-  // ==================
+  // ====
 
   function handleNotePreview():Void
   {

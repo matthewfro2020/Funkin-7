@@ -29,7 +29,7 @@ class ChartEditorImportExportHandler
    */
   public static function loadSongAsTemplate(state:ChartEditorState, songId:String, targetSongDifficulty:String = null, targetSongVariation:String = null):Void
   {
-    trace('===============START');
+    trace('=START');
 
     var song:Null<Song> = SongRegistry.instance.fetchEntry(songId, {variation: targetSongVariation});
 
@@ -118,7 +118,7 @@ class ChartEditorImportExportHandler
       if (metadata.variation == state.selectedVariation) state.success('Success', 'Loaded song (${metadata.songName})');
     }
 
-    trace('===============END');
+    trace('=END');
   }
 
   /**

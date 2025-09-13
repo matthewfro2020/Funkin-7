@@ -1,14 +1,11 @@
 package funkin.ui.debug.charting.toolboxes;
 
 import funkin.play.character.BaseCharacter.CharacterType;
-<<<<<<< HEAD
 import funkin.play.character.CharacterData;
 import funkin.data.song.importer.ChartManifestData;
-=======
 import funkin.data.character.CharacterData;
 import funkin.data.character.CharacterRegistry;
 import funkin.data.stage.StageData;
->>>>>>> merge-char-creator
 import funkin.data.stage.StageRegistry;
 import funkin.data.notestyle.NoteStyleRegistry;
 import funkin.play.notes.notestyle.NoteStyle;

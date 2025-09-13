@@ -9,13 +9,10 @@ import funkin.data.song.SongData.SongMetadata;
 import funkin.data.song.SongData.SongTimeChange;
 import funkin.data.song.SongRegistry;
 import funkin.input.Cursor;
-<<<<<<< HEAD
 import funkin.play.character.BaseCharacter.CharacterType;
-=======
 import funkin.play.character.BaseCharacter;
 import funkin.play.song.Song;
 import funkin.data.stage.StageData;
->>>>>>> merge-char-creator
 import funkin.ui.debug.charting.dialogs.ChartEditorAboutDialog;
 import funkin.ui.debug.charting.dialogs.ChartEditorBaseDialog.DialogDropTarget;
 import funkin.ui.debug.charting.dialogs.ChartEditorCharacterIconSelectorMenu;
@@ -1329,17 +1326,15 @@ class ChartEditorDialogHandler
    */
   public static function openLeaveConfirmationDialog(state:ChartEditorState):Dialog
   {
-    var dialog:Null<Dialog> = Dialogs.messageBox("You are about to leave the editor without saving.\n\nAre you sure?", "Leave Editor", MessageBoxType.TYPE_YESNO, true,
-      function(button:DialogButton)
-      {
+    var dialog:Null<Dialog> = Dialogs.messageBox("You are about to leave the editor without saving.\n\nAre you sure?", "Leave Editor",
+      MessageBoxType.TYPE_YESNO, true, function(button:DialogButton) {
         state.isHaxeUIDialogOpen = false;
         if (button == DialogButton.YES)
         {
           state.autoSave();
           state.quitChartEditor();
         }
-      }
-    );
+    });
 
     dialog.destroyOnClose = true;
     state.isHaxeUIDialogOpen = true;
@@ -1377,9 +1372,9 @@ class ChartEditorDialogHandler
     return dialog;
   }
 
-  // ===============
+  // =
   //  DROP HANDLERS
-  // ===============
+  // =
   static var dropHandlers:Array<DialogDropTarget> = [];
 
   /**
